@@ -554,6 +554,21 @@ const STORAGE_KEY = "recipe_cost_utf8_v1";
 const ORDER_KEY = "recipe_cost_order_v1";
 const LEGACY_RECIPE_KEY = "rcd6";
 const LEGACY_ORDER_KEY = "order_data";
+const RESTORE_DATA_URL = "https://raw.githubusercontent.com/green-cloud-workroom/recipesss/main/recipesss-localstorage-recovered.json";
+
+if (new URLSearchParams(location.search).has("restoreData")) {
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const res = await fetch(RESTORE_DATA_URL + "?ts=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("restore data fetch failed");
+      const recovered = await res.json();
+      Object.entries(recovered.data || {}).forEach(([key, value]) => localStorage.setItem(key, value));
+      location.replace(location.pathname + "?restored=" + Date.now());
+    } catch (e) {
+      alert("복구에 실패했습니다: " + e.message);
+    }
+  });
+}
 
 let state = {
   products: [],
