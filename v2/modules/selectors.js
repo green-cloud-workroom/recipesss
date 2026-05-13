@@ -8,7 +8,7 @@
 //   - DOM 안 만짐.
 //   - 같은 입력엔 같은 출력.
 
-import { getDisplayProductName } from "./schema.js?v=20260513-alias-input-1";
+import { getDisplayProductName } from "./schema.js?v=20260513-alias-style-1";
 
 // 제품 + composition을 UI에 쓰기 좋은 형태로
 export function getProductView(state, productId) {

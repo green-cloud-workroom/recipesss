@@ -499,6 +499,33 @@
   .preset-line.selected .btn-icon { color: var(--accentText); border-color: rgba(255,255,255,0.3); }
   .preset-line .btn-icon { margin-left: auto; padding: 2px 6px; font-size: 10px; }
   .preset-line-name { flex: 1; font-size: 13px; }
+  .alias-table {
+    table-layout: fixed;
+  }
+  .alias-table th:first-child,
+  .alias-table td:first-child {
+    width: 34%;
+    min-width: 96px;
+    word-break: keep-all;
+  }
+  .alias-table th:nth-child(2),
+  .alias-table td:nth-child(2) {
+    width: auto;
+  }
+  .alias-table input.alias-input {
+    width: 100%;
+    min-width: 0;
+    border: 0.5px solid transparent;
+    background: transparent;
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 6px;
+  }
+  .alias-table input.alias-input:focus {
+    border-color: var(--border2);
+    background: var(--bg2);
+    outline: none;
+  }
   .order-compact { width: auto; }
   .order-compact th, .order-compact td { padding: 8px 10px; font-size: 12px; }
   .order-sup-col { width: 140px; }
@@ -623,7 +650,7 @@
           <span class="count-badge">미사용 항목은 삭제할 수 있습니다</span>
           <button class="btn btn-sm" id="clearUnusedSupplementsBtn">미사용 삭제</button>
         </div>
-        <table>
+        <table class="alias-table">
           <thead><tr><th>원래 이름</th><th>치환명</th><th style="width:58px"></th></tr></thead>
           <tbody id="supMapTable"></tbody>
         </table>
@@ -654,7 +681,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./modules/main.js?v=20260513-alias-input-1"></script>
+<script type="module" src="./modules/main.js?v=20260513-alias-style-1"></script>
 </body>
 </html>
 
