@@ -11,7 +11,7 @@
 //   - product의 row.id → ingredient.id 매핑 테이블이 결정적으로 중요
 //     (resultOptions.unitId가 row.id를 가리키고 있어서)
 
-import { createEmptyState, createIngredient, createProduct, createPreset } from "./schema.js?v=20260513-recipe-tree-open-1";
+import { createEmptyState, createIngredient, createProduct, createPreset } from "./schema.js?v=20260513-output-tables-1";
 
 // 종 접두어 추출. 화이트리스트.
 const SPECIES_PREFIX_RE = /^\((고양이|강아지)\)\s*/;

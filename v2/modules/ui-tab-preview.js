@@ -1,10 +1,9 @@
-// ui-tab-preview.js — 출력 탭 (v2.1)
-//
-// 변경: orderQuantities(부족 수량) → 선택된 프리셋들의 영양제 일람표.
-// 인쇄/공유용 깔끔한 형태. 프리셋별로 그룹화.
+// ui-tab-preview.js - printable output tables for selected order presets.
 
-import { getSelectedPresetsView } from "./selectors.js?v=20260513-recipe-tree-open-1";
-import { esc, fmt } from "./utils.js?v=20260513-recipe-tree-open-1";
+import { getSelectedPresetsView } from "./selectors.js?v=20260513-output-tables-1";
+import { esc, fmt } from "./utils.js?v=20260513-output-tables-1";
+
+const EGGSHELL_RE = /난각/;
 
 export function initPreviewTab(store) {
   const areaEl = document.getElementById("previewArea");
@@ -29,34 +28,134 @@ export function initPreviewTab(store) {
       return;
     }
 
-    const today = new Date().toLocaleDateString("ko-KR");
     areaEl.innerHTML = `
       <div class="preview-box">
-        <div class="preview-title">영양제 분배 목록</div>
-        <div class="preview-sub">${today} · ${views.length}개 프리셋</div>
-        ${views.map(v => `
-          <div class="preview-preset-block">
-            <div class="preview-preset-head">
-              <span class="badge">${esc(v.preset.code)}</span>
-              <span class="preview-preset-name">${esc(v.displayName)}</span>
-            </div>
-            ${v.supplements.length ? `
-              <table class="pv-table">
-                <thead><tr><th class="left">영양제</th><th>중량</th></tr></thead>
-                <tbody>
-                  ${v.supplements.map(s => `
-                    <tr>
-                      <td class="left">${esc(s.displayName)}${s.displayName !== s.name ? ` <span class="pv-sub">(${esc(s.name)})</span>` : ""}</td>
-                      <td>${fmt(s.scaledWeight)}g</td>
-                    </tr>`).join("")}
-                </tbody>
-              </table>
-            ` : '<div class="empty">영양제가 등록되어 있지 않습니다.</div>'}
-          </div>
-        `).join("")}
+        ${renderEggshellTable(views)}
+        ${renderGroupedSupplementTables(views)}
       </div>`;
   }
 
   render();
 }
 
+function renderEggshellTable(views) {
+  const rows = views
+    .map(view => {
+      const eggshell = view.supplements.find(s => EGGSHELL_RE.test(s.name));
+      if (!eggshell) return null;
+      return {
+        code: view.preset.code,
+        productName: getProductLabel(view.product),
+        supplementName: eggshell.displayName || eggshell.name,
+        weight: eggshell.scaledWeight
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.weight - a.weight || a.code.localeCompare(b.code));
+
+  if (!rows.length) return "";
+
+  return `
+    <table class="pv-table pv-output-table">
+      <thead>
+        <tr>
+          <th>코드</th>
+          <th>제품</th>
+          <th>영양제</th>
+          <th>중량</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            <td>${esc(row.code)}</td>
+            <td>${esc(row.productName)}</td>
+            <td>${esc(row.supplementName)}</td>
+            <td>${fmt(row.weight)}g</td>
+          </tr>`).join("")}
+      </tbody>
+    </table>`;
+}
+
+function renderGroupedSupplementTables(views) {
+  const groups = groupByCodePrefix(views);
+  return groups.map(group => {
+    const supplementRows = getDisplaySupplementRows(group.views);
+    if (!supplementRows.length) return "";
+    return `
+      <div class="preview-preset-block">
+        <div class="preview-group-name">${esc(group.name)}</div>
+        <table class="pv-table pv-output-table">
+          <thead>
+            <tr>
+              <th class="left">치환명</th>
+              ${group.views.map(view => `<th>${esc(view.preset.code)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${supplementRows.map(row => `
+              <tr>
+                <td class="left">${esc(row.displayName)}</td>
+                ${group.views.map(view => `<td>${formatWeight(row.weightsByPresetId[view.preset.id])}</td>`).join("")}
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }).join("");
+}
+
+function groupByCodePrefix(views) {
+  const map = new Map();
+  views.forEach(view => {
+    const prefix = getCodePrefix(view.preset.code);
+    if (!map.has(prefix)) map.set(prefix, []);
+    map.get(prefix).push(view);
+  });
+  return Array.from(map.entries())
+    .map(([name, groupViews]) => ({
+      name,
+      views: groupViews.slice().sort((a, b) => compareCodes(a.preset.code, b.preset.code))
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
+}
+
+function getDisplaySupplementRows(views) {
+  const rows = new Map();
+  views.forEach(view => {
+    view.supplements.forEach(s => {
+      if (EGGSHELL_RE.test(s.name)) return;
+      if (!hasAlias(s)) return;
+      const displayName = s.displayName || s.name;
+      if (!rows.has(displayName)) {
+        rows.set(displayName, { displayName, weightsByPresetId: {} });
+      }
+      rows.get(displayName).weightsByPresetId[view.preset.id] = s.scaledWeight;
+    });
+  });
+  return Array.from(rows.values()).sort((a, b) => a.displayName.localeCompare(b.displayName, "ko"));
+}
+
+function hasAlias(supplement) {
+  const raw = String(supplement.name || "").trim();
+  const display = String(supplement.displayName || "").trim();
+  return display && display !== raw;
+}
+
+function getCodePrefix(code) {
+  const match = String(code || "").trim().match(/^[A-Za-z]+/);
+  return match ? match[0].toUpperCase() : "기타";
+}
+
+function compareCodes(a, b) {
+  return String(a || "").localeCompare(String(b || ""), "ko", { numeric: true, sensitivity: "base" });
+}
+
+function formatWeight(value) {
+  return Number(value) > 0 ? `${fmt(value)}g` : "";
+}
+
+function getProductLabel(product) {
+  if (!product) return "";
+  const prefix = product.species === "cat" ? "(고양이)" : product.species === "dog" ? "(강아지)" : "";
+  return `${prefix}${product.name || ""}`;
+}

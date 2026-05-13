@@ -658,6 +658,15 @@
     margin-bottom: 8px;
   }
   .preview-preset-name { font-weight: 700; }
+  .preview-group-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #111;
+  }
+  .pv-output-table {
+    margin-bottom: 14px;
+  }
   .pv-sub { color: var(--text3); font-size: 11px; }
   .product-name-input {
     flex: 1; padding: 8px 10px; border: 0.5px solid var(--border);
@@ -775,8 +784,8 @@
     <div class="card">
       <div class="section-row">
         <div>
-          <div style="font-size:14px;font-weight:700">영양제 분배 목록</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:4px">발주 탭에서 선택한 프리셋들의 영양제 양을 보여줍니다.</div>
+          <div style="font-size:14px;font-weight:700">출력</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">발주 탭에서 선택한 프리셋 기준으로 출력합니다.</div>
         </div>
       </div>
       <div id="previewArea"></div>
@@ -787,7 +796,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./v2/modules/main.js?v=20260513-recipe-tree-open-1"></script>
+<script type="module" src="./v2/modules/main.js?v=20260513-output-tables-1"></script>
 </body>
 </html>
 

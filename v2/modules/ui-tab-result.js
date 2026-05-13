@@ -3,9 +3,9 @@
 // 책임: 제품 선택 → 환산 중량/원가 계산 카드, 프리셋 저장
 // 의존: store, selectors
 
-import { getProductList, getResultCardData } from "./selectors.js?v=20260513-recipe-tree-open-1";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-recipe-tree-open-1";
-import { toast } from "./ui-shell.js?v=20260513-recipe-tree-open-1";
+import { getProductList, getResultCardData } from "./selectors.js?v=20260513-output-tables-1";
+import { esc, fmt, fmtInt } from "./utils.js?v=20260513-output-tables-1";
+import { toast } from "./ui-shell.js?v=20260513-output-tables-1";
 
 export function initResultTab(store) {
   const chipsEl = document.getElementById("productChips");
