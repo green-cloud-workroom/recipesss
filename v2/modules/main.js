@@ -1,17 +1,18 @@
 // main.js - application bootstrap.
 
-import { loadV2, loadV1, saveState } from "./repository.js?v=20260513-firebase-sync-2";
-import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260513-firebase-sync-2";
-import { createEmptyState } from "./schema.js?v=20260513-firebase-sync-2";
-import { createStore } from "./store.js?v=20260513-firebase-sync-2";
-import { reducers } from "./actions.js?v=20260513-firebase-sync-2";
-import { initShell, toast } from "./ui-shell.js?v=20260513-firebase-sync-2";
-import { initRecipeTab } from "./ui-tab-recipe.js?v=20260513-firebase-sync-2";
-import { initPriceTab } from "./ui-tab-price.js?v=20260513-firebase-sync-2";
-import { initResultTab } from "./ui-tab-result.js?v=20260513-firebase-sync-2";
-import { initOrderTab } from "./ui-tab-order.js?v=20260513-firebase-sync-2";
-import { initPreviewTab } from "./ui-tab-preview.js?v=20260513-firebase-sync-2";
-import { initCloudSync, loadCloudState } from "./cloud-sync.js?v=20260513-firebase-sync-2";
+import { loadV2, loadV1, saveState } from "./repository.js?v=20260513-firebase-auth-1";
+import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260513-firebase-auth-1";
+import { createEmptyState } from "./schema.js?v=20260513-firebase-auth-1";
+import { createStore } from "./store.js?v=20260513-firebase-auth-1";
+import { reducers } from "./actions.js?v=20260513-firebase-auth-1";
+import { initShell, toast } from "./ui-shell.js?v=20260513-firebase-auth-1";
+import { initRecipeTab } from "./ui-tab-recipe.js?v=20260513-firebase-auth-1";
+import { initPriceTab } from "./ui-tab-price.js?v=20260513-firebase-auth-1";
+import { initResultTab } from "./ui-tab-result.js?v=20260513-firebase-auth-1";
+import { initOrderTab } from "./ui-tab-order.js?v=20260513-firebase-auth-1";
+import { initPreviewTab } from "./ui-tab-preview.js?v=20260513-firebase-auth-1";
+import { initCloudSync, loadCloudState } from "./cloud-sync.js?v=20260513-firebase-auth-1";
+import { initAuthControls, requireAuth } from "./auth-gate.js?v=20260513-firebase-auth-1";
 
 function loadInitialState() {
   const v2 = loadV2();
@@ -32,6 +33,8 @@ function loadInitialState() {
 }
 
 async function boot() {
+  await requireAuth();
+
   const local = loadInitialState();
   const cloud = await loadCloudState();
   let initial = local.state;
@@ -54,6 +57,7 @@ async function boot() {
   if (typeof window !== "undefined") window.__store = store;
 
   initShell(store);
+  initAuthControls();
   initRecipeTab(store);
   initPriceTab(store);
   initResultTab(store);

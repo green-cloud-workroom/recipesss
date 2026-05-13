@@ -1,6 +1,5 @@
 // cloud-sync.js - Firestore backed shared state.
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
   doc,
   getDoc,
@@ -11,14 +10,13 @@ import {
 import {
   FIREBASE_COLLECTION,
   FIREBASE_DOCUMENT_ID,
-  firebaseConfig,
   isFirebaseConfigured
-} from "./firebase-config.js?v=20260513-firebase-sync-2";
+} from "./firebase-config.js?v=20260513-firebase-auth-1";
+import { getFirebaseApp } from "./firebase-core.js?v=20260513-firebase-auth-1";
 
 const CLIENT_ID_KEY = "recipe_cost_v2_cloud_client_id";
 const SAVE_DEBOUNCE_MS = 900;
 
-let app = null;
 let db = null;
 let stateRef = null;
 let clientId = null;
@@ -83,8 +81,7 @@ export function initCloudSync(store, { shouldSeedCloud = false, toast = () => {}
 }
 
 function getStateDoc() {
-  if (!app) app = initializeApp(firebaseConfig);
-  if (!db) db = getFirestore(app);
+  if (!db) db = getFirestore(getFirebaseApp());
   if (!stateRef) stateRef = doc(db, FIREBASE_COLLECTION, FIREBASE_DOCUMENT_ID);
   return stateRef;
 }
