@@ -8,9 +8,9 @@
 //   - 텍스트/숫자 입력은 blur 시점에 dispatch → state만 갱신, DOM은 안 건드림.
 //   - 외부 액션 전에 활성 input을 blur로 flush.
 
-import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-alias-style-1";
-import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-alias-style-1";
-import { toast } from "./ui-shell.js?v=20260513-alias-style-1";
+import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-excel-multiblock-1";
+import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-excel-multiblock-1";
+import { toast } from "./ui-shell.js?v=20260513-excel-multiblock-1";
 
 export function initRecipeTab(store) {
   const listEl = document.getElementById("productList");
