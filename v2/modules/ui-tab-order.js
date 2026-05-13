@@ -6,21 +6,14 @@
 //   - 셀: 그램 수치만 표시. 부족 수량 input/라벨 제거.
 //   - 셀 padding 축소로 자동으로 좁아짐.
 
-import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-alias-sort-1";
-import { esc, fmt } from "./utils.js?v=20260513-alias-sort-1";
-import { toast } from "./ui-shell.js?v=20260513-alias-sort-1";
+import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-preset-group-select-1";
+import { esc, fmt } from "./utils.js?v=20260513-preset-group-select-1";
+import { toast } from "./ui-shell.js?v=20260513-preset-group-select-1";
 
 export function initOrderTab(store) {
   const presetGrid = document.getElementById("presetGrid");
   const supMapTable = document.getElementById("supMapTable");
   const orderArea = document.getElementById("orderArea");
-
-  document.getElementById("clearPresetsBtn")?.addEventListener("click", () => {
-    if (confirm("저장된 모든 프리셋을 초기화할까요?")) {
-      store.dispatch({ type: "CLEAR_ALL_PRESETS" });
-      toast("프리셋 초기화 완료");
-    }
-  });
 
   document.getElementById("generatePreviewBtn")?.addEventListener("click", () => {
     const selected = store.getState().ui.selectedPresetIds || [];
@@ -45,6 +38,23 @@ export function initOrderTab(store) {
 
   // 왼쪽 프리셋 카드 클릭 (선택 토글 또는 삭제)
   presetGrid.addEventListener("click", e => {
+    const groupBtn = e.target.closest("[data-action='toggle-product-presets']");
+    if (groupBtn) {
+      e.stopPropagation();
+      const state = store.getState();
+      const grouped = getPresetsByProduct(state);
+      const ids = (grouped[groupBtn.dataset.product] || []).map(preset => preset.id);
+      if (!ids.length) return;
+      const selected = new Set(state.ui.selectedPresetIds || []);
+      const allSelected = ids.every(id => selected.has(id));
+      ids.forEach(id => {
+        if (allSelected) selected.delete(id);
+        else selected.add(id);
+      });
+      store.dispatch({ type: "SET_SELECTED_PRESETS", presetIds: Array.from(selected) });
+      return;
+    }
+
     const removeBtn = e.target.closest("[data-action='remove-preset']");
     if (removeBtn) {
       e.stopPropagation();
@@ -132,7 +142,12 @@ export function initOrderTab(store) {
       const list = grouped[pid];
       return `
         <div class="preset-card">
-          <div class="preset-card-name"><span>${esc(product ? product.name : "?")}</span></div>
+          <div class="preset-card-name">
+            <span>${esc(product ? product.name : "?")}</span>
+            <button class="btn btn-sm" data-action="toggle-product-presets" data-product="${pid}">
+              ${list.every(preset => selectedSet.has(preset.id)) ? "선택 해제" : "전체 선택"}
+            </button>
+          </div>
           <div class="preset-lines">
             ${list.map(preset => {
               const sel = selectedSet.has(preset.id);

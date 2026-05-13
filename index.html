@@ -502,6 +502,9 @@
     font-weight: 700;
     margin-bottom: 8px;
   }
+  .preset-card-name .btn {
+    flex: 0 0 auto;
+  }
   .preset-lines { display: grid; gap: 6px; }
   .preset-line { display: flex; align-items: center; gap: 8px; font-size: 12px; }
   .order-product-row {
@@ -918,7 +921,6 @@
           <div class="slabel" style="margin:0">발주 프리셋</div>
           <div style="display:flex;gap:6px">
             <button class="btn btn-sm" id="selectAllPresetsBtn">전체 선택</button>
-            <button class="btn btn-sm" id="clearPresetsBtn">전체 초기화</button>
           </div>
         </div>
         <div class="info-box">프리셋을 클릭하면 오른쪽에 영양제 양이 표시됩니다.</div>
@@ -959,7 +961,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./v2/modules/main.js?v=20260513-alias-sort-1"></script>
+<script type="module" src="./v2/modules/main.js?v=20260513-preset-group-select-1"></script>
 </body>
 </html>
 
