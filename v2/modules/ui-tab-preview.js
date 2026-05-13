@@ -1,7 +1,7 @@
 // ui-tab-preview.js - A4 printable output views for selected order presets.
 
-import { getSelectedPresetsView } from "./selectors.js?v=20260513-hidden-supplements-1";
-import { esc, fmt } from "./utils.js?v=20260513-hidden-supplements-1";
+import { getSelectedPresetsView } from "./selectors.js?v=20260513-alias-sort-1";
+import { esc, fmt } from "./utils.js?v=20260513-alias-sort-1";
 
 const EGGSHELL_RE = /난각/;
 

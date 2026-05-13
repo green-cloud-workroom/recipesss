@@ -740,6 +740,10 @@
   .alias-table td:nth-child(2) {
     width: auto;
   }
+  .alias-table th:nth-child(3),
+  .alias-table td:nth-child(3) {
+    width: 118px;
+  }
   .alias-table input.alias-input {
     width: 100%;
     min-width: 0;
@@ -762,6 +766,8 @@
   }
   .alias-table .btn-icon {
     margin-left: 4px;
+    min-width: 42px;
+    white-space: nowrap;
   }
   .order-compact { width: 100%; }
   .order-compact th, .order-compact td { padding: 8px 10px; font-size: 12px; }
@@ -953,7 +959,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./modules/main.js?v=20260513-hidden-supplements-1"></script>
+<script type="module" src="./modules/main.js?v=20260513-alias-sort-1"></script>
 </body>
 </html>
 

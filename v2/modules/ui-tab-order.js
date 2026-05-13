@@ -6,9 +6,9 @@
 //   - 셀: 그램 수치만 표시. 부족 수량 input/라벨 제거.
 //   - 셀 padding 축소로 자동으로 좁아짐.
 
-import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-hidden-supplements-1";
-import { esc, fmt } from "./utils.js?v=20260513-hidden-supplements-1";
-import { toast } from "./ui-shell.js?v=20260513-hidden-supplements-1";
+import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-alias-sort-1";
+import { esc, fmt } from "./utils.js?v=20260513-alias-sort-1";
+import { toast } from "./ui-shell.js?v=20260513-alias-sort-1";
 
 export function initOrderTab(store) {
   const presetGrid = document.getElementById("presetGrid");
@@ -148,13 +148,17 @@ export function initOrderTab(store) {
     }).join("") : '<div class="empty">저장된 프리셋이 없습니다.</div>';
 
     // 영양제 치환명 표
-    const aliasRows = [];
-    Object.values(state.ingredients)
+    const aliasRows = Object.values(state.ingredients)
       .filter(ing => ing.kind === "supplement" && ing.name)
-      .forEach(ing => {
-        const used = isSupplementUsed(state, ing.id);
-        const hidden = Boolean(ing.hidden);
-        aliasRows.push(`
+      .map(ing => ({
+        ing,
+        used: isSupplementUsed(state, ing.id),
+        hidden: Boolean(ing.hidden),
+        alias: getAliasValue(ing)
+      }))
+      .sort(compareAliasRows)
+      .map(({ ing, used, hidden, alias }) => {
+        return `
           <tr class="${hidden ? "alias-row-hidden" : ""}">
             <td>${esc(ing.name)}${hidden ? ' <span class="orphan-badge">숨김</span>' : ""}${used ? "" : ' <span class="orphan-badge">미사용</span>'}</td>
             <td>
@@ -163,14 +167,14 @@ export function initOrderTab(store) {
                 class="alias-input"
                 data-field="supplement-display-name"
                 data-iid="${ing.id}"
-                value="${esc(ing.displayName || ing.name)}"
+                value="${esc(alias)}"
                 placeholder="${esc(ing.name)}">
             </td>
-            <td style="text-align:right;width:108px">
+            <td class="alias-actions">
               <button class="btn-icon" data-action="toggle-supplement-hidden" data-iid="${ing.id}" title="${hidden ? "보이기" : "숨김"}">${hidden ? "보이기" : "숨김"}</button>
               ${used ? "" : `<button class="btn-icon" data-action="remove-unused-supplement" data-iid="${ing.id}" data-name="${esc(ing.name)}" title="삭제">삭제</button>`}
             </td>
-          </tr>`);
+          </tr>`;
       });
     supMapTable.innerHTML = aliasRows.join("") || '<tr><td colspan="3" class="empty">영양제 치환명이 없습니다.</td></tr>';
 
@@ -247,5 +251,16 @@ function isSupplementUsed(state, ingredientId) {
 function getUnusedSupplements(state) {
   return Object.values(state.ingredients)
     .filter(ing => ing.kind === "supplement" && ing.name && !isSupplementUsed(state, ing.id));
+}
+
+function getAliasValue(ing) {
+  return String(ing.displayName || ing.aliases?.[0] || "").trim();
+}
+
+function compareAliasRows(a, b) {
+  if (a.hidden !== b.hidden) return a.hidden ? 1 : -1;
+  const aKey = a.alias || a.ing.name;
+  const bKey = b.alias || b.ing.name;
+  return aKey.localeCompare(bKey, "ko", { numeric: true, sensitivity: "base" });
 }
 
