@@ -1,8 +1,8 @@
-// ui-tab-result.js - left recipe tree and multiple open result cards.
+// ui-tab-result.js - result cards with saved preset reference chips.
 
-import { getProductList, getResultCardData } from "./selectors.js?v=20260513-result-global-supp-only-1";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-result-global-supp-only-1";
-import { toast } from "./ui-shell.js?v=20260513-result-global-supp-only-1";
+import { getProductList, getResultCardData } from "./selectors.js?v=20260513-result-preset-ref-1";
+import { esc, fmt, fmtInt } from "./utils.js?v=20260513-result-preset-ref-1";
+import { toast } from "./ui-shell.js?v=20260513-result-preset-ref-1";
 
 export function initResultTab(store) {
   const menuEl = document.getElementById("productChips");
@@ -38,9 +38,7 @@ export function initResultTab(store) {
     const target = e.target.closest("[data-action]");
     if (!target) return;
     flush();
-    if (target.dataset.action === "save-preset") {
-      savePreset(store, target.dataset.pid);
-    }
+    if (target.dataset.action === "save-preset") savePreset(store, target.dataset.pid);
     if (target.dataset.action === "close-result") {
       store.dispatch({ type: "TOGGLE_SELECTED_PRODUCT", productId: target.dataset.pid });
     }
@@ -48,14 +46,12 @@ export function initResultTab(store) {
 
   areaEl.addEventListener("change", e => {
     const target = e.target.closest("[data-change]");
-    if (!target) return;
-    handleChange(store, target);
+    if (target) handleChange(store, target);
   });
 
   areaEl.addEventListener("blur", e => {
     const target = e.target.closest("[data-blur]");
-    if (!target) return;
-    handleBlur(store, target);
+    if (target) handleBlur(store, target);
   }, true);
 
   supplementOnlyEl?.addEventListener("change", () => {
@@ -63,17 +59,13 @@ export function initResultTab(store) {
     render();
   });
 
-  const RERENDER_ON = [
+  [
     "TOGGLE_SELECTED_PRODUCT", "SET_SELECTED_PRODUCTS", "UPDATE_RESULT_OPTION",
-    "ADD_PRODUCT", "REMOVE_PRODUCT",
-    "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
-    "REPLACE_COMPOSITION_INGREDIENT",
-    "UPDATE_INGREDIENT", "UPDATE_COMPOSITION_ROW", "UPDATE_PRODUCT",
-    "UPDATE_PRICE", "ADD_PRESET",
-    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC",
-    "SET_ACTIVE_TAB"
-  ];
-  RERENDER_ON.forEach(type => store.subscribe(type, render));
+    "ADD_PRODUCT", "REMOVE_PRODUCT", "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
+    "REPLACE_COMPOSITION_INGREDIENT", "UPDATE_INGREDIENT", "UPDATE_COMPOSITION_ROW",
+    "UPDATE_PRODUCT", "UPDATE_PRICE", "ADD_PRESET", "REMOVE_PRESET", "CLEAR_ALL_PRESETS",
+    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC", "SET_ACTIVE_TAB"
+  ].forEach(type => store.subscribe(type, render));
 
   function render() {
     if (store.getState().ui.activeTab !== "result") return;
@@ -153,6 +145,7 @@ function renderCard(state, productId, supplementOnly) {
   const data = getResultCardData(stateForCard, productId);
   if (!data) return "";
   const { productView: pv, info, rows, totalWeight, totalCost, unitOptions, opt } = data;
+  const presetReference = renderPresetReference(state, productId);
 
   const unitCtrl = unitOptions.length ? `
     <div class="unit-ctrl">
@@ -187,6 +180,7 @@ function renderCard(state, productId, supplementOnly) {
         </div>
         ${unitCtrl}
       </div>
+      ${presetReference}
       <div class="result-actions">
         <input type="text"
           data-blur="result-preset-label" data-pid="${productId}"
@@ -201,7 +195,7 @@ function renderCard(state, productId, supplementOnly) {
         </table>
       </div>
       <div class="rcard-foot">
-        <div style="font-size:12px;color:var(--text2)">기준 중량에 맞춰 자동 계산됩니다.</div>
+        <div style="font-size:12px;color:var(--text2)">기준 중량에 맞춰 자동 계산합니다.</div>
         <div class="foot-item"><div class="foot-label">총 중량</div><div class="foot-val">${fmt(totalWeight)}g</div></div>
         <div class="foot-item"><div class="foot-label">총 원가</div><div class="foot-val">${fmtInt(totalCost)}원</div></div>
       </div>
@@ -216,35 +210,64 @@ function withSupplementOnly(state, productId, supplementOnly) {
       ...state.ui,
       resultOptions: {
         ...state.ui.resultOptions,
-        [productId]: {
-          ...current,
-          supplementOnly
-        }
+        [productId]: { ...current, supplementOnly }
       }
     }
   };
 }
 
+function renderPresetReference(state, productId) {
+  const labels = Object.values(state.presets || {})
+    .filter(preset => preset.productId === productId)
+    .map(preset => getPresetAmountOnly(state, preset))
+    .filter(Boolean)
+    .sort(comparePresetLabels);
+
+  if (!labels.length) return "";
+  const unique = Array.from(new Set(labels));
+  return `
+    <div class="preset-ref">
+      <span class="preset-ref-label">저장된 프리셋</span>
+      ${unique.map(label => `<span class="preset-ref-chip">${esc(label)}</span>`).join("")}
+    </div>`;
+}
+
+function getPresetAmountOnly(state, preset) {
+  if (Number(preset.inputAmount) > 0) return formatPresetAmount(preset.inputAmount);
+
+  const product = state.products[preset.productId];
+  const unitIngId = preset.unitIngredientId || product?.unitIngredientId;
+  const unitRow = product?.composition?.find(row => row.ingredientId === unitIngId);
+  if (product?.unitLabel && unitRow?.weight) return formatPresetAmount(preset.targetWeight / unitRow.weight);
+  if (preset.targetWeight >= 1000) return formatPresetAmount(preset.targetWeight / 1000);
+  return formatPresetAmount(preset.targetWeight);
+}
+
+function formatPresetAmount(value) {
+  const n = Number(value) || 0;
+  return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100);
+}
+
+function comparePresetLabels(a, b) {
+  const na = Number(a);
+  const nb = Number(b);
+  if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+  return String(a).localeCompare(String(b), "ko", { numeric: true });
+}
+
 function handleChange(store, target) {
-  const change = target.dataset.change;
-  const pid = target.dataset.pid;
-  switch (change) {
-    case "result-unit":
-      store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { unitIngredientId: target.value } });
-      break;
+  if (target.dataset.change === "result-unit") {
+    store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: target.dataset.pid, patch: { unitIngredientId: target.value } });
   }
 }
 
 function handleBlur(store, target) {
-  const blur = target.dataset.blur;
   const pid = target.dataset.pid;
-  switch (blur) {
-    case "result-weight":
-      store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { weight: target.value } });
-      break;
-    case "result-preset-label":
-      store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { presetLabel: target.value.trim() } });
-      break;
+  if (target.dataset.blur === "result-weight") {
+    store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { weight: target.value } });
+  }
+  if (target.dataset.blur === "result-preset-label") {
+    store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { presetLabel: target.value.trim() } });
   }
 }
 
@@ -252,12 +275,12 @@ function savePreset(store, productId) {
   const state = store.getState();
   const product = state.products[productId];
   if (!product || !product.name) {
-    toast("제품명을 먼저 입력해 주세요");
+    toast("제품명을 먼저 입력해 주세요.");
     return;
   }
   const data = getResultCardData(state, productId);
   if (!data || !data.info.hasInput || !data.info.targetWeight) {
-    toast("중량을 먼저 입력해 주세요");
+    toast("중량을 먼저 입력해 주세요.");
     return;
   }
   const opt = data.opt;
