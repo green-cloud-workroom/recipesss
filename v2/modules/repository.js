@@ -3,7 +3,7 @@
 // 책임: state를 localStorage에 안전하게 저장/로드, 스냅샷 자동 백업
 // 의존: schema.js
 
-import { SCHEMA_VERSION, createEmptyState, makeId } from "./schema.js?v=20260513-result-global-supp-only-1";
+import { SCHEMA_VERSION, createEmptyState, makeId } from "./schema.js?v=20260513-hidden-supplements-1";
 
 export const STORAGE_KEY = "recipe_cost_v2_state";
 export const SNAPSHOT_LIST_KEY = "recipe_cost_v2_snapshots";
@@ -19,9 +19,20 @@ export const LEGACY_KEYS = {
 function ensureV2Shape(state) {
   const empty = createEmptyState();
   if (!state) return empty;
+  const ingredients = {};
+  Object.entries(state.ingredients || {}).forEach(([id, ing]) => {
+    ingredients[id] = {
+      aliases: [],
+      displayName: "",
+      hidden: false,
+      ...ing,
+      hidden: Boolean(ing?.hidden)
+    };
+  });
   return {
     ...empty,
     ...state,
+    ingredients,
     meta: { ...empty.meta, ...(state.meta || {}) },
     ui: { ...empty.ui, ...(state.ui || {}) }
   };

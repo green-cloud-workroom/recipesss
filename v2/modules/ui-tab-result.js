@@ -1,8 +1,8 @@
 // ui-tab-result.js - result cards with saved preset reference chips.
 
-import { getProductList, getResultCardData } from "./selectors.js?v=20260513-preset-ref-spacing-1";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-preset-ref-spacing-1";
-import { toast } from "./ui-shell.js?v=20260513-preset-ref-spacing-1";
+import { getProductList, getResultCardData } from "./selectors.js?v=20260513-hidden-supplements-1";
+import { esc, fmt, fmtInt } from "./utils.js?v=20260513-hidden-supplements-1";
+import { toast } from "./ui-shell.js?v=20260513-hidden-supplements-1";
 
 export function initResultTab(store) {
   const menuEl = document.getElementById("productChips");

@@ -39,13 +39,14 @@ export function createEmptyState() {
   };
 }
 
-export function createIngredient({ name = "", kind = "ingredient", displayName = "", aliases = [] } = {}) {
+export function createIngredient({ name = "", kind = "ingredient", displayName = "", aliases = [], hidden = false } = {}) {
   return {
     id: makeId("ingredient"),
     name: String(name).trim(),
     kind: kind === "supplement" ? "supplement" : "ingredient",
     displayName: String(displayName).trim(),
-    aliases: Array.isArray(aliases) ? aliases.map(String) : []
+    aliases: Array.isArray(aliases) ? aliases.map(String) : [],
+    hidden: Boolean(hidden)
   };
 }
 

@@ -6,9 +6,9 @@
 //   - 셀: 그램 수치만 표시. 부족 수량 input/라벨 제거.
 //   - 셀 padding 축소로 자동으로 좁아짐.
 
-import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-result-global-supp-only-1";
-import { esc, fmt } from "./utils.js?v=20260513-result-global-supp-only-1";
-import { toast } from "./ui-shell.js?v=20260513-result-global-supp-only-1";
+import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-hidden-supplements-1";
+import { esc, fmt } from "./utils.js?v=20260513-hidden-supplements-1";
+import { toast } from "./ui-shell.js?v=20260513-hidden-supplements-1";
 
 export function initOrderTab(store) {
   const presetGrid = document.getElementById("presetGrid");
@@ -60,6 +60,18 @@ export function initOrderTab(store) {
   });
 
   supMapTable.addEventListener("click", e => {
+    const toggleBtn = e.target.closest("[data-action='toggle-supplement-hidden']");
+    if (toggleBtn) {
+      const ing = store.getState().ingredients[toggleBtn.dataset.iid];
+      if (!ing) return;
+      store.dispatch({
+        type: "UPDATE_INGREDIENT",
+        ingredientId: ing.id,
+        patch: { hidden: !ing.hidden }
+      });
+      return;
+    }
+
     const btn = e.target.closest("[data-action='remove-unused-supplement']");
     if (!btn) return;
     const name = btn.dataset.name || "이 항목";
@@ -107,7 +119,10 @@ export function initOrderTab(store) {
     if (store.getState().ui.activeTab !== "order") return;
     const state = store.getState();
     const grouped = getPresetsByProduct(state);
-    const productIds = Object.keys(grouped);
+    const productIds = [
+      ...(state.productOrder || []).filter(id => grouped[id]),
+      ...Object.keys(grouped).filter(id => !(state.productOrder || []).includes(id))
+    ];
     const selectedIds = state.ui.selectedPresetIds || [];
     const selectedSet = new Set(selectedIds);
 
@@ -138,9 +153,10 @@ export function initOrderTab(store) {
       .filter(ing => ing.kind === "supplement" && ing.name)
       .forEach(ing => {
         const used = isSupplementUsed(state, ing.id);
+        const hidden = Boolean(ing.hidden);
         aliasRows.push(`
-          <tr>
-            <td>${esc(ing.name)}${used ? "" : ' <span class="orphan-badge">미사용</span>'}</td>
+          <tr class="${hidden ? "alias-row-hidden" : ""}">
+            <td>${esc(ing.name)}${hidden ? ' <span class="orphan-badge">숨김</span>' : ""}${used ? "" : ' <span class="orphan-badge">미사용</span>'}</td>
             <td>
               <input
                 type="text"
@@ -150,7 +166,8 @@ export function initOrderTab(store) {
                 value="${esc(ing.displayName || ing.name)}"
                 placeholder="${esc(ing.name)}">
             </td>
-            <td style="text-align:right;width:58px">
+            <td style="text-align:right;width:108px">
+              <button class="btn-icon" data-action="toggle-supplement-hidden" data-iid="${ing.id}" title="${hidden ? "보이기" : "숨김"}">${hidden ? "보이기" : "숨김"}</button>
               ${used ? "" : `<button class="btn-icon" data-action="remove-unused-supplement" data-iid="${ing.id}" data-name="${esc(ing.name)}" title="삭제">삭제</button>`}
             </td>
           </tr>`);
@@ -182,7 +199,10 @@ export function initOrderTab(store) {
       if (!product) return "";
       const view = getProductView(state, pid);
       const presets = byProduct[pid];
-      const supplements = view.supplementRows.filter(r => r.name && r.weight > 0);
+      const supplements = view.supplementRows.filter(r => {
+        const ing = state.ingredients[r.ingredientId];
+        return r.name && r.weight > 0 && !ing?.hidden;
+      });
 
       return `
         <div class="order-product-row">

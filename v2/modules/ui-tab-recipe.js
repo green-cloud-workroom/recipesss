@@ -1,8 +1,8 @@
 // ui-tab-recipe.js - recipe tree on the left, independently opened recipe cards on the right.
 
-import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-result-global-supp-only-1";
-import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-result-global-supp-only-1";
-import { toast } from "./ui-shell.js?v=20260513-result-global-supp-only-1";
+import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-hidden-supplements-1";
+import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-hidden-supplements-1";
+import { toast } from "./ui-shell.js?v=20260513-hidden-supplements-1";
 
 export function initRecipeTab(store) {
   const listEl = document.getElementById("productList");

@@ -8,7 +8,7 @@
 //   - DOM 안 만짐.
 //   - 같은 입력엔 같은 출력.
 
-import { getDisplayProductName } from "./schema.js?v=20260513-result-global-supp-only-1";
+import { getDisplayProductName } from "./schema.js?v=20260513-hidden-supplements-1";
 
 // 제품 + composition을 UI에 쓰기 좋은 형태로
 export function getProductView(state, productId) {
@@ -241,7 +241,7 @@ export function getSelectedPresetsView(state) {
       const supplements = product.composition
         .map(row => {
           const ing = state.ingredients[row.ingredientId];
-          if (!ing || ing.kind !== "supplement" || !ing.name || !row.weight) return null;
+          if (!ing || ing.kind !== "supplement" || ing.hidden || !ing.name || !row.weight) return null;
           return {
             ingredientId: row.ingredientId,
             name: ing.name,
