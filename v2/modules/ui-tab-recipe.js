@@ -1,23 +1,18 @@
-// ui-tab-recipe.js — 레시피 탭
-//
-// 책임: 제품 목록 카드 렌더링, 인라인 편집, 행 추가/삭제
-// 의존: store, selectors, utils
-//
-// 렌더 전략:
-//   - fullRender: 카드 전체 재구성. 구조 변경 액션(제품/행 추가·삭제, 편집 모드 전환)에만 호출.
-//   - 텍스트/숫자 입력은 blur 시점에 dispatch → state만 갱신, DOM은 안 건드림.
-//   - 외부 액션 전에 활성 input을 blur로 flush.
+// ui-tab-recipe.js - recipe list, category rail, and inline editing.
 
-import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-excel-multiblock-1";
-import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-excel-multiblock-1";
-import { toast } from "./ui-shell.js?v=20260513-excel-multiblock-1";
+import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-recipe-categories-1";
+import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-recipe-categories-1";
+import { toast } from "./ui-shell.js?v=20260513-recipe-categories-1";
 
 export function initRecipeTab(store) {
   const listEl = document.getElementById("productList");
   const countEl = document.getElementById("productCount");
+  const filteredCountEl = document.getElementById("filteredProductCount");
+  const categoryListEl = document.getElementById("recipeCategoryList");
+  const categoryTitleEl = document.getElementById("recipeCategoryTitle");
   const addBtn = document.getElementById("addProductBtn");
+  let activeCategory = "all";
 
-  // 외부 액션 전 활성 input flush
   function flush() {
     if (document.activeElement && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) {
       document.activeElement.blur();
@@ -26,43 +21,57 @@ export function initRecipeTab(store) {
 
   addBtn.addEventListener("click", () => {
     flush();
+    activeCategory = "all";
     store.dispatch({ type: "ADD_PRODUCT" });
   });
 
-  // 이벤트 위임: 카드 안의 모든 동작
+  categoryListEl?.addEventListener("click", e => {
+    const target = e.target.closest("[data-category]");
+    if (!target) return;
+    activeCategory = target.dataset.category || "all";
+    render();
+  });
+
   listEl.addEventListener("click", e => {
     const target = e.target.closest("[data-action]");
     if (!target) return;
     flush();
-    handleClickAction(store, target, e);
+    handleClickAction(store, target);
   });
 
   listEl.addEventListener("change", e => {
     const target = e.target.closest("[data-change]");
     if (!target) return;
-    handleChangeAction(store, target, e);
+    handleChangeAction(store, target);
   });
 
-  // blur는 capture로 잡아야 (blur는 버블 안 됨)
   listEl.addEventListener("blur", e => {
     const target = e.target.closest("[data-blur]");
     if (!target) return;
-    handleBlurAction(store, target, e);
+    handleBlurAction(store, target);
   }, true);
 
-  // 구조 변경 액션에만 fullRender
-  const RERENDER_ON = [
-    "ADD_PRODUCT", "REMOVE_PRODUCT", "SET_EDITING_PRODUCT",
+  [
+    "ADD_PRODUCT", "REMOVE_PRODUCT", "UPDATE_PRODUCT", "SET_EDITING_PRODUCT",
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
     "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT"
-  ];
-  RERENDER_ON.forEach(type => store.subscribe(type, render));
+  ].forEach(type => store.subscribe(type, render));
 
   function render() {
     const state = store.getState();
     const products = getProductList(state);
+    const categories = buildCategories(products);
+    if (!categories.some(category => category.id === activeCategory && category.count > 0)) {
+      activeCategory = "all";
+    }
+
+    const active = categories.find(category => category.id === activeCategory) || categories[0];
+    const visibleProducts = products.filter(product => matchesCategory(product, activeCategory));
     countEl.textContent = products.length;
+    if (filteredCountEl) filteredCountEl.textContent = visibleProducts.length;
+    if (categoryTitleEl) categoryTitleEl.textContent = active?.title || "전체 레시피";
+    if (categoryListEl) categoryListEl.innerHTML = categories.map(category => renderCategory(category, activeCategory)).join("");
 
     if (!products.length) {
       listEl.className = "";
@@ -70,11 +79,45 @@ export function initRecipeTab(store) {
       return;
     }
 
+    if (!visibleProducts.length) {
+      listEl.className = "";
+      listEl.innerHTML = '<div class="empty">이 카테고리에 표시할 레시피가 없습니다.</div>';
+      return;
+    }
+
     listEl.className = "product-list";
-    listEl.innerHTML = products.map(p => renderCard(p, state.ui.editingProductId === p.id)).join("");
+    listEl.innerHTML = visibleProducts.map(p => renderCard(p, state.ui.editingProductId === p.id)).join("");
   }
 
-  render(); // 초기
+  render();
+}
+
+function buildCategories(products) {
+  const categories = [
+    { id: "all", title: "전체 레시피", label: "전체", count: products.length },
+    { id: "cat", title: "고양이 레시피", label: "고양이", count: products.filter(product => product.species === "cat").length },
+    { id: "dog", title: "강아지 레시피", label: "강아지", count: products.filter(product => product.species === "dog").length },
+    { id: "common", title: "공용/기타 레시피", label: "공용/기타", count: products.filter(product => !product.species).length },
+    { id: "frozen", title: "동결 레시피", label: "동결", count: products.filter(product => /동결/.test(product.name || product.displayName || "")).length }
+  ];
+  return categories.filter(category => category.id === "all" || category.count > 0);
+}
+
+function matchesCategory(product, category) {
+  if (category === "all") return true;
+  if (category === "cat") return product.species === "cat";
+  if (category === "dog") return product.species === "dog";
+  if (category === "common") return !product.species;
+  if (category === "frozen") return /동결/.test(product.name || product.displayName || "");
+  return true;
+}
+
+function renderCategory(category, activeCategory) {
+  return `
+    <button class="recipe-category ${category.id === activeCategory ? "active" : ""}" data-category="${category.id}">
+      <span class="recipe-category-name">${esc(category.label)}</span>
+      <span class="recipe-category-count">${category.count}</span>
+    </button>`;
 }
 
 function renderCard(product, isEditing) {
@@ -106,7 +149,7 @@ function renderHeaderEdit(product) {
       </select>
       <input type="text" class="product-name-input"
         data-blur="product-name" data-pid="${product.id}"
-        value="${esc(product.name)}" placeholder="제품명 (접두어 빼고)">
+        value="${esc(product.name)}" placeholder="제품명(접두어 빼고)">
     </div>`;
 }
 
@@ -126,9 +169,7 @@ function renderRowTable(product, kind) {
   const rows = kind === "ingredient" ? product.ingredientRows : product.supplementRows;
   const isIng = kind === "ingredient";
 
-  if (!rows.length) {
-    return `<div class="empty-row">행이 없습니다.</div>`;
-  }
+  if (!rows.length) return '<div class="empty-row">행이 없습니다.</div>';
 
   return `
     <table>
@@ -149,8 +190,6 @@ function renderRowTable(product, kind) {
 }
 
 function renderRow(productId, row, kind) {
-  // 행 식별: product.composition 배열 내 index. 그러나 ingredientRows는 filter된 결과라
-  // 원본 composition 내 실제 index를 찾으려면 selector에서 같이 줘야 한다. row.index 사용.
   const wt = displayWeight(row.weight, row.unit);
   const wtAttr = wt === "" ? "" : `value="${wt}"`;
   const cellName = `
@@ -178,13 +217,13 @@ function renderRow(productId, row, kind) {
       <input type="checkbox" data-change="row-is-unit" data-pid="${productId}" data-idx="${row.index}"
         ${row.isUnit ? "checked" : ""}>
     </td>` : "";
-  const cellRemove = `
-    <td><button class="btn-icon" data-action="remove-row" data-pid="${productId}" data-idx="${row.index}" title="삭제">✕</button></td>`;
   const cellUnitName = kind === "ingredient" ? `
     <td><input type="text"
         data-blur="row-unit-name" data-pid="${productId}" data-idx="${row.index}"
         value="${esc(row.isUnit ? (row.unitName || "") : "")}"
         placeholder="${row.isUnit ? "마리/개 등" : ""}" ${row.isUnit ? "" : "disabled"}></td>` : "";
+  const cellRemove = `
+    <td><button class="btn-icon" data-action="remove-row" data-pid="${productId}" data-idx="${row.index}" title="삭제">×</button></td>`;
 
   return `<tr>
     ${cellName}
@@ -196,9 +235,7 @@ function renderRow(productId, row, kind) {
   </tr>`;
 }
 
-// ===== 이벤트 핸들러 =====
-
-function handleClickAction(store, target, _event) {
+function handleClickAction(store, target) {
   const action = target.dataset.action;
   const pid = target.dataset.pid;
   const idx = target.dataset.idx ? parseInt(target.dataset.idx, 10) : null;
@@ -226,7 +263,7 @@ function handleClickAction(store, target, _event) {
   }
 }
 
-function handleChangeAction(store, target, _event) {
+function handleChangeAction(store, target) {
   const action = target.dataset.change;
   const pid = target.dataset.pid;
   const idx = target.dataset.idx ? parseInt(target.dataset.idx, 10) : null;
@@ -235,30 +272,25 @@ function handleChangeAction(store, target, _event) {
     case "species":
       store.dispatch({ type: "UPDATE_PRODUCT", productId: pid, patch: { species: target.value || null } });
       break;
-    case "row-unit": {
+    case "row-unit":
       store.dispatch({ type: "UPDATE_COMPOSITION_ROW", productId: pid, index: idx, patch: { unit: target.value } });
       break;
-    }
     case "row-is-unit": {
       const product = store.getState().products[pid];
       if (!product) return;
       const row = product.composition[idx];
       if (!row) return;
       if (target.checked) {
-        // 이 ingredient를 unitIngredientId로 설정
         store.dispatch({ type: "UPDATE_PRODUCT", productId: pid, patch: { unitIngredientId: row.ingredientId } });
-      } else {
-        // 해제: 같은 ingredient를 가리키고 있으면 클리어
-        if (product.unitIngredientId === row.ingredientId) {
-          store.dispatch({ type: "UPDATE_PRODUCT", productId: pid, patch: { unitIngredientId: "", unitLabel: "" } });
-        }
+      } else if (product.unitIngredientId === row.ingredientId) {
+        store.dispatch({ type: "UPDATE_PRODUCT", productId: pid, patch: { unitIngredientId: "", unitLabel: "" } });
       }
       break;
     }
   }
 }
 
-function handleBlurAction(store, target, _event) {
+function handleBlurAction(store, target) {
   const action = target.dataset.blur;
   const pid = target.dataset.pid;
   const idx = target.dataset.idx ? parseInt(target.dataset.idx, 10) : null;
@@ -269,10 +301,6 @@ function handleBlurAction(store, target, _event) {
       store.dispatch({ type: "UPDATE_PRODUCT", productId: pid, patch: { name: value.trim() } });
       break;
     case "row-name": {
-      // 이름이 바뀌면 ingredient를 어떻게 처리할지 결정:
-      //   1) 같은 kind에 같은 이름의 기존 ingredient가 있으면 → 그 ingredient로 교체 (머지)
-      //   2) 없으면 → 현재 ingredient의 name을 rename
-      // 단순화: 다른 제품에서 같은 ingredient를 쓰고 있어도 rename으로 동기화. 의도된 동작.
       const state = store.getState();
       const product = state.products[pid];
       if (!product) return;
@@ -310,11 +338,8 @@ function handleBlurAction(store, target, _event) {
       store.dispatch({ type: "UPDATE_COMPOSITION_ROW", productId: pid, index: idx, patch: { weight: newWeight } });
       break;
     }
-    case "row-unit-name": {
-      // unitLabel은 product 레벨 (현재 모델). 첫 번째 unit ingredient에만 의미 있음.
+    case "row-unit-name":
       store.dispatch({ type: "UPDATE_PRODUCT", productId: pid, patch: { unitLabel: value.trim() } });
       break;
-    }
   }
 }
-

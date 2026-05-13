@@ -3,7 +3,7 @@
 // 책임: state를 localStorage에 안전하게 저장/로드, 스냅샷 자동 백업
 // 의존: schema.js
 
-import { SCHEMA_VERSION, createEmptyState, makeId } from "./schema.js?v=20260513-excel-multiblock-1";
+import { SCHEMA_VERSION, createEmptyState, makeId } from "./schema.js?v=20260513-recipe-categories-1";
 
 export const STORAGE_KEY = "recipe_cost_v2_state";
 export const SNAPSHOT_LIST_KEY = "recipe_cost_v2_snapshots";
