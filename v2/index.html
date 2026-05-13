@@ -149,14 +149,25 @@
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr);
     gap: 14px;
-    align-items: start;
+    align-items: stretch;
+    overflow: hidden;
   }
+  #tab-recipe .recipe-layout { height: calc(100vh - 250px); }
+  #tab-result .recipe-layout { height: calc(100vh - 190px); }
   .recipe-sidebar {
-    position: sticky;
-    top: 92px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+  }
+  .recipe-layout > section {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
   }
   .recipe-menu-actions {
     display: grid;
@@ -584,7 +595,10 @@
   @media (max-width: 720px) {
     .tab-bar { grid-template-columns: 1fr; }
     .recipe-layout { grid-template-columns: 1fr; }
-    .recipe-sidebar { position: static; }
+    #tab-recipe .recipe-layout,
+    #tab-result .recipe-layout { height: auto; overflow: visible; }
+    .recipe-sidebar,
+    .recipe-layout > section { overflow: visible; padding-right: 0; }
     .product-list { grid-template-columns: 1fr; }
     .grand-grid { grid-template-columns: 1fr; }
     .app-header { padding: 14px 16px; }
@@ -879,7 +893,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./modules/main.js?v=20260513-result-global-supp-only-1"></script>
+<script type="module" src="./modules/main.js?v=20260513-split-scroll-1"></script>
 </body>
 </html>
 
