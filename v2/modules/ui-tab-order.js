@@ -6,9 +6,9 @@
 //   - 셀: 그램 수치만 표시. 부족 수량 input/라벨 제거.
 //   - 셀 padding 축소로 자동으로 좁아짐.
 
-import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-output-tables-1";
-import { esc, fmt } from "./utils.js?v=20260513-output-tables-1";
-import { toast } from "./ui-shell.js?v=20260513-output-tables-1";
+import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-print-output-tabs-1";
+import { esc, fmt } from "./utils.js?v=20260513-print-output-tabs-1";
+import { toast } from "./ui-shell.js?v=20260513-print-output-tabs-1";
 
 export function initOrderTab(store) {
   const presetGrid = document.getElementById("presetGrid");
