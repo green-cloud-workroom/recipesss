@@ -11,6 +11,15 @@ export function initPriceTab(store) {
   const supTbody = document.getElementById("supplementPriceTable");
   const ingEmpty = document.getElementById("ingredientPriceEmpty");
   const supEmpty = document.getElementById("supplementPriceEmpty");
+  const hideUnusedToggle = document.getElementById("hideUnusedPrices");
+
+  let hideUnused = Boolean(localStorage.getItem("recipe_cost_v2_hide_unused_prices") === "1");
+  if (hideUnusedToggle) hideUnusedToggle.checked = hideUnused;
+  hideUnusedToggle?.addEventListener("change", () => {
+    hideUnused = hideUnusedToggle.checked;
+    localStorage.setItem("recipe_cost_v2_hide_unused_prices", hideUnused ? "1" : "0");
+    render();
+  });
 
   // 가격 input blur 시 dispatch
   document.getElementById("tab-price").addEventListener("blur", e => {
@@ -42,7 +51,7 @@ export function initPriceTab(store) {
 
   function render() {
     if (store.getState().ui.activeTab !== "price") return;
-    const groups = getPriceTableView(store.getState());
+    const groups = getPriceTableView(store.getState(), { hideUnused });
     renderGroup(ingTbody, ingEmpty, groups.ingredient, "원료");
     renderGroup(supTbody, supEmpty, groups.supplement, "영양제");
   }

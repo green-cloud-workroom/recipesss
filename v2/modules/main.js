@@ -8,7 +8,7 @@
 //   5. 각 UI 모듈 초기화
 
 import { loadV2, loadV1, saveState } from "./repository.js";
-import { migrateV1toV2 } from "./migrations.js";
+import { migrateV1toV2, normalizeV2State } from "./migrations.js";
 import { createEmptyState } from "./schema.js";
 import { createStore } from "./store.js";
 import { reducers } from "./actions.js";
@@ -24,7 +24,12 @@ function loadInitialState() {
   const v2 = loadV2();
   if (v2) {
     console.log("[main] v2 state 로드됨");
-    return { state: v2, migrated: false };
+    const normalized = normalizeV2State(v2);
+    if (normalized.changed) {
+      saveState(normalized.state);
+      console.log("[main] v2 state 정리 완료");
+    }
+    return { state: normalized.state, migrated: false };
   }
 
   // 2. v1 마이그레이션 시도

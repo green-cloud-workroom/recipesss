@@ -134,9 +134,10 @@ export function migrateV1toV2(v1Data) {
       };
     });
 
-    // 어디에도 매칭 안 됨 → orphan ingredient로 보존 (kind 기본 ingredient)
+    // 어디에도 매칭 안 됨 → 단가 전용 orphan으로 보존.
+    // 영양제 성격이 뚜렷한 이름은 supplement로 분류해 단가 탭 위치를 맞춘다.
     if (!matched) {
-      const ing = reg.resolve(cleanName, "ingredient", null);
+      const ing = reg.resolve(cleanName, inferOrphanPriceKind(cleanName), null);
       if (ing) {
         next.prices[ing.id] = {
           unit: Number(priceRow.unit) || 0,
@@ -211,6 +212,66 @@ export function migrateV1toV2(v1Data) {
   });
 
   return next;
+}
+
+export function normalizeV2State(state) {
+  if (!state || !state.ingredients || !state.products) {
+    return { state, changed: false };
+  }
+
+  let changed = false;
+  const ingredients = { ...state.ingredients };
+  const prices = { ...state.prices };
+
+  Object.values(state.ingredients).forEach(ing => {
+    if (!ing || ing.kind !== "ingredient") return;
+    if (countIngredientUsage(state, ing.id) > 0) return;
+    if (!prices[ing.id]) return;
+    if (inferOrphanPriceKind(ing.name) !== "supplement") return;
+
+    const duplicate = Object.values(ingredients).find(other =>
+      other.id !== ing.id &&
+      other.kind === "supplement" &&
+      other.name === ing.name
+    );
+
+    if (duplicate) {
+      if (!prices[duplicate.id]) prices[duplicate.id] = prices[ing.id];
+      delete prices[ing.id];
+      delete ingredients[ing.id];
+    } else {
+      ingredients[ing.id] = { ...ing, kind: "supplement" };
+    }
+    changed = true;
+  });
+
+  if (!changed) return { state, changed: false };
+  return {
+    state: {
+      ...state,
+      ingredients,
+      prices
+    },
+    changed: true
+  };
+}
+
+function countIngredientUsage(state, ingredientId) {
+  let count = 0;
+  Object.values(state.products || {}).forEach(product => {
+    if ((product.composition || []).some(row => row.ingredientId === ingredientId)) count += 1;
+  });
+  return count;
+}
+
+function inferOrphanPriceKind(name) {
+  const clean = String(name || "").trim();
+  if (!clean) return "ingredient";
+  if (/^(Sa|Mii|Cha|H)$/i.test(clean)) return "supplement";
+  if (/(비타민|아연|철|구리|망간|마그네슘|칼슘|킬레이트|토코페롤|켈프|요오드|난각|멸치가루|차전차피|미역가루|홍삼|소금|파우더|D3)/i.test(clean)) {
+    return "supplement";
+  }
+  return "ingredient";
 }
 
 function autoCode(productName, index) {

@@ -51,13 +51,14 @@ export function getProductList(state) {
 }
 
 // 단가 탭용: 사용되는 모든 ingredient (kind별로 그룹화)
-export function getPriceTableView(state) {
+export function getPriceTableView(state, { hideUnused = false } = {}) {
   // 모든 마스터 ingredient를 보여줌 (orphan 단가도 포함). 단가 입력 가능.
   const groups = { ingredient: [], supplement: [] };
   Object.values(state.ingredients).forEach(ing => {
     if (!ing.name) return; // 이름 없는 빈 행은 안 보여줌
     const price = state.prices[ing.id] || { unit: 0, price: 0 };
     const usageCount = countIngredientUsage(state, ing.id);
+    if (hideUnused && usageCount === 0) return;
     groups[ing.kind].push({
       id: ing.id,
       name: ing.name,
