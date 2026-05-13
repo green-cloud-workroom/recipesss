@@ -818,7 +818,13 @@
       <section>
         <div class="recipe-main-head">
           <div class="recipe-main-title">결과</div>
-          <span class="count-badge"><span id="selectedResultCount">0</span>개 열림</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+            <label class="count-badge" style="cursor:pointer">
+              <input type="checkbox" id="resultSupplementOnly" style="width:14px;height:14px;accent-color:var(--accent)">
+              영양제만 보기
+            </label>
+            <span class="count-badge"><span id="selectedResultCount">0</span>개 열림</span>
+          </div>
         </div>
         <div id="resultArea"></div>
       </section>
@@ -873,7 +879,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./modules/main.js?v=20260513-result-tree-1"></script>
+<script type="module" src="./modules/main.js?v=20260513-result-global-supp-only-1"></script>
 </body>
 </html>
 

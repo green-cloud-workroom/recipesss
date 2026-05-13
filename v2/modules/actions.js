@@ -9,8 +9,8 @@
 //   - action은 { type, ...payload } 형태
 //   - reducer 이름 = action.type (대문자 스네이크)
 
-import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-result-tree-1";
-import { loadSnapshot } from "./repository.js?v=20260513-result-tree-1";
+import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-result-global-supp-only-1";
+import { loadSnapshot } from "./repository.js?v=20260513-result-global-supp-only-1";
 
 // 헬퍼: composition에서 ingredient 사용 여부
 function isIngredientUsedAnywhere(state, ingredientId, excludeProductId = null) {

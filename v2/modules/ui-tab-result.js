@@ -1,13 +1,15 @@
 // ui-tab-result.js - left recipe tree and multiple open result cards.
 
-import { getProductList, getResultCardData } from "./selectors.js?v=20260513-result-tree-1";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-result-tree-1";
-import { toast } from "./ui-shell.js?v=20260513-result-tree-1";
+import { getProductList, getResultCardData } from "./selectors.js?v=20260513-result-global-supp-only-1";
+import { esc, fmt, fmtInt } from "./utils.js?v=20260513-result-global-supp-only-1";
+import { toast } from "./ui-shell.js?v=20260513-result-global-supp-only-1";
 
 export function initResultTab(store) {
   const menuEl = document.getElementById("productChips");
   const areaEl = document.getElementById("resultArea");
   const selectedCountEl = document.getElementById("selectedResultCount");
+  const supplementOnlyEl = document.getElementById("resultSupplementOnly");
+  let supplementOnly = false;
 
   function flush() {
     if (document.activeElement && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) {
@@ -56,6 +58,11 @@ export function initResultTab(store) {
     handleBlur(store, target);
   }, true);
 
+  supplementOnlyEl?.addEventListener("change", () => {
+    supplementOnly = supplementOnlyEl.checked;
+    render();
+  });
+
   const RERENDER_ON = [
     "TOGGLE_SELECTED_PRODUCT", "SET_SELECTED_PRODUCTS", "UPDATE_RESULT_OPTION",
     "ADD_PRODUCT", "REMOVE_PRODUCT",
@@ -81,6 +88,7 @@ export function initResultTab(store) {
     }
 
     if (selectedCountEl) selectedCountEl.textContent = selectedIds.length;
+    if (supplementOnlyEl) supplementOnlyEl.checked = supplementOnly;
     menuEl.innerHTML = products.length
       ? renderProductMenu(products, new Set(selectedIds))
       : '<div class="empty">등록된 제품이 없습니다.</div>';
@@ -93,7 +101,7 @@ export function initResultTab(store) {
 
     areaEl.className = "result-grid";
     areaEl.innerHTML = selectedIds
-      .map(pid => renderCard(state, pid))
+      .map(pid => renderCard(state, pid, supplementOnly))
       .filter(Boolean)
       .join("");
   }
@@ -140,8 +148,9 @@ function renderMenuProduct(product, isSelected) {
     </button>`;
 }
 
-function renderCard(state, productId) {
-  const data = getResultCardData(state, productId);
+function renderCard(state, productId, supplementOnly) {
+  const stateForCard = withSupplementOnly(state, productId, supplementOnly);
+  const data = getResultCardData(stateForCard, productId);
   if (!data) return "";
   const { productView: pv, info, rows, totalWeight, totalCost, unitOptions, opt } = data;
 
@@ -185,11 +194,6 @@ function renderCard(state, productId) {
           style="max-width:180px;border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg2);color:var(--text)">
         <button class="btn btn-primary" data-action="save-preset" data-pid="${productId}">프리셋 저장</button>
       </div>
-      <div style="padding:0 18px 10px;display:flex;align-items:center;gap:8px">
-        <input type="checkbox" id="suponly-${productId}"
-          data-change="result-sup-only" data-pid="${productId}" ${opt.supplementOnly ? "checked" : ""}>
-        <label for="suponly-${productId}" style="font-size:12px;color:var(--text2)">영양제만 보기</label>
-      </div>
       <div class="rcard-body">
         <table>
           <thead><tr><th>항목</th><th style="text-align:right">중량</th><th style="text-align:right">원가</th></tr></thead>
@@ -204,15 +208,29 @@ function renderCard(state, productId) {
     </div>`;
 }
 
+function withSupplementOnly(state, productId, supplementOnly) {
+  const current = state.ui.resultOptions[productId] || {};
+  return {
+    ...state,
+    ui: {
+      ...state.ui,
+      resultOptions: {
+        ...state.ui.resultOptions,
+        [productId]: {
+          ...current,
+          supplementOnly
+        }
+      }
+    }
+  };
+}
+
 function handleChange(store, target) {
   const change = target.dataset.change;
   const pid = target.dataset.pid;
   switch (change) {
     case "result-unit":
       store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { unitIngredientId: target.value } });
-      break;
-    case "result-sup-only":
-      store.dispatch({ type: "UPDATE_RESULT_OPTION", productId: pid, patch: { supplementOnly: target.checked } });
       break;
   }
 }
