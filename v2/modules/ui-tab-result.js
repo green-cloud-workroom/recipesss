@@ -1,15 +1,13 @@
-// ui-tab-result.js — 결과 탭
-//
-// 책임: 제품 선택 → 환산 중량/원가 계산 카드, 프리셋 저장
-// 의존: store, selectors
+// ui-tab-result.js - left recipe tree and multiple open result cards.
 
-import { getProductList, getResultCardData } from "./selectors.js?v=20260513-print-output-tabs-1";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-print-output-tabs-1";
-import { toast } from "./ui-shell.js?v=20260513-print-output-tabs-1";
+import { getProductList, getResultCardData } from "./selectors.js?v=20260513-result-tree-1";
+import { esc, fmt, fmtInt } from "./utils.js?v=20260513-result-tree-1";
+import { toast } from "./ui-shell.js?v=20260513-result-tree-1";
 
 export function initResultTab(store) {
-  const chipsEl = document.getElementById("productChips");
+  const menuEl = document.getElementById("productChips");
   const areaEl = document.getElementById("resultArea");
+  const selectedCountEl = document.getElementById("selectedResultCount");
 
   function flush() {
     if (document.activeElement && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) {
@@ -17,21 +15,32 @@ export function initResultTab(store) {
     }
   }
 
-  // chip 클릭
-  chipsEl.addEventListener("click", e => {
-    const chip = e.target.closest("[data-pid]");
-    if (!chip) return;
-    flush();
-    store.dispatch({ type: "TOGGLE_SELECTED_PRODUCT", productId: chip.dataset.pid });
+  menuEl.addEventListener("click", e => {
+    const productBtn = e.target.closest("[data-pid]");
+    if (productBtn) {
+      flush();
+      store.dispatch({ type: "TOGGLE_SELECTED_PRODUCT", productId: productBtn.dataset.pid });
+      return;
+    }
+
+    const actionBtn = e.target.closest("[data-menu-action]");
+    if (!actionBtn) return;
+    const productIds = getProductList(store.getState()).filter(p => p.name).map(p => p.id);
+    store.dispatch({
+      type: "SET_SELECTED_PRODUCTS",
+      productIds: actionBtn.dataset.menuAction === "open-all" ? productIds : []
+    });
   });
 
-  // 결과 카드 안 이벤트
   areaEl.addEventListener("click", e => {
     const target = e.target.closest("[data-action]");
     if (!target) return;
     flush();
     if (target.dataset.action === "save-preset") {
       savePreset(store, target.dataset.pid);
+    }
+    if (target.dataset.action === "close-result") {
+      store.dispatch({ type: "TOGGLE_SELECTED_PRODUCT", productId: target.dataset.pid });
     }
   });
 
@@ -48,7 +57,7 @@ export function initResultTab(store) {
   }, true);
 
   const RERENDER_ON = [
-    "TOGGLE_SELECTED_PRODUCT", "UPDATE_RESULT_OPTION",
+    "TOGGLE_SELECTED_PRODUCT", "SET_SELECTED_PRODUCTS", "UPDATE_RESULT_OPTION",
     "ADD_PRODUCT", "REMOVE_PRODUCT",
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
@@ -63,27 +72,72 @@ export function initResultTab(store) {
     if (store.getState().ui.activeTab !== "result") return;
     const state = store.getState();
     const products = getProductList(state).filter(p => p.name);
+    const validIds = new Set(products.map(p => p.id));
+    const selectedIds = (state.ui.selectedProductIds || []).filter(id => validIds.has(id));
 
-    chipsEl.innerHTML = products.length
-      ? products.map(p => `
-          <button class="chip ${state.ui.selectedProductIds.includes(p.id) ? "selected" : ""}" data-pid="${p.id}">
-            ${esc(p.displayName)}
-          </button>`).join("")
-      : '<span class="empty" style="display:block;width:100%">등록된 제품이 없습니다.</span>';
-
-    if (!state.ui.selectedProductIds.length) {
-      areaEl.innerHTML = "";
+    if (selectedIds.length !== (state.ui.selectedProductIds || []).length) {
+      store.dispatch({ type: "SET_SELECTED_PRODUCTS", productIds: selectedIds });
       return;
     }
 
-    areaEl.innerHTML = `<div class="result-grid">${
-      state.ui.selectedProductIds
-        .map(pid => renderCard(state, pid))
-        .filter(Boolean).join("")
-    }</div>`;
+    if (selectedCountEl) selectedCountEl.textContent = selectedIds.length;
+    menuEl.innerHTML = products.length
+      ? renderProductMenu(products, new Set(selectedIds))
+      : '<div class="empty">등록된 제품이 없습니다.</div>';
+
+    if (!selectedIds.length) {
+      areaEl.className = "";
+      areaEl.innerHTML = '<div class="empty">왼쪽 레시피 목록에서 결과를 볼 제품을 선택해 주세요.</div>';
+      return;
+    }
+
+    areaEl.className = "result-grid";
+    areaEl.innerHTML = selectedIds
+      .map(pid => renderCard(state, pid))
+      .filter(Boolean)
+      .join("");
   }
 
   render();
+}
+
+function renderProductMenu(products, selectedIds) {
+  const groups = buildMenuGroups(products);
+  return `
+    <div class="recipe-menu-actions">
+      <button class="btn btn-sm" data-menu-action="open-all">전체 열기</button>
+      <button class="btn btn-sm" data-menu-action="close-all">전체 닫기</button>
+    </div>
+    ${groups.map(group => `
+      <section class="recipe-menu-section">
+        <div class="recipe-menu-heading">
+          <span>${esc(group.label)}</span>
+          <span>${group.products.length}</span>
+        </div>
+        <div class="recipe-menu-items">
+          ${group.products.map(product => renderMenuProduct(product, selectedIds.has(product.id))).join("")}
+        </div>
+      </section>
+    `).join("")}`;
+}
+
+function buildMenuGroups(products) {
+  const groups = [
+    { label: "고양이", products: products.filter(product => product.species === "cat") },
+    { label: "강아지", products: products.filter(product => product.species === "dog") },
+    { label: "공용/기타", products: products.filter(product => !product.species) }
+  ];
+  return groups.filter(group => group.products.length);
+}
+
+function renderMenuProduct(product, isSelected) {
+  const title = product.displayName || "이름 없는 제품";
+  const frozenTag = /동결/.test(product.name || product.displayName || "") ? '<span class="recipe-menu-tag">동결</span>' : "";
+  return `
+    <button class="recipe-menu-item ${isSelected ? "active" : ""}" data-pid="${product.id}">
+      <span class="recipe-menu-name">${esc(title)}</span>
+      ${frozenTag}
+    </button>`;
 }
 
 function renderCard(state, productId) {
@@ -105,7 +159,7 @@ function renderCard(state, productId) {
           value="${esc(opt.weight || "")}" placeholder="0" min="0" step="0.1">
         <span>${esc(info.inputUnitLabel || info.unitRow?.unit || "g")}</span>
       </div>
-      <span class="ratio-badge">${info.hasInput ? `× ${fmt(info.ratio)}` : "× -"}</span>
+      <span class="ratio-badge">${info.hasInput ? `x ${fmt(info.ratio)}` : "x -"}</span>
     </div>` : `<div style="font-size:12px;color:var(--text3)">생산단위 원료를 먼저 체크해 주세요.</div>`;
 
   const bodyRows = rows.length ? rows.map(r => `
@@ -118,7 +172,10 @@ function renderCard(state, productId) {
   return `
     <div class="rcard">
       <div class="rcard-head">
-        <div class="rcard-name">${esc(pv.displayName)}</div>
+        <div class="rcard-title-row">
+          <div class="rcard-name">${esc(pv.displayName)}</div>
+          <button class="btn btn-sm" data-action="close-result" data-pid="${productId}">닫기</button>
+        </div>
         ${unitCtrl}
       </div>
       <div class="result-actions">
@@ -197,4 +254,3 @@ function savePreset(store, productId) {
   });
   toast("프리셋 저장 완료");
 }
-

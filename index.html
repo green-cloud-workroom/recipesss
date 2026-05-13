@@ -346,6 +346,14 @@
   .rcard { overflow: hidden; }
   .rcard-head { padding: 14px 18px 12px; border-bottom: 0.5px solid var(--border); }
   .rcard-name { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rcard-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .rcard-title-row .rcard-name { margin-bottom: 0; }
   .unit-ctrl {
     display: flex;
     flex-wrap: wrap;
@@ -805,11 +813,16 @@
   </div>
 
   <div id="tab-result" class="hidden">
-    <div class="card">
-      <div class="slabel" style="margin-top:0">제품 선택</div>
-      <div id="productChips" class="chip-row"></div>
+    <div class="recipe-layout">
+      <aside class="recipe-sidebar" id="productChips"></aside>
+      <section>
+        <div class="recipe-main-head">
+          <div class="recipe-main-title">결과</div>
+          <span class="count-badge"><span id="selectedResultCount">0</span>개 열림</span>
+        </div>
+        <div id="resultArea"></div>
+      </section>
     </div>
-    <div id="resultArea"></div>
   </div>
 
   <div id="tab-order" class="hidden">
@@ -860,7 +873,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./v2/modules/main.js?v=20260513-print-output-tabs-1"></script>
+<script type="module" src="./v2/modules/main.js?v=20260513-result-tree-1"></script>
 </body>
 </html>
 

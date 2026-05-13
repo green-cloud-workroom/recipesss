@@ -9,8 +9,8 @@
 //   - action은 { type, ...payload } 형태
 //   - reducer 이름 = action.type (대문자 스네이크)
 
-import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-print-output-tabs-1";
-import { loadSnapshot } from "./repository.js?v=20260513-print-output-tabs-1";
+import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-result-tree-1";
+import { loadSnapshot } from "./repository.js?v=20260513-result-tree-1";
 
 // 헬퍼: composition에서 ingredient 사용 여부
 function isIngredientUsedAnywhere(state, ingredientId, excludeProductId = null) {
@@ -249,6 +249,11 @@ export const reducers = {
       : [...state.ui.selectedProductIds, productId];
     return { ...state, ui: { ...state.ui, selectedProductIds: next } };
   },
+
+  SET_SELECTED_PRODUCTS: (state, { productIds }) => ({
+    ...state,
+    ui: { ...state.ui, selectedProductIds: Array.isArray(productIds) ? productIds.slice() : [] }
+  }),
 
   UPDATE_RESULT_OPTION: (state, { productId, patch }) => {
     const current = state.ui.resultOptions[productId] || {
