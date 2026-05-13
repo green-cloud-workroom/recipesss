@@ -44,7 +44,7 @@ export function initPriceTab(store) {
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
     "UPDATE_INGREDIENT", // 이름 변경 시
-    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT",
+    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC",
     "SET_ACTIVE_TAB"
   ];
   RERENDER_ON.forEach(type => store.subscribe(type, render));

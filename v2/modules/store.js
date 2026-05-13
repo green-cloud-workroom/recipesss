@@ -31,9 +31,14 @@ export function createStore(reducers, initialState = null) {
     return state;
   }
 
-  function setState(newState, { save = true } = {}) {
+  function setState(newState, { save = true, action = { type: "SET_STATE" }, emitChange = true } = {}) {
+    const prev = state;
     state = newState;
     if (save) saveState(state);
+    if (emitChange) {
+      emit(action.type, { action, state, prev });
+      emit("change", { action, state, prev });
+    }
   }
 
   function dispatch(action) {

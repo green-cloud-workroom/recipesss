@@ -70,7 +70,7 @@ export function initResultTab(store) {
     "REPLACE_COMPOSITION_INGREDIENT",
     "UPDATE_INGREDIENT", "UPDATE_COMPOSITION_ROW", "UPDATE_PRODUCT",
     "UPDATE_PRICE", "ADD_PRESET",
-    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT",
+    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC",
     "SET_ACTIVE_TAB"
   ];
   RERENDER_ON.forEach(type => store.subscribe(type, render));

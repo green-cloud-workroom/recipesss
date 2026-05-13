@@ -98,7 +98,7 @@ export function initOrderTab(store) {
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
     "ADD_PRODUCT", "REMOVE_PRODUCT",
-    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT",
+    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC",
     "SET_ACTIVE_TAB"
   ];
   RERENDER_ON.forEach(type => store.subscribe(type, render));

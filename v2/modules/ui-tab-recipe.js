@@ -72,7 +72,7 @@ export function initRecipeTab(store) {
     "ADD_PRODUCT", "REMOVE_PRODUCT", "UPDATE_PRODUCT",
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
-    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT"
+    "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC"
   ].forEach(type => store.subscribe(type, render));
 
   function render() {
