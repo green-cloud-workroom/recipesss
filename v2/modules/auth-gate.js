@@ -6,8 +6,8 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { isFirebaseConfigured } from "./firebase-config.js?v=20260513-firebase-auth-1";
-import { getFirebaseApp } from "./firebase-core.js?v=20260513-firebase-auth-1";
+import { isFirebaseConfigured } from "./firebase-config.js?v=20260513-scroll-auth-rules-1";
+import { getFirebaseApp } from "./firebase-core.js?v=20260513-scroll-auth-rules-1";
 
 let auth = null;
 
