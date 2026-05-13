@@ -11,8 +11,8 @@ import {
   FIREBASE_COLLECTION,
   FIREBASE_DOCUMENT_ID,
   isFirebaseConfigured
-} from "./firebase-config.js?v=20260513-result-preset-ref-1";
-import { getFirebaseApp } from "./firebase-core.js?v=20260513-result-preset-ref-1";
+} from "./firebase-config.js?v=20260513-preset-ref-spacing-1";
+import { getFirebaseApp } from "./firebase-core.js?v=20260513-preset-ref-spacing-1";
 
 const CLIENT_ID_KEY = "recipe_cost_v2_cloud_client_id";
 const SAVE_DEBOUNCE_MS = 900;
