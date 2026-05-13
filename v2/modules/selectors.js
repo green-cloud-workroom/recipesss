@@ -97,13 +97,16 @@ export function getRatioInfo(state, productId) {
 
   const unitRow = product.composition.find(r => r.ingredientId === unitIngId);
   if (!unitRow || !unitRow.weight) return { ratio: 1, targetWeight: 0, unitRow: null, hasInput: false };
+  const unitLabel = product.unitIngredientId === unitIngId ? String(product.unitLabel || "").trim() : "";
 
   const raw = parseFloat(opt.weight) || 0;
-  if (raw <= 0) return { ratio: 1, targetWeight: 0, unitRow, hasInput: false };
+  if (raw <= 0) return { ratio: 1, targetWeight: 0, unitRow, unitLabel, inputUnitLabel: unitLabel || unitRow.unit || "g", hasInput: false };
 
-  const targetWeight = unitRow.unit === "kg" ? raw * 1000 : raw;
+  const targetWeight = unitLabel
+    ? raw * unitRow.weight
+    : unitRow.unit === "kg" ? raw * 1000 : raw;
   const ratio = targetWeight / unitRow.weight;
-  return { ratio, targetWeight, unitRow, hasInput: true };
+  return { ratio, targetWeight, unitRow, unitLabel, inputUnitLabel: unitLabel || unitRow.unit || "g", hasInput: true };
 }
 
 // 결과 카드용: 환산된 행 + 원가
@@ -141,7 +144,7 @@ export function getResultCardData(state, productId) {
   // 사용 가능한 생산단위 후보
   const unitOptions = view.ingredientRows
     .filter(r => r.weight > 0 && r.isUnit)
-    .map(r => ({ ingredientId: r.ingredientId, name: r.name, weight: r.weight, unit: r.unit }));
+    .map(r => ({ ingredientId: r.ingredientId, name: r.name, weight: r.weight, unit: r.unit, unitName: r.unitName || "" }));
   // 만약 isUnit으로 지정된 게 없으면 빈 배열 → UI에서 "생산단위 지정 필요" 안내
 
   return {

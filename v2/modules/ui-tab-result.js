@@ -96,14 +96,14 @@ function renderCard(state, productId) {
       <select class="unit-select" data-change="result-unit" data-pid="${productId}">
         ${unitOptions.map(u => `
           <option value="${u.ingredientId}" ${u.ingredientId === (opt.unitIngredientId || pv.unitIngredientId) ? "selected" : ""}>
-            ${esc(u.name)} 기준 ${fmt(u.weight)}g
+            ${esc(u.name)} 기준 ${fmt(u.weight)}g${u.unitName ? `/${esc(u.unitName)}` : ""}
           </option>`).join("")}
       </select>
       <div class="unit-input-wrap">
         <input class="unit-weight-input" type="number"
           data-blur="result-weight" data-pid="${productId}"
           value="${esc(opt.weight || "")}" placeholder="0" min="0" step="0.1">
-        <span>${esc(info.unitRow?.unit || "g")}</span>
+        <span>${esc(info.inputUnitLabel || info.unitRow?.unit || "g")}</span>
       </div>
       <span class="ratio-badge">${info.hasInput ? `× ${fmt(info.ratio)}` : "× -"}</span>
     </div>` : `<div style="font-size:12px;color:var(--text3)">생산단위 원료를 먼저 체크해 주세요.</div>`;
