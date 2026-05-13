@@ -619,8 +619,12 @@
         <div class="info-box">프리셋을 클릭하면 오른쪽에 영양제 양이 표시됩니다.</div>
         <div id="presetGrid" class="preset-grid"></div>
         <div class="slabel">영양제 치환명</div>
+        <div class="section-row" style="margin-bottom:8px">
+          <span class="count-badge">미사용 항목은 삭제할 수 있습니다</span>
+          <button class="btn btn-sm" id="clearUnusedSupplementsBtn">미사용 삭제</button>
+        </div>
         <table>
-          <thead><tr><th>원래 이름</th><th>치환명</th></tr></thead>
+          <thead><tr><th>원래 이름</th><th>치환명</th><th style="width:58px"></th></tr></thead>
           <tbody id="supMapTable"></tbody>
         </table>
       </div>
@@ -650,7 +654,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./modules/main.js?v=20260513-preset-display-1"></script>
+<script type="module" src="./modules/main.js?v=20260513-unused-sup-cleanup-1"></script>
 </body>
 </html>
 

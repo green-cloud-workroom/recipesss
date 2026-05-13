@@ -9,8 +9,8 @@
 //   - action은 { type, ...payload } 형태
 //   - reducer 이름 = action.type (대문자 스네이크)
 
-import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-preset-display-1";
-import { loadSnapshot } from "./repository.js?v=20260513-preset-display-1";
+import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-unused-sup-cleanup-1";
+import { loadSnapshot } from "./repository.js?v=20260513-unused-sup-cleanup-1";
 
 // 헬퍼: composition에서 ingredient 사용 여부
 function isIngredientUsedAnywhere(state, ingredientId, excludeProductId = null) {
@@ -212,6 +212,34 @@ export const reducers = {
       }
     }
   }),
+
+  REMOVE_UNUSED_SUPPLEMENT: (state, { ingredientId }) => {
+    const ing = state.ingredients[ingredientId];
+    if (!ing || ing.kind !== "supplement") return state;
+    if (isIngredientUsedAnywhere(state, ingredientId)) return state;
+
+    const { [ingredientId]: _removedIng, ...ingredients } = state.ingredients;
+    const { [ingredientId]: _removedPrice, ...prices } = state.prices;
+    return { ...state, ingredients, prices };
+  },
+
+  REMOVE_ALL_UNUSED_SUPPLEMENTS: (state) => {
+    const unusedIds = Object.values(state.ingredients)
+      .filter(ing => ing.kind === "supplement" && !isIngredientUsedAnywhere(state, ing.id))
+      .map(ing => ing.id);
+    if (!unusedIds.length) return state;
+
+    const unusedSet = new Set(unusedIds);
+    const ingredients = {};
+    Object.entries(state.ingredients).forEach(([id, ing]) => {
+      if (!unusedSet.has(id)) ingredients[id] = ing;
+    });
+    const prices = {};
+    Object.entries(state.prices).forEach(([id, price]) => {
+      if (!unusedSet.has(id)) prices[id] = price;
+    });
+    return { ...state, ingredients, prices };
+  },
 
   // ===== 결과/선택 =====
   TOGGLE_SELECTED_PRODUCT: (state, { productId }) => {

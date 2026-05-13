@@ -7,17 +7,17 @@
 //   4. store 생성
 //   5. 각 UI 모듈 초기화
 
-import { loadV2, loadV1, saveState } from "./repository.js?v=20260513-preset-display-1";
-import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260513-preset-display-1";
-import { createEmptyState } from "./schema.js?v=20260513-preset-display-1";
-import { createStore } from "./store.js?v=20260513-preset-display-1";
-import { reducers } from "./actions.js?v=20260513-preset-display-1";
-import { initShell, toast } from "./ui-shell.js?v=20260513-preset-display-1";
-import { initRecipeTab } from "./ui-tab-recipe.js?v=20260513-preset-display-1";
-import { initPriceTab } from "./ui-tab-price.js?v=20260513-preset-display-1";
-import { initResultTab } from "./ui-tab-result.js?v=20260513-preset-display-1";
-import { initOrderTab } from "./ui-tab-order.js?v=20260513-preset-display-1";
-import { initPreviewTab } from "./ui-tab-preview.js?v=20260513-preset-display-1";
+import { loadV2, loadV1, saveState } from "./repository.js?v=20260513-unused-sup-cleanup-1";
+import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260513-unused-sup-cleanup-1";
+import { createEmptyState } from "./schema.js?v=20260513-unused-sup-cleanup-1";
+import { createStore } from "./store.js?v=20260513-unused-sup-cleanup-1";
+import { reducers } from "./actions.js?v=20260513-unused-sup-cleanup-1";
+import { initShell, toast } from "./ui-shell.js?v=20260513-unused-sup-cleanup-1";
+import { initRecipeTab } from "./ui-tab-recipe.js?v=20260513-unused-sup-cleanup-1";
+import { initPriceTab } from "./ui-tab-price.js?v=20260513-unused-sup-cleanup-1";
+import { initResultTab } from "./ui-tab-result.js?v=20260513-unused-sup-cleanup-1";
+import { initOrderTab } from "./ui-tab-order.js?v=20260513-unused-sup-cleanup-1";
+import { initPreviewTab } from "./ui-tab-preview.js?v=20260513-unused-sup-cleanup-1";
 
 function loadInitialState() {
   // 1. v2 우선

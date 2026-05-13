@@ -6,9 +6,9 @@
 //   - 셀: 그램 수치만 표시. 부족 수량 input/라벨 제거.
 //   - 셀 padding 축소로 자동으로 좁아짐.
 
-import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-preset-display-1";
-import { esc, fmt } from "./utils.js?v=20260513-preset-display-1";
-import { toast } from "./ui-shell.js?v=20260513-preset-display-1";
+import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-unused-sup-cleanup-1";
+import { esc, fmt } from "./utils.js?v=20260513-unused-sup-cleanup-1";
+import { toast } from "./ui-shell.js?v=20260513-unused-sup-cleanup-1";
 
 export function initOrderTab(store) {
   const presetGrid = document.getElementById("presetGrid");
@@ -31,6 +31,18 @@ export function initOrderTab(store) {
     store.dispatch({ type: "SET_ACTIVE_TAB", tab: "preview" });
   });
 
+  document.getElementById("clearUnusedSupplementsBtn")?.addEventListener("click", () => {
+    const unused = getUnusedSupplements(store.getState());
+    if (!unused.length) {
+      toast("삭제할 미사용 영양제가 없습니다");
+      return;
+    }
+    if (confirm(`미사용 영양제 ${unused.length}개와 해당 단가를 삭제할까요?`)) {
+      store.dispatch({ type: "REMOVE_ALL_UNUSED_SUPPLEMENTS" });
+      toast(`미사용 영양제 ${unused.length}개 삭제 완료`);
+    }
+  });
+
   // 왼쪽 프리셋 카드 클릭 (선택 토글 또는 삭제)
   presetGrid.addEventListener("click", e => {
     const removeBtn = e.target.closest("[data-action='remove-preset']");
@@ -44,6 +56,16 @@ export function initOrderTab(store) {
     const line = e.target.closest("[data-preset]");
     if (line && line.dataset.preset) {
       store.dispatch({ type: "TOGGLE_SELECTED_PRESET", presetId: line.dataset.preset });
+    }
+  });
+
+  supMapTable.addEventListener("click", e => {
+    const btn = e.target.closest("[data-action='remove-unused-supplement']");
+    if (!btn) return;
+    const name = btn.dataset.name || "이 항목";
+    if (confirm(`미사용 영양제 "${name}"을 삭제할까요? 해당 단가도 함께 삭제됩니다.`)) {
+      store.dispatch({ type: "REMOVE_UNUSED_SUPPLEMENT", ingredientId: btn.dataset.iid });
+      toast("미사용 영양제 삭제 완료");
     }
   });
 
@@ -61,6 +83,7 @@ export function initOrderTab(store) {
   const RERENDER_ON = [
     "ADD_PRESET", "REMOVE_PRESET", "CLEAR_ALL_PRESETS",
     "TOGGLE_SELECTED_PRESET", "SET_SELECTED_PRESETS",
+    "REMOVE_UNUSED_SUPPLEMENT", "REMOVE_ALL_UNUSED_SUPPLEMENTS",
     "UPDATE_INGREDIENT", "UPDATE_COMPOSITION_ROW", "UPDATE_PRODUCT",
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
@@ -104,9 +127,17 @@ export function initOrderTab(store) {
     Object.values(state.ingredients)
       .filter(ing => ing.kind === "supplement" && ing.name)
       .forEach(ing => {
-        aliasRows.push(`<tr><td>${esc(ing.name)}</td><td>${esc(ing.displayName || ing.name)}</td></tr>`);
+        const used = isSupplementUsed(state, ing.id);
+        aliasRows.push(`
+          <tr>
+            <td>${esc(ing.name)}${used ? "" : ' <span class="orphan-badge">미사용</span>'}</td>
+            <td>${esc(ing.displayName || ing.name)}</td>
+            <td style="text-align:right;width:58px">
+              ${used ? "" : `<button class="btn-icon" data-action="remove-unused-supplement" data-iid="${ing.id}" data-name="${esc(ing.name)}" title="삭제">삭제</button>`}
+            </td>
+          </tr>`);
       });
-    supMapTable.innerHTML = aliasRows.join("") || '<tr><td colspan="2" class="empty">영양제 치환명이 없습니다.</td></tr>';
+    supMapTable.innerHTML = aliasRows.join("") || '<tr><td colspan="3" class="empty">영양제 치환명이 없습니다.</td></tr>';
 
     // 오른쪽 영역
     if (!productIds.length) {
@@ -167,5 +198,16 @@ export function initOrderTab(store) {
   }
 
   render();
+}
+
+function isSupplementUsed(state, ingredientId) {
+  return Object.values(state.products).some(product =>
+    (product.composition || []).some(row => row.ingredientId === ingredientId)
+  );
+}
+
+function getUnusedSupplements(state) {
+  return Object.values(state.ingredients)
+    .filter(ing => ing.kind === "supplement" && ing.name && !isSupplementUsed(state, ing.id));
 }
 

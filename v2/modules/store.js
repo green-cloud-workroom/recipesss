@@ -10,13 +10,15 @@
 //   - 이벤트는 action.type별 + 'change' (전역)
 //   - 위험한 액션 직전엔 자동 스냅샷
 
-import { createEmptyState } from "./schema.js?v=20260513-preset-display-1";
-import { saveState, pushSnapshot } from "./repository.js?v=20260513-preset-display-1";
+import { createEmptyState } from "./schema.js?v=20260513-unused-sup-cleanup-1";
+import { saveState, pushSnapshot } from "./repository.js?v=20260513-unused-sup-cleanup-1";
 
 // 자동 스냅샷 대상 액션 (되돌리기 필요한 위험 작업)
 const SNAPSHOT_ACTIONS = new Set([
   "IMPORT_PRODUCTS",
   "REMOVE_PRODUCT",
+  "REMOVE_UNUSED_SUPPLEMENT",
+  "REMOVE_ALL_UNUSED_SUPPLEMENTS",
   "CLEAR_ALL_PRESETS",
   "RESTORE_SNAPSHOT"
 ]);
