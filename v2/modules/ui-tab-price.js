@@ -3,8 +3,8 @@
 // 책임: 원료/영양제 단가 입력
 // 의존: store, selectors
 
-import { getPriceTableView } from "./selectors.js";
-import { esc } from "./utils.js";
+import { getPriceTableView } from "./selectors.js?v=20260513-unit-label-2";
+import { esc } from "./utils.js?v=20260513-unit-label-2";
 
 export function initPriceTab(store) {
   const ingTbody = document.getElementById("ingredientPriceTable");
@@ -85,3 +85,4 @@ function renderGroup(tbody, emptyEl, items, _label) {
       </td>
     </tr>`).join("");
 }
+

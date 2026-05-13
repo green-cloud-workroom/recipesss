@@ -7,17 +7,17 @@
 //   4. store 생성
 //   5. 각 UI 모듈 초기화
 
-import { loadV2, loadV1, saveState } from "./repository.js";
-import { migrateV1toV2, normalizeV2State } from "./migrations.js";
-import { createEmptyState } from "./schema.js";
-import { createStore } from "./store.js";
-import { reducers } from "./actions.js";
-import { initShell, toast } from "./ui-shell.js";
-import { initRecipeTab } from "./ui-tab-recipe.js";
-import { initPriceTab } from "./ui-tab-price.js";
-import { initResultTab } from "./ui-tab-result.js";
-import { initOrderTab } from "./ui-tab-order.js";
-import { initPreviewTab } from "./ui-tab-preview.js";
+import { loadV2, loadV1, saveState } from "./repository.js?v=20260513-unit-label-2";
+import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260513-unit-label-2";
+import { createEmptyState } from "./schema.js?v=20260513-unit-label-2";
+import { createStore } from "./store.js?v=20260513-unit-label-2";
+import { reducers } from "./actions.js?v=20260513-unit-label-2";
+import { initShell, toast } from "./ui-shell.js?v=20260513-unit-label-2";
+import { initRecipeTab } from "./ui-tab-recipe.js?v=20260513-unit-label-2";
+import { initPriceTab } from "./ui-tab-price.js?v=20260513-unit-label-2";
+import { initResultTab } from "./ui-tab-result.js?v=20260513-unit-label-2";
+import { initOrderTab } from "./ui-tab-order.js?v=20260513-unit-label-2";
+import { initPreviewTab } from "./ui-tab-preview.js?v=20260513-unit-label-2";
 
 function loadInitialState() {
   // 1. v2 우선
@@ -76,3 +76,4 @@ if (document.readyState === "loading") {
 } else {
   boot();
 }
+

@@ -8,7 +8,7 @@
 //   - DOM 안 만짐.
 //   - 같은 입력엔 같은 출력.
 
-import { getDisplayProductName } from "./schema.js";
+import { getDisplayProductName } from "./schema.js?v=20260513-unit-label-2";
 
 // 제품 + composition을 UI에 쓰기 좋은 형태로
 export function getProductView(state, productId) {
@@ -255,3 +255,4 @@ export function findIngredientByName(state, name, preferredKind = null) {
   }
   return candidates[0];
 }
+
