@@ -3,8 +3,8 @@
 // 변경: orderQuantities(부족 수량) → 선택된 프리셋들의 영양제 일람표.
 // 인쇄/공유용 깔끔한 형태. 프리셋별로 그룹화.
 
-import { getSelectedPresetsView } from "./selectors.js?v=20260513-recipe-categories-1";
-import { esc, fmt } from "./utils.js?v=20260513-recipe-categories-1";
+import { getSelectedPresetsView } from "./selectors.js?v=20260513-recipe-tree-open-1";
+import { esc, fmt } from "./utils.js?v=20260513-recipe-tree-open-1";
 
 export function initPreviewTab(store) {
   const areaEl = document.getElementById("previewArea");

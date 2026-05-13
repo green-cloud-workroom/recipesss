@@ -1,17 +1,17 @@
-// ui-tab-recipe.js - recipe list, category rail, and inline editing.
+// ui-tab-recipe.js - recipe tree on the left, independently opened recipe cards on the right.
 
-import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-recipe-categories-1";
-import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-recipe-categories-1";
-import { toast } from "./ui-shell.js?v=20260513-recipe-categories-1";
+import { getProductList, findIngredientByName } from "./selectors.js?v=20260513-recipe-tree-open-1";
+import { esc, parseWeightInput, displayWeight } from "./utils.js?v=20260513-recipe-tree-open-1";
+import { toast } from "./ui-shell.js?v=20260513-recipe-tree-open-1";
 
 export function initRecipeTab(store) {
   const listEl = document.getElementById("productList");
   const countEl = document.getElementById("productCount");
   const filteredCountEl = document.getElementById("filteredProductCount");
-  const categoryListEl = document.getElementById("recipeCategoryList");
-  const categoryTitleEl = document.getElementById("recipeCategoryTitle");
+  const menuEl = document.getElementById("recipeCategoryList");
+  const titleEl = document.getElementById("recipeCategoryTitle");
   const addBtn = document.getElementById("addProductBtn");
-  let activeCategory = "all";
+  const openProductIds = new Set();
 
   function flush() {
     if (document.activeElement && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) {
@@ -21,14 +21,31 @@ export function initRecipeTab(store) {
 
   addBtn.addEventListener("click", () => {
     flush();
-    activeCategory = "all";
+    const beforeIds = new Set(getProductList(store.getState()).map(product => product.id));
     store.dispatch({ type: "ADD_PRODUCT" });
+    const created = getProductList(store.getState()).find(product => !beforeIds.has(product.id));
+    if (created) openProductIds.add(created.id);
+    render();
   });
 
-  categoryListEl?.addEventListener("click", e => {
-    const target = e.target.closest("[data-category]");
-    if (!target) return;
-    activeCategory = target.dataset.category || "all";
+  menuEl?.addEventListener("click", e => {
+    const productBtn = e.target.closest("[data-product]");
+    if (productBtn) {
+      flush();
+      toggleOpen(openProductIds, productBtn.dataset.product);
+      render();
+      return;
+    }
+
+    const actionBtn = e.target.closest("[data-menu-action]");
+    if (!actionBtn) return;
+    const products = getProductList(store.getState());
+    if (actionBtn.dataset.menuAction === "open-all") {
+      products.forEach(product => openProductIds.add(product.id));
+    }
+    if (actionBtn.dataset.menuAction === "close-all") {
+      openProductIds.clear();
+    }
     render();
   });
 
@@ -36,7 +53,7 @@ export function initRecipeTab(store) {
     const target = e.target.closest("[data-action]");
     if (!target) return;
     flush();
-    handleClickAction(store, target);
+    handleClickAction(store, target, openProductIds, render);
   });
 
   listEl.addEventListener("change", e => {
@@ -52,7 +69,7 @@ export function initRecipeTab(store) {
   }, true);
 
   [
-    "ADD_PRODUCT", "REMOVE_PRODUCT", "UPDATE_PRODUCT", "SET_EDITING_PRODUCT",
+    "ADD_PRODUCT", "REMOVE_PRODUCT", "UPDATE_PRODUCT",
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
     "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT"
@@ -61,17 +78,16 @@ export function initRecipeTab(store) {
   function render() {
     const state = store.getState();
     const products = getProductList(state);
-    const categories = buildCategories(products);
-    if (!categories.some(category => category.id === activeCategory && category.count > 0)) {
-      activeCategory = "all";
-    }
+    const validIds = new Set(products.map(product => product.id));
+    Array.from(openProductIds).forEach(id => {
+      if (!validIds.has(id)) openProductIds.delete(id);
+    });
 
-    const active = categories.find(category => category.id === activeCategory) || categories[0];
-    const visibleProducts = products.filter(product => matchesCategory(product, activeCategory));
+    const openProducts = products.filter(product => openProductIds.has(product.id));
     countEl.textContent = products.length;
-    if (filteredCountEl) filteredCountEl.textContent = visibleProducts.length;
-    if (categoryTitleEl) categoryTitleEl.textContent = active?.title || "전체 레시피";
-    if (categoryListEl) categoryListEl.innerHTML = categories.map(category => renderCategory(category, activeCategory)).join("");
+    if (filteredCountEl) filteredCountEl.textContent = openProducts.length;
+    if (titleEl) titleEl.textContent = openProducts.length ? "열린 레시피" : "레시피 선택";
+    if (menuEl) menuEl.innerHTML = renderRecipeMenu(products, openProductIds);
 
     if (!products.length) {
       listEl.className = "";
@@ -79,63 +95,82 @@ export function initRecipeTab(store) {
       return;
     }
 
-    if (!visibleProducts.length) {
+    if (!openProducts.length) {
       listEl.className = "";
-      listEl.innerHTML = '<div class="empty">이 카테고리에 표시할 레시피가 없습니다.</div>';
+      listEl.innerHTML = '<div class="empty">왼쪽 레시피 목록에서 열어볼 제품을 선택해 주세요.</div>';
       return;
     }
 
-    listEl.className = "product-list";
-    listEl.innerHTML = visibleProducts.map(p => renderCard(p, state.ui.editingProductId === p.id)).join("");
+    listEl.className = "product-list recipe-open-list";
+    listEl.innerHTML = openProducts.map(product => renderCard(product)).join("");
   }
 
   render();
 }
 
-function buildCategories(products) {
-  const categories = [
-    { id: "all", title: "전체 레시피", label: "전체", count: products.length },
-    { id: "cat", title: "고양이 레시피", label: "고양이", count: products.filter(product => product.species === "cat").length },
-    { id: "dog", title: "강아지 레시피", label: "강아지", count: products.filter(product => product.species === "dog").length },
-    { id: "common", title: "공용/기타 레시피", label: "공용/기타", count: products.filter(product => !product.species).length },
-    { id: "frozen", title: "동결 레시피", label: "동결", count: products.filter(product => /동결/.test(product.name || product.displayName || "")).length }
-  ];
-  return categories.filter(category => category.id === "all" || category.count > 0);
+function toggleOpen(openProductIds, productId) {
+  if (!productId) return;
+  if (openProductIds.has(productId)) openProductIds.delete(productId);
+  else openProductIds.add(productId);
 }
 
-function matchesCategory(product, category) {
-  if (category === "all") return true;
-  if (category === "cat") return product.species === "cat";
-  if (category === "dog") return product.species === "dog";
-  if (category === "common") return !product.species;
-  if (category === "frozen") return /동결/.test(product.name || product.displayName || "");
-  return true;
-}
-
-function renderCategory(category, activeCategory) {
+function renderRecipeMenu(products, openProductIds) {
+  const groups = buildMenuGroups(products);
   return `
-    <button class="recipe-category ${category.id === activeCategory ? "active" : ""}" data-category="${category.id}">
-      <span class="recipe-category-name">${esc(category.label)}</span>
-      <span class="recipe-category-count">${category.count}</span>
+    <div class="recipe-menu-actions">
+      <button class="btn btn-sm" data-menu-action="open-all">전체 열기</button>
+      <button class="btn btn-sm" data-menu-action="close-all">전체 닫기</button>
+    </div>
+    ${groups.map(group => `
+      <section class="recipe-menu-section">
+        <div class="recipe-menu-heading">
+          <span>${esc(group.label)}</span>
+          <span>${group.products.length}</span>
+        </div>
+        <div class="recipe-menu-items">
+          ${group.products.map(product => renderMenuProduct(product, openProductIds.has(product.id))).join("")}
+        </div>
+      </section>
+    `).join("")}`;
+}
+
+function buildMenuGroups(products) {
+  const groups = [
+    { id: "cat", label: "고양이", products: products.filter(product => product.species === "cat") },
+    { id: "dog", label: "강아지", products: products.filter(product => product.species === "dog") },
+    { id: "common", label: "공용/기타", products: products.filter(product => !product.species) }
+  ];
+  return groups.filter(group => group.products.length);
+}
+
+function renderMenuProduct(product, isOpen) {
+  const title = product.displayName || "이름 없는 제품";
+  const frozenTag = /동결/.test(product.name || product.displayName || "") ? '<span class="recipe-menu-tag">동결</span>' : "";
+  return `
+    <button class="recipe-menu-item ${isOpen ? "active" : ""}" data-product="${product.id}">
+      <span class="recipe-menu-name">${esc(title)}</span>
+      ${frozenTag}
     </button>`;
 }
 
-function renderCard(product, isEditing) {
-  const title = product.displayName || "이름 없는 제품";
+function renderCard(product) {
   const meta = `원료 ${product.ingredientRows.length}개 · 영양제 ${product.supplementRows.length}개`;
 
   return `
-    <div class="card ${isEditing ? "editing" : "collapsed"}" data-pid="${product.id}">
+    <div class="card editing recipe-open-card" data-pid="${product.id}">
       <div class="card-header">
-        ${isEditing
-          ? renderHeaderEdit(product)
-          : `<div class="product-summary"><div class="product-title">${esc(title)}</div><div class="product-meta">${esc(meta)}</div></div>`}
+        <div>
+          ${renderHeaderEdit(product)}
+          <div class="product-meta" style="margin-top:6px">${esc(meta)}</div>
+        </div>
         <div class="product-actions">
-          <button class="btn" data-action="toggle-edit" data-pid="${product.id}">${isEditing ? "닫기" : "수정"}</button>
+          <button class="btn" data-action="close-card" data-pid="${product.id}">닫기</button>
           <button class="btn btn-danger" data-action="remove-product" data-pid="${product.id}">삭제</button>
         </div>
       </div>
-      ${isEditing ? renderCardBody(product) : ""}
+      <div class="recipe-card-body">
+        ${renderCardBody(product)}
+      </div>
     </div>`;
 }
 
@@ -223,7 +258,7 @@ function renderRow(productId, row, kind) {
         value="${esc(row.isUnit ? (row.unitName || "") : "")}"
         placeholder="${row.isUnit ? "마리/개 등" : ""}" ${row.isUnit ? "" : "disabled"}></td>` : "";
   const cellRemove = `
-    <td><button class="btn-icon" data-action="remove-row" data-pid="${productId}" data-idx="${row.index}" title="삭제">×</button></td>`;
+    <td><button class="btn-icon" data-action="remove-row" data-pid="${productId}" data-idx="${row.index}" title="삭제">x</button></td>`;
 
   return `<tr>
     ${cellName}
@@ -235,20 +270,20 @@ function renderRow(productId, row, kind) {
   </tr>`;
 }
 
-function handleClickAction(store, target) {
+function handleClickAction(store, target, openProductIds, render) {
   const action = target.dataset.action;
   const pid = target.dataset.pid;
   const idx = target.dataset.idx ? parseInt(target.dataset.idx, 10) : null;
   const kind = target.dataset.kind || "ingredient";
 
   switch (action) {
-    case "toggle-edit": {
-      const current = store.getState().ui.editingProductId;
-      store.dispatch({ type: "SET_EDITING_PRODUCT", productId: current === pid ? null : pid });
+    case "close-card":
+      openProductIds.delete(pid);
+      render();
       break;
-    }
     case "remove-product": {
       if (confirm("이 제품을 삭제할까요?")) {
+        openProductIds.delete(pid);
         store.dispatch({ type: "REMOVE_PRODUCT", productId: pid });
         toast("제품 삭제됨");
       }
