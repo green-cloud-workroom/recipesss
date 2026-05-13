@@ -8,7 +8,7 @@
 //   - DOM 안 만짐.
 //   - 같은 입력엔 같은 출력.
 
-import { getDisplayProductName } from "./schema.js?v=20260513-unit-label-2";
+import { getDisplayProductName } from "./schema.js?v=20260513-preset-display-1";
 
 // 제품 + composition을 UI에 쓰기 좋은 형태로
 export function getProductView(state, productId) {
@@ -106,7 +106,7 @@ export function getRatioInfo(state, productId) {
     ? raw * unitRow.weight
     : unitRow.unit === "kg" ? raw * 1000 : raw;
   const ratio = targetWeight / unitRow.weight;
-  return { ratio, targetWeight, unitRow, unitLabel, inputUnitLabel: unitLabel || unitRow.unit || "g", hasInput: true };
+  return { ratio, targetWeight, unitRow, unitLabel, inputAmount: raw, inputUnitLabel: unitLabel || unitRow.unit || "g", hasInput: true };
 }
 
 // 결과 카드용: 환산된 행 + 원가
@@ -173,10 +173,28 @@ export function getPresetsByProduct(state) {
 export function getPresetDisplayName(state, preset) {
   const product = state.products[preset.productId];
   const productName = product ? getDisplayProductName(product) : "?";
-  const weightLabel = preset.targetWeight >= 1000
-    ? `${Math.round(preset.targetWeight / 1000).toString().padStart(2, "0")}KG`
-    : `${Math.round(preset.targetWeight).toString().padStart(2, "0")}G`;
-  return `${productName} ${weightLabel}${preset.label ? " " + preset.label : ""}`.trim();
+  const amountLabel = getPresetAmountLabel(state, preset);
+  return `${productName}${amountLabel ? " " + amountLabel : ""}${preset.label ? " " + preset.label : ""}`.trim();
+}
+
+function getPresetAmountLabel(state, preset) {
+  if (Number(preset.inputAmount) > 0) return formatPresetAmount(preset.inputAmount);
+
+  const product = state.products[preset.productId];
+  const unitIngId = preset.unitIngredientId || product?.unitIngredientId;
+  const unitRow = product?.composition?.find(row => row.ingredientId === unitIngId);
+  if (product?.unitLabel && unitRow?.weight) {
+    return formatPresetAmount(preset.targetWeight / unitRow.weight);
+  }
+  if (preset.targetWeight >= 1000) {
+    return String(Math.round(preset.targetWeight / 1000)).padStart(2, "0");
+  }
+  return formatPresetAmount(preset.targetWeight);
+}
+
+function formatPresetAmount(value) {
+  const n = Number(value) || 0;
+  return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100);
 }
 
 // 프리셋별 비율 (orderQuantities 계산용)

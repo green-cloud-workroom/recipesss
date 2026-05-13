@@ -9,8 +9,8 @@
 //   - action은 { type, ...payload } 형태
 //   - reducer 이름 = action.type (대문자 스네이크)
 
-import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-unit-label-2";
-import { loadSnapshot } from "./repository.js?v=20260513-unit-label-2";
+import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-preset-display-1";
+import { loadSnapshot } from "./repository.js?v=20260513-preset-display-1";
 
 // 헬퍼: composition에서 ingredient 사용 여부
 function isIngredientUsedAnywhere(state, ingredientId, excludeProductId = null) {
@@ -242,7 +242,7 @@ export const reducers = {
   },
 
   // ===== 발주 프리셋 =====
-  ADD_PRESET: (state, { productId, targetWeight, label, unitIngredientId, code }) => {
+  ADD_PRESET: (state, { productId, targetWeight, label, unitIngredientId, code, inputAmount, inputUnitLabel }) => {
     const product = state.products[productId];
     if (!product) return state;
     const preset = createPreset({
@@ -250,7 +250,9 @@ export const reducers = {
       targetWeight,
       label,
       unitIngredientId: unitIngredientId || product.unitIngredientId,
-      code: code || ""
+      code: code || "",
+      inputAmount,
+      inputUnitLabel
     });
     // code 자동 생성: 같은 제품 프리셋 수 기반
     if (!preset.code) {

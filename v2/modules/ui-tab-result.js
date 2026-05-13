@@ -3,9 +3,9 @@
 // 책임: 제품 선택 → 환산 중량/원가 계산 카드, 프리셋 저장
 // 의존: store, selectors
 
-import { getProductList, getResultCardData } from "./selectors.js?v=20260513-unit-label-2";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-unit-label-2";
-import { toast } from "./ui-shell.js?v=20260513-unit-label-2";
+import { getProductList, getResultCardData } from "./selectors.js?v=20260513-preset-display-1";
+import { esc, fmt, fmtInt } from "./utils.js?v=20260513-preset-display-1";
+import { toast } from "./ui-shell.js?v=20260513-preset-display-1";
 
 export function initResultTab(store) {
   const chipsEl = document.getElementById("productChips");
@@ -191,7 +191,9 @@ function savePreset(store, productId) {
     productId,
     targetWeight: data.info.targetWeight,
     label: opt.presetLabel || "",
-    unitIngredientId: opt.unitIngredientId || product.unitIngredientId
+    unitIngredientId: opt.unitIngredientId || product.unitIngredientId,
+    inputAmount: data.info.inputAmount,
+    inputUnitLabel: data.info.inputUnitLabel
   });
   toast("프리셋 저장 완료");
 }

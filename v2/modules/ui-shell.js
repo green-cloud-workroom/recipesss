@@ -3,8 +3,8 @@
 // 책임: 전역 UI 요소 (탭 바, 헤더, 토스트). 각 탭 컨텐츠는 별도 모듈.
 // 의존: store, repository
 
-import { downloadStateAsFile } from "./repository.js?v=20260513-unit-label-2";
-import { readRecipeExcelFile } from "./excel-import.js?v=20260513-unit-label-2";
+import { downloadStateAsFile } from "./repository.js?v=20260513-preset-display-1";
+import { readRecipeExcelFile } from "./excel-import.js?v=20260513-preset-display-1";
 
 const TABS = ["recipe", "price", "result", "order", "preview"];
 

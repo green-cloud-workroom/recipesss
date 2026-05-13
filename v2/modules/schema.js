@@ -71,14 +71,16 @@ export function normalizeCompositionRow(row) {
   };
 }
 
-export function createPreset({ productId, code = "", targetWeight = 0, label = "", unitIngredientId = "" } = {}) {
+export function createPreset({ productId, code = "", targetWeight = 0, label = "", unitIngredientId = "", inputAmount = 0, inputUnitLabel = "" } = {}) {
   return {
     id: makeId("preset"),
     productId: String(productId || ""),
     code: String(code || ""),
     targetWeight: Number(targetWeight) || 0,
     label: String(label || ""),
-    unitIngredientId: String(unitIngredientId || "")
+    unitIngredientId: String(unitIngredientId || ""),
+    inputAmount: Number(inputAmount) || 0,
+    inputUnitLabel: String(inputUnitLabel || "")
   };
 }
 
