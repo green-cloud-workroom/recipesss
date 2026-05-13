@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>레시피 원가 계산기</title>
+<link rel="icon" href="data:,">
+<title>레시피 원가 계산기 v2</title>
 <style>
   :root {
     --bg: #ffffff;
@@ -68,7 +69,7 @@
   }
   .app-title { font-size: 15px; font-weight: 600; }
   .app-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-  .header-btns { display: flex; gap: 8px; align-items: center; }
+  .header-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
   .container { max-width: 1440px; margin: 0 auto; padding: 20px 16px 60px; }
   .tab-bar {
     display: grid;
@@ -117,7 +118,7 @@
   }
   .card { padding: 18px 20px; margin-bottom: 14px; }
   .panel { padding: 16px 18px; }
-  .btn, .save-btn, .download-btn {
+  .btn, .save-btn, .download-btn, .import-btn {
     border: 0.5px solid var(--border2);
     background: transparent;
     color: var(--text);
@@ -130,6 +131,7 @@
     color: var(--accentText);
     border-color: var(--accent);
   }
+  .file-input { display: none; }
   .btn-danger {
     color: #c03c2f;
     border-color: rgba(192, 60, 47, 0.3);
@@ -451,17 +453,54 @@
     .app-header { padding: 14px 16px; }
   }
 </style>
+<style>
+  /* v2 추가 클래스 */
+  .card-header-edit { display: flex; gap: 8px; flex: 1; align-items: center; }
+  .species-select {
+    padding: 8px 10px; border: 0.5px solid var(--border);
+    border-radius: 8px; background: var(--bg2); color: var(--text);
+    font-size: 13px; min-width: 90px;
+  }
+  .usage-badge {
+    display: inline-block; margin-left: 6px; padding: 1px 6px;
+    background: var(--bg3); color: var(--text2); border-radius: 8px;
+    font-size: 11px; font-weight: 500;
+  }
+  .orphan-badge {
+    display: inline-block; margin-left: 6px; padding: 1px 6px;
+    background: var(--warnBg); color: var(--warnText); border-radius: 8px;
+    font-size: 11px; font-weight: 500;
+  }
+  .alias-line { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .empty-row {
+    padding: 12px; text-align: center; color: var(--text3); font-size: 12px;
+    background: var(--bg2); border-radius: 8px; margin-bottom: 8px;
+  }
+  .btn-icon {
+    background: transparent; border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 4px 8px; cursor: pointer;
+    color: var(--text2); font-size: 12px;
+  }
+  .btn-icon:hover { background: var(--bg2); color: var(--text); }
+  .preset-line { display: flex; align-items: center; gap: 6px; }
+  .preset-line .btn-icon { margin-left: auto; padding: 2px 6px; font-size: 10px; }
+  .product-name-input {
+    flex: 1; padding: 8px 10px; border: 0.5px solid var(--border);
+    border-radius: 8px; background: var(--bg2); color: var(--text); font-size: 14px;
+  }
+</style>
 </head>
 <body>
 
 <header class="app-header">
   <div>
-    <div class="app-title">레시피 원가 계산기</div>
-    <div class="app-sub">데이터는 브라우저에 자동 저장됩니다</div>
+    <div class="app-title">레시피 원가 계산기 <span style="font-size:11px;color:var(--text3);font-weight:400">v2</span></div>
+    <div class="app-sub">데이터는 브라우저에 자동 저장됩니다 · 변경 전 자동 스냅샷</div>
   </div>
   <div class="header-btns">
-    <button class="download-btn" onclick="downloadData()">다운로드</button>
-    <button class="save-btn" onclick="saveData()">저장</button>
+    <input class="file-input" type="file" id="excelImportInput" accept=".xlsx,.xls">
+    <button class="import-btn" id="importBtn">엑셀 가져오기</button>
+    <button class="download-btn" id="downloadBtn">백업 다운로드</button>
   </div>
 </header>
 
@@ -514,7 +553,7 @@
       <div class="panel">
         <div class="section-row">
           <div class="slabel" style="margin:0">발주 프리셋</div>
-          <button class="btn btn-sm" onclick="clearAllPresets()">전체 초기화</button>
+          <button class="btn btn-sm" id="clearPresetsBtn">전체 초기화</button>
         </div>
         <div class="info-box">결과 탭에서 중량과 프리셋명을 입력하고 저장하면 여기에서 바로 사용할 수 있습니다.</div>
         <div id="presetGrid" class="preset-grid"></div>
@@ -527,7 +566,7 @@
       <div class="panel">
         <div class="section-row">
           <div class="slabel" style="margin:0">부족 수량 입력</div>
-          <button class="btn btn-primary" onclick="generatePreview()">출력 미리보기 생성</button>
+          <button class="btn btn-primary" id="generatePreviewBtn">출력 미리보기 생성</button>
         </div>
         <div id="orderArea"></div>
       </div>
@@ -549,828 +588,8 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-const STORAGE_KEY = "recipe_cost_utf8_v1";
-const ORDER_KEY = "recipe_cost_order_v1";
-const LEGACY_RECIPE_KEY = "rcd6";
-const LEGACY_ORDER_KEY = "order_data";
-const RESTORE_DATA_URL = "https://raw.githubusercontent.com/green-cloud-workroom/recipesss/main/recipesss-localstorage-recovered.json";
-
-if (new URLSearchParams(location.search).has("restoreData")) {
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      const res = await fetch(RESTORE_DATA_URL + "?ts=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error("restore data fetch failed");
-      const recovered = await res.json();
-      Object.entries(recovered.data || {}).forEach(([key, value]) => localStorage.setItem(key, value));
-      location.replace(location.pathname + "?restored=" + Date.now());
-    } catch (e) {
-      alert("복구에 실패했습니다: " + e.message);
-    }
-  });
-}
-
-let state = {
-  products: [],
-  prices: {},
-  selectedProducts: [],
-  resultOptions: {},
-  orderPresets: {},
-  orderInputs: {}
-};
-
-let editingProductId = null;
-
-function uid() {
-  return Math.random().toString(36).slice(2, 9);
-}
-
-function esc(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function priceKey(name) {
-  return String(name || "").trim();
-}
-
-function fmt(num) {
-  const value = Math.round((Number(num) || 0) * 100) / 100;
-  return value % 1 === 0
-    ? value.toLocaleString()
-    : value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-}
-
-function normalizeRow(row, kind) {
-  return {
-    id: String(row?.id || uid()),
-    name: String(row?.name || "").trim(),
-    alias: kind === "sup" ? String(row?.alias || "") : "",
-    weight: Number(row?.weight) || 0,
-    unit: row?.unit === "kg" ? "kg" : "g",
-    isUnit: kind === "ing" ? Boolean(row?.isUnit) : false,
-    unitName: kind === "ing" ? String(row?.unitName || "") : ""
-  };
-}
-
-function normalizeProduct(product) {
-  return {
-    id: String(product?.id || uid()),
-    name: String(product?.name || "").trim(),
-    ingredients: Array.isArray(product?.ingredients) ? product.ingredients.map(row => normalizeRow(row, "ing")) : [],
-    supplements: Array.isArray(product?.supplements) ? product.supplements.map(row => normalizeRow(row, "sup")) : []
-  };
-}
-
-function migrateLegacyPresets(legacyPresets) {
-  const next = {};
-  Object.entries(legacyPresets || {}).forEach(([productName, list]) => {
-    const normalized = (Array.isArray(list) ? list : [])
-      .map((item, index) => {
-        if (typeof item === "number" || typeof item === "string") {
-          const weight = Number(item);
-          if (!weight) return null;
-          return { code: "", weight, label: "", unitId: "" };
-        }
-        if (item && typeof item === "object") {
-          const weight = Number(item.weight ?? item.value ?? item.grams ?? item.g);
-          if (!weight) return null;
-          return {
-            code: String(item.code || ""),
-            weight,
-            label: String(item.label || item.name || ""),
-            unitId: String(item.unitId || "")
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
-    if (normalized.length) next[productName] = normalized;
-  });
-  return next;
-}
-
-function migrateLegacyOrderInputs(legacyOrderData, presetMap) {
-  const next = {};
-  Object.entries(legacyOrderData || {}).forEach(([productName, weightMap]) => {
-    const presets = Array.isArray(presetMap?.[productName]) ? presetMap[productName] : [];
-    Object.entries(weightMap || {}).forEach(([weightKey, supMap]) => {
-      const weight = Number(weightKey);
-      const preset = presets.find(item => Number(item.weight) === weight);
-      const presetCode = preset?.code || "";
-      if (!presetCode) return;
-      Object.entries(supMap || {}).forEach(([supplementName, qty]) => {
-        const amount = parseInt(qty, 10) || 0;
-        if (amount <= 0) return;
-        next[`${productName}__${presetCode}__${supplementName}`] = amount;
-      });
-    });
-  });
-  return next;
-}
-
-function showToast(message) {
-  const el = document.getElementById("toast");
-  el.textContent = message;
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2200);
-}
-
-function saveRecipeData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    products: state.products,
-    prices: state.prices,
-    selectedProducts: state.selectedProducts,
-    resultOptions: state.resultOptions
-  }));
-}
-
-function saveOrderData() {
-  localStorage.setItem(ORDER_KEY, JSON.stringify({
-    orderPresets: state.orderPresets,
-    orderInputs: state.orderInputs
-  }));
-}
-
-function saveData() {
-  collectAllInputs();
-  saveRecipeData();
-  saveOrderData();
-  showToast("저장 완료");
-}
-
-function downloadData() {
-  collectAllInputs();
-  const today = new Date().toISOString().slice(0, 10);
-  const payload = JSON.stringify(state, null, 2);
-  const blob = new Blob([payload], { type: "application/json;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `recipe-cost-${today}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  showToast("다운로드 완료");
-}
-
-function loadData() {
-  let loadedRecipe = false;
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    if (Array.isArray(saved.products) && saved.products.length) {
-      state.products = saved.products.map(normalizeProduct);
-      state.prices = saved.prices || {};
-      state.selectedProducts = saved.selectedProducts || [];
-      state.resultOptions = saved.resultOptions || {};
-      loadedRecipe = true;
-    }
-  } catch (e) {}
-
-  if (!loadedRecipe) {
-    try {
-      const legacy = JSON.parse(localStorage.getItem(LEGACY_RECIPE_KEY) || "{}");
-      state.products = Array.isArray(legacy.products) ? legacy.products.map(normalizeProduct) : [];
-      state.prices = legacy.prices || {};
-      state.selectedProducts = legacy.selectedProducts || [];
-      state.resultOptions = legacy.resultOptions || {};
-      if (state.products.length) saveRecipeData();
-    } catch (e) {}
-  }
-
-  let loadedOrder = false;
-  try {
-    const savedOrder = JSON.parse(localStorage.getItem(ORDER_KEY) || "{}");
-    if ((savedOrder.orderPresets && Object.keys(savedOrder.orderPresets).length) || (savedOrder.orderInputs && Object.keys(savedOrder.orderInputs).length)) {
-      state.orderPresets = savedOrder.orderPresets || {};
-      state.orderInputs = savedOrder.orderInputs || {};
-      loadedOrder = true;
-    }
-  } catch (e) {}
-
-  if (!loadedOrder) {
-    try {
-      const legacyOrder = JSON.parse(localStorage.getItem(LEGACY_ORDER_KEY) || "{}");
-      state.orderPresets = migrateLegacyPresets(legacyOrder.presets || {});
-      Object.keys(state.orderPresets).forEach(productName => normalizePresets(productName));
-      state.orderInputs = migrateLegacyOrderInputs(legacyOrder.orderData || {}, state.orderPresets);
-      if (Object.keys(state.orderPresets).length || Object.keys(state.orderInputs).length) saveOrderData();
-    } catch (e) {}
-  }
-}
-
-function getResultOption(pid) {
-  if (!state.resultOptions[pid]) {
-    state.resultOptions[pid] = {
-      unitId: "",
-      weight: "",
-      supplementOnly: false,
-      presetLabel: ""
-    };
-  }
-  return state.resultOptions[pid];
-}
-
-function getPresetCode(productName, index) {
-  const productIndex = state.products.findIndex(p => p.name.trim() === productName);
-  const prefix = productIndex >= 0 && productIndex < 26 ? String.fromCharCode(65 + productIndex) : "P";
-  return `${prefix}${index}`;
-}
-
-function buildPresetName(productName, weight, label) {
-  const weightName = weight >= 1000
-    ? `${String(Math.round(weight / 1000)).padStart(2, "0")}KG`
-    : `${String(Math.round(weight)).padStart(2, "0")}G`;
-  return `${productName} ${weightName}${label ? " " + label : ""}`.trim();
-}
-
-function normalizePresets(productName) {
-  const list = Array.isArray(state.orderPresets[productName]) ? state.orderPresets[productName] : [];
-  state.orderPresets[productName] = list
-    .filter(item => item && Number(item.weight) > 0)
-    .sort((a, b) => Number(a.weight) - Number(b.weight))
-    .map((item, index) => ({
-      code: item.code || getPresetCode(productName, index),
-      weight: Number(item.weight),
-      label: String(item.label || ""),
-      unitId: String(item.unitId || ""),
-      displayName: buildPresetName(productName, Number(item.weight), String(item.label || ""))
-    }));
-  return state.orderPresets[productName];
-}
-
-function collectAllInputs() {
-  state.products.forEach(product => {
-    const nameEl = document.getElementById(`pname-${product.id}`);
-    if (nameEl) product.name = nameEl.value.trim();
-
-    product.ingredients.forEach(row => {
-      const nameEl2 = document.getElementById(`ing-name-${row.id}`);
-      const weightEl = document.getElementById(`ing-wt-${row.id}`);
-      const unitEl = document.getElementById(`ing-un-${row.id}`);
-      const checkEl = document.getElementById(`ing-ck-${row.id}`);
-      const unitNameEl = document.getElementById(`ing-uname-${row.id}`);
-      if (nameEl2) row.name = nameEl2.value.trim();
-      if (unitEl) row.unit = unitEl.value;
-      if (weightEl) {
-        const raw = parseFloat(weightEl.value) || 0;
-        row.weight = row.unit === "kg" ? raw * 1000 : raw;
-      }
-      if (checkEl) row.isUnit = checkEl.checked;
-      if (unitNameEl) row.unitName = unitNameEl.value.trim();
-      if (!row.isUnit) row.unitName = "";
-    });
-
-    product.supplements.forEach(row => {
-      const nameEl2 = document.getElementById(`sup-name-${row.id}`);
-      const aliasEl = document.getElementById(`sup-alias-${row.id}`);
-      const weightEl = document.getElementById(`sup-wt-${row.id}`);
-      const unitEl = document.getElementById(`sup-un-${row.id}`);
-      if (nameEl2) row.name = nameEl2.value.trim();
-      if (aliasEl) row.alias = aliasEl.value.trim();
-      if (unitEl) row.unit = unitEl.value;
-      if (weightEl) {
-        const raw = parseFloat(weightEl.value) || 0;
-        row.weight = row.unit === "kg" ? raw * 1000 : raw;
-      }
-    });
-  });
-
-  collectResultInputs();
-  collectPrices();
-}
-
-function collectResultInputs() {
-  state.selectedProducts.forEach(pid => {
-    const opt = getResultOption(pid);
-    const unitEl = document.getElementById(`usel-${pid}`);
-    const weightEl = document.getElementById(`uwt-${pid}`);
-    const supOnlyEl = document.getElementById(`suponly-${pid}`);
-    const presetEl = document.getElementById(`preset-name-${pid}`);
-    if (unitEl) opt.unitId = unitEl.value;
-    if (weightEl) opt.weight = weightEl.value;
-    if (supOnlyEl) opt.supplementOnly = supOnlyEl.checked;
-    if (presetEl) opt.presetLabel = presetEl.value.trim();
-  });
-}
-
-function collectPrices() {
-  document.querySelectorAll("#ingredientPriceTable tr[data-name], #supplementPriceTable tr[data-name]").forEach(tr => {
-    const key = priceKey(tr.dataset.name);
-    const unitInput = tr.querySelector(".unit-inp");
-    const priceInput = tr.querySelector(".price-inp");
-    if (!key) return;
-    state.prices[key] = {
-      unit: parseFloat(unitInput?.value || "") || 0,
-      price: parseFloat(priceInput?.value || "") || 0
-    };
-  });
-}
-
-function addProduct() {
-  collectAllInputs();
-  const product = { id: uid(), name: "", ingredients: [], supplements: [] };
-  state.products.push(product);
-  editingProductId = product.id;
-  renderProducts();
-  syncPriceTab();
-}
-
-function editProduct(id) {
-  collectAllInputs();
-  editingProductId = editingProductId === id ? null : id;
-  renderProducts();
-}
-
-function removeProduct(id) {
-  collectAllInputs();
-  state.products = state.products.filter(p => p.id !== id);
-  state.selectedProducts = state.selectedProducts.filter(pid => pid !== id);
-  delete state.resultOptions[id];
-  if (editingProductId === id) editingProductId = null;
-  renderProducts();
-  syncPriceTab();
-}
-
-function addIngredient(pid, type) {
-  collectAllInputs();
-  const product = state.products.find(p => p.id === pid);
-  if (!product) return;
-  const row = { id: uid(), name: "", alias: "", weight: 0, unit: "g", isUnit: false, unitName: "" };
-  (type === "ing" ? product.ingredients : product.supplements).push(row);
-  renderProducts();
-  syncPriceTab();
-}
-
-function removeRow(pid, type, rid) {
-  collectAllInputs();
-  const product = state.products.find(p => p.id === pid);
-  if (!product) return;
-  const list = type === "ing" ? product.ingredients : product.supplements;
-  const idx = list.findIndex(row => row.id === rid);
-  if (idx > -1) list.splice(idx, 1);
-  renderProducts();
-  syncPriceTab();
-}
-
-function renderProducts() {
-  document.getElementById("productCount").textContent = state.products.length;
-  const listEl = document.getElementById("productList");
-  if (!state.products.length) {
-    listEl.className = "";
-    listEl.innerHTML = '<div class="empty">제품을 추가해 주세요.</div>';
-    return;
-  }
-
-  listEl.className = "product-list";
-  listEl.innerHTML = state.products.map(product => {
-    const editing = editingProductId === product.id;
-    const title = product.name.trim() || "이름 없는 제품";
-    const meta = `원료 ${product.ingredients.length}개 · 영양제 ${product.supplements.length}개`;
-
-    return `
-    <div class="card ${editing ? "editing" : "collapsed"}" data-card="${product.id}">
-      <div class="card-header">
-        ${editing
-          ? `<input id="pname-${product.id}" class="product-name-input" value="${esc(product.name)}" placeholder="제품명 입력">`
-          : `<div class="product-summary"><div class="product-title">${esc(title)}</div><div class="product-meta">${esc(meta)}</div></div>`}
-        <div class="product-actions">
-          <button class="btn" data-edit="${product.id}">${editing ? "닫기" : "수정"}</button>
-          <button class="btn btn-danger" data-remove="${product.id}">삭제</button>
-        </div>
-      </div>
-      ${editing ? `
-      <div class="slabel" style="margin-top:0">원료</div>
-      <table>
-        <thead>
-          <tr>
-            <th>원료명</th>
-            <th style="text-align:right;width:150px">중량</th>
-            <th style="text-align:center;width:70px">생산단위</th>
-            <th style="width:120px">단위명</th>
-            <th style="width:28px"></th>
-          </tr>
-        </thead>
-        <tbody id="ing-tbody-${product.id}">
-          ${product.ingredients.map(row => `
-          <tr>
-            <td><input type="text" id="ing-name-${row.id}" value="${esc(row.name)}" placeholder="원료명"></td>
-            <td>
-              <div class="inline-weight">
-                <input type="number" id="ing-wt-${row.id}" value="${row.weight ? esc(row.unit === "kg" ? row.weight / 1000 : row.weight) : ""}" placeholder="0" min="0" step="any">
-                <select id="ing-un-${row.id}">
-                  <option value="g" ${row.unit !== "kg" ? "selected" : ""}>g</option>
-                  <option value="kg" ${row.unit === "kg" ? "selected" : ""}>kg</option>
-                </select>
-              </div>
-            </td>
-            <td style="text-align:center"><input type="checkbox" id="ing-ck-${row.id}" ${row.isUnit ? "checked" : ""}></td>
-            <td>${row.isUnit ? `<input type="text" id="ing-uname-${row.id}" value="${esc(row.unitName || "")}" placeholder="예: 1마리">` : ""}</td>
-            <td><span class="del-row" data-pid="${product.id}" data-type="ing" data-rid="${row.id}" style="cursor:pointer;color:var(--text3);font-size:16px">×</span></td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="add-row" data-addrow="${product.id}" data-rtype="ing">+ 원료 추가</span>
-      </div>
-
-      <div class="slabel">영양제</div>
-      <table>
-        <thead>
-          <tr>
-            <th>영양제명</th>
-            <th style="width:150px">치환명</th>
-            <th style="text-align:right;width:150px">중량</th>
-            <th style="width:28px"></th>
-          </tr>
-        </thead>
-        <tbody id="sup-tbody-${product.id}">
-          ${product.supplements.map(row => `
-          <tr>
-            <td><input type="text" id="sup-name-${row.id}" value="${esc(row.name)}" placeholder="영양제명"></td>
-            <td><input type="text" id="sup-alias-${row.id}" value="${esc(row.alias || "")}" placeholder="출력명"></td>
-            <td>
-              <div class="inline-weight">
-                <input type="number" id="sup-wt-${row.id}" value="${row.weight ? esc(row.unit === "kg" ? row.weight / 1000 : row.weight) : ""}" placeholder="0" min="0" step="any">
-                <select id="sup-un-${row.id}">
-                  <option value="g" ${row.unit !== "kg" ? "selected" : ""}>g</option>
-                  <option value="kg" ${row.unit === "kg" ? "selected" : ""}>kg</option>
-                </select>
-              </div>
-            </td>
-            <td><span class="del-row" data-pid="${product.id}" data-type="sup" data-rid="${row.id}" style="cursor:pointer;color:var(--text3);font-size:16px">×</span></td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="add-row" data-addrow="${product.id}" data-rtype="sup">+ 영양제 추가</span>
-      </div>
-      ` : ""}
-    </div>`;
-  }).join("");
-}
-
-document.getElementById("addProductBtn").addEventListener("click", addProduct);
-
-document.getElementById("productList").addEventListener("click", e => {
-  const editBtn = e.target.closest("[data-edit]");
-  if (editBtn) { editProduct(editBtn.dataset.edit); return; }
-  const removeBtn = e.target.closest("[data-remove]");
-  if (removeBtn) { removeProduct(removeBtn.dataset.remove); return; }
-  const delRow = e.target.closest(".del-row");
-  if (delRow) { removeRow(delRow.dataset.pid, delRow.dataset.type, delRow.dataset.rid); return; }
-  const addRow = e.target.closest("[data-addrow]");
-  if (addRow) { addIngredient(addRow.dataset.addrow, addRow.dataset.rtype); return; }
-  const collapsed = e.target.closest(".card.collapsed[data-card]");
-  if (collapsed) editProduct(collapsed.dataset.card);
-});
-
-function syncPriceTab() {
-  const ing = new Set();
-  const sup = new Set();
-  state.products.forEach(product => {
-    product.ingredients.forEach(row => { if (priceKey(row.name)) ing.add(priceKey(row.name)); });
-    product.supplements.forEach(row => { if (priceKey(row.name)) sup.add(priceKey(row.name)); });
-  });
-
-  renderPriceRows(ing, "ingredientPriceTable", "ingredientPriceEmpty");
-  renderPriceRows(sup, "supplementPriceTable", "supplementPriceEmpty");
-}
-
-function renderPriceRows(names, tbodyId, emptyId) {
-  const tbody = document.getElementById(tbodyId);
-  const empty = document.getElementById(emptyId);
-  if (!names.size) {
-    tbody.innerHTML = "";
-    empty.classList.remove("hidden");
-    return;
-  }
-  empty.classList.add("hidden");
-  tbody.innerHTML = [...names].map(name => {
-    const row = state.prices[name] || {};
-    return `<tr data-name="${esc(name)}">
-      <td style="font-weight:500">${esc(name)}</td>
-      <td><input class="unit-inp" type="number" value="${row.unit || ""}" placeholder="1000" min="0" style="text-align:right"></td>
-      <td><input class="price-inp" type="number" value="${row.price || ""}" placeholder="0" min="0" style="text-align:right"></td>
-    </tr>`;
-  }).join("");
-}
-
-function switchTab(tab) {
-  collectAllInputs();
-  ["recipe", "price", "result", "order", "preview"].forEach(name => {
-    document.getElementById(`tab-${name}`).classList.toggle("hidden", name !== tab);
-  });
-  document.querySelectorAll(".tab").forEach(el => el.classList.toggle("active", el.dataset.tab === tab));
-  if (tab === "price") syncPriceTab();
-  if (tab === "result") renderResultTab();
-  if (tab === "order") renderOrderTab();
-  if (tab === "preview") renderPreviewTab();
-}
-
-document.getElementById("tabBar").addEventListener("click", e => {
-  const tab = e.target.dataset.tab;
-  if (tab) switchTab(tab);
-});
-
-function renderResultTab() {
-  const named = state.products.filter(product => product.name.trim());
-  document.getElementById("productChips").innerHTML = named.length
-    ? named.map(product => `<button class="chip ${state.selectedProducts.includes(product.id) ? "selected" : ""}" data-pid="${product.id}">${esc(product.name)}</button>`).join("")
-    : '<span class="empty" style="display:block;width:100%">등록된 제품이 없습니다.</span>';
-  buildResultCards();
-}
-
-document.addEventListener("click", e => {
-  const chip = e.target.closest("#productChips .chip");
-  if (chip) toggleProduct(chip.dataset.pid);
-});
-
-function toggleProduct(pid) {
-  collectResultInputs();
-  const idx = state.selectedProducts.indexOf(pid);
-  if (idx > -1) state.selectedProducts.splice(idx, 1);
-  else state.selectedProducts.push(pid);
-  renderResultTab();
-}
-
-function getRatioInfo(product, opt) {
-  const unitRows = product.ingredients.filter(row => row.isUnit && row.name.trim() && row.weight > 0);
-  if (!unitRows.length) {
-    return { ratio: 1, targetWeight: 0, selectedUnit: null, hasInput: false };
-  }
-  const selected = unitRows.find(row => row.id === opt.unitId) || unitRows[0];
-  const raw = parseFloat(opt.weight || "") || 0;
-  if (raw <= 0) {
-    return { ratio: 1, targetWeight: 0, selectedUnit: selected, hasInput: false };
-  }
-  const targetWeight = selected.unit === "kg" ? raw * 1000 : raw;
-  const ratio = targetWeight / selected.weight;
-  return { ratio, targetWeight, selectedUnit: selected, hasInput: true };
-}
-
-function buildResultCards() {
-  const area = document.getElementById("resultArea");
-  if (!state.selectedProducts.length) {
-    area.innerHTML = "";
-    return;
-  }
-
-  const cards = state.selectedProducts.map(pid => {
-    const product = state.products.find(p => p.id === pid);
-    if (!product) return "";
-    const opt = getResultOption(pid);
-    const unitRows = product.ingredients.filter(row => row.isUnit && row.name.trim() && row.weight > 0);
-    if (unitRows.length && !unitRows.some(row => row.id === opt.unitId)) opt.unitId = unitRows[0].id;
-    const info = getRatioInfo(product, opt);
-
-    const rows = [
-      ...(opt.supplementOnly ? [] : product.ingredients.map(row => ({ ...row, kind: "원료" }))),
-      ...product.supplements.map(row => ({ ...row, kind: "영양제" }))
-    ].filter(row => row.name.trim() && row.weight > 0);
-
-    let totalWeight = 0;
-    let totalCost = 0;
-    const bodyRows = rows.map(row => {
-      const scaled = row.weight * info.ratio;
-      totalWeight += scaled;
-      const price = state.prices[priceKey(row.name)] || {};
-      const cost = price.unit > 0 ? (scaled / price.unit) * (price.price || 0) : 0;
-      totalCost += cost;
-      return `<tr>
-        <td>${esc(row.kind === "영양제" ? (row.alias || row.name) : row.name)} <span style="font-size:10px;color:var(--text3)">(${esc(row.name)})</span></td>
-        <td style="text-align:right">${fmt(scaled)}g</td>
-        <td style="text-align:right">${Math.round(cost).toLocaleString()}원</td>
-      </tr>`;
-    }).join("");
-
-    return `<div class="rcard">
-      <div class="rcard-head">
-        <div class="rcard-name">${esc(product.name)}</div>
-        ${unitRows.length ? `
-        <div class="unit-ctrl">
-          <select class="unit-select" id="usel-${pid}" onchange="onResultUnitChange('${pid}')">
-            ${unitRows.map(row => `<option value="${row.id}" ${row.id === opt.unitId ? "selected" : ""}>${esc(row.name)} 기준 ${fmt(row.weight)}g</option>`).join("")}
-          </select>
-          <div class="unit-input-wrap">
-            <input class="unit-weight-input" type="number" id="uwt-${pid}" value="${esc(opt.weight || "")}" placeholder="0" min="0" step="0.1" oninput="updateResultCard('${pid}')">
-            <span>${esc(info.selectedUnit?.unit || "g")}</span>
-          </div>
-          <span class="ratio-badge">${info.hasInput ? `x ${fmt(info.ratio)}` : "x -"}</span>
-        </div>` : `<div style="font-size:12px;color:var(--text3)">생산단위 원료를 먼저 체크해 주세요.</div>`}
-      </div>
-      <div class="result-actions">
-        <input type="text" id="preset-name-${pid}" value="${esc(opt.presetLabel || "")}" placeholder="프리셋명" style="max-width:180px;border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--bg2);color:var(--text)">
-        <button class="btn btn-primary" onclick="savePresetFromResult('${pid}')">프리셋 저장</button>
-      </div>
-      <div style="padding:0 18px 10px;display:flex;align-items:center;gap:8px">
-        <input type="checkbox" id="suponly-${pid}" ${opt.supplementOnly ? "checked" : ""} onchange="updateResultCard('${pid}')">
-        <label for="suponly-${pid}" style="font-size:12px;color:var(--text2)">영양제만 보기</label>
-      </div>
-      <div class="rcard-body">
-        <table>
-          <thead><tr><th>항목</th><th style="text-align:right">중량</th><th style="text-align:right">원가</th></tr></thead>
-          <tbody>
-            ${bodyRows || '<tr><td colspan="3" class="empty">표시할 항목이 없습니다.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-      <div class="rcard-foot">
-        <div style="font-size:12px;color:var(--text2)">기준 중량에 맞춰 자동 계산됩니다.</div>
-        <div class="foot-item"><div class="foot-label">총 중량</div><div class="foot-val">${fmt(totalWeight)}g</div></div>
-        <div class="foot-item"><div class="foot-label">총 원가</div><div class="foot-val">${Math.round(totalCost).toLocaleString()}원</div></div>
-      </div>
-    </div>`;
-  }).join("");
-
-  area.innerHTML = `<div class="result-grid">${cards}</div>`;
-}
-
-function onResultUnitChange(pid) {
-  collectResultInputs();
-  buildResultCards();
-}
-
-function updateResultCard(pid) {
-  collectResultInputs();
-  buildResultCards();
-}
-
-function savePresetFromResult(pid) {
-  collectAllInputs();
-  const product = state.products.find(p => p.id === pid);
-  if (!product || !product.name.trim()) {
-    showToast("제품명을 먼저 입력해 주세요.");
-    return;
-  }
-  const opt = getResultOption(pid);
-  const info = getRatioInfo(product, opt);
-  if (!info.hasInput || !info.targetWeight) {
-    showToast("결과 탭에서 중량을 먼저 입력해 주세요.");
-    return;
-  }
-  const list = normalizePresets(product.name.trim()).slice();
-  list.push({
-    weight: info.targetWeight,
-    label: opt.presetLabel || "",
-    unitId: opt.unitId || ""
-  });
-  state.orderPresets[product.name.trim()] = list;
-  normalizePresets(product.name.trim());
-  saveOrderData();
-  renderOrderTab();
-  showToast("발주 프리셋 저장 완료");
-}
-
-function clearAllPresets() {
-  state.orderPresets = {};
-  state.orderInputs = {};
-  saveOrderData();
-  renderOrderTab();
-}
-
-function getSupplementAlias(row) {
-  return String(row.alias || row.name || "").trim();
-}
-
-function getPresetRatio(product, preset) {
-  const unitRows = product.ingredients.filter(row => row.isUnit && row.name.trim() && row.weight > 0);
-  const selected = unitRows.find(row => row.id === preset.unitId) || unitRows[0];
-  if (!selected || !selected.weight) return 1;
-  return Number(preset.weight) / selected.weight;
-}
-
-function renderOrderTab() {
-  const presetGrid = document.getElementById("presetGrid");
-  const supMapTable = document.getElementById("supMapTable");
-  const orderArea = document.getElementById("orderArea");
-
-  const presetProducts = Object.keys(state.orderPresets).filter(name => normalizePresets(name).length);
-
-  presetGrid.innerHTML = presetProducts.length
-    ? presetProducts.map(name => {
-      const list = normalizePresets(name);
-      return `<div class="preset-card">
-        <div class="preset-card-name"><span>${esc(name)}</span></div>
-        <div class="preset-lines">
-          ${list.map(item => `<div class="preset-line"><span class="badge">${esc(item.code)}</span><span>${esc(item.displayName)}</span></div>`).join("")}
-        </div>
-      </div>`;
-    }).join("")
-    : '<div class="empty">저장된 프리셋이 없습니다.</div>';
-
-  const aliasRows = [];
-  state.products.forEach(product => {
-    product.supplements.forEach(row => {
-      if (!row.name.trim()) return;
-      aliasRows.push(`<tr><td>${esc(row.name)}</td><td>${esc(getSupplementAlias(row))}</td></tr>`);
-    });
-  });
-  supMapTable.innerHTML = aliasRows.join("") || '<tr><td colspan="2" class="empty">영양제 치환명이 없습니다.</td></tr>';
-
-  if (!presetProducts.length) {
-    orderArea.innerHTML = '<div class="empty">결과 탭에서 프리셋을 저장해 주세요.</div>';
-    return;
-  }
-
-  orderArea.innerHTML = presetProducts.map(productName => {
-    const product = state.products.find(p => p.name.trim() === productName);
-    const presets = normalizePresets(productName);
-    if (!product) return "";
-    const supplements = product.supplements.filter(row => row.name.trim());
-    return `<div class="order-product-row">
-      <div class="order-product-header">
-        <span class="order-product-name">${esc(productName)}</span>
-        <span class="badge">${presets.length}개 프리셋</span>
-      </div>
-      <div class="order-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:180px">영양제</th>
-              ${presets.map(preset => `<th style="text-align:center">${esc(preset.code)}<br><span style="font-size:10px;font-weight:400">${esc(preset.displayName)}</span></th>`).join("")}
-            </tr>
-          </thead>
-          <tbody>
-            ${supplements.map(row => `<tr>
-              <td style="font-weight:600">${esc(getSupplementAlias(row))} <span style="font-size:10px;color:var(--text3)">(${esc(row.name)})</span></td>
-              ${presets.map(preset => {
-                const grams = row.weight * getPresetRatio(product, preset);
-                const key = `${productName}__${preset.code}__${row.name}`;
-                const inputValue = state.orderInputs[key] || "";
-                return `<td><div class="order-cell"><div class="order-cell-grams">${fmt(grams)}g</div><div class="order-cell-sub">부족 수량</div><input class="order-cell-input" type="number" min="0" step="1" value="${esc(inputValue)}" onchange="setOrderInput('${esc(productName)}','${esc(preset.code)}','${esc(row.name)}', this.value)"></div></td>`;
-              }).join("")}
-            </tr>`).join("")}
-          </tbody>
-        </table>
-      </div>
-    </div>`;
-  }).join("");
-}
-
-function setOrderInput(productName, presetCode, supplementName, value) {
-  const key = `${productName}__${presetCode}__${supplementName}`;
-  const amount = parseInt(value, 10) || 0;
-  if (amount > 0) state.orderInputs[key] = amount;
-  else delete state.orderInputs[key];
-  saveOrderData();
-}
-
-function generatePreview() {
-  collectAllInputs();
-  renderPreviewTab();
-  switchTab("preview");
-}
-
-function renderPreviewTab() {
-  const area = document.getElementById("previewArea");
-  const rows = Object.keys(state.orderInputs).map(key => {
-    const [productName, presetCode, supplementName] = key.split("__");
-    const qty = state.orderInputs[key];
-    const product = state.products.find(p => p.name.trim() === productName);
-    const preset = normalizePresets(productName).find(item => item.code === presetCode);
-    const supplement = product?.supplements?.find(row => row.name === supplementName);
-    return {
-      productName,
-      presetCode,
-      presetName: preset?.displayName || presetCode,
-      supplementName: getSupplementAlias(supplement || { name: supplementName }),
-      qty
-    };
-  }).filter(row => row.qty > 0);
-
-  if (!rows.length) {
-    area.innerHTML = '<div class="empty">입력된 부족 수량이 없습니다.</div>';
-    return;
-  }
-
-  area.innerHTML = `
-    <div class="preview-box">
-      <div class="preview-title">영양제 발주 목록</div>
-      <div class="preview-sub">${new Date().toLocaleDateString("ko-KR")}</div>
-      <table class="pv-table">
-        <thead><tr><th>코드</th><th class="left">제품/프리셋</th><th class="left">영양제</th><th>수량</th></tr></thead>
-        <tbody>
-          ${rows.map(row => `<tr><td>${esc(row.presetCode)}</td><td class="left">${esc(row.productName)} / ${esc(row.presetName)}</td><td class="left">${esc(row.supplementName)}</td><td>${row.qty}</td></tr>`).join("")}
-        </tbody>
-      </table>
-    </div>`;
-}
-
-loadData();
-renderProducts();
-syncPriceTab();
-renderOrderTab();
-
-window.addEventListener("beforeunload", () => {
-  collectAllInputs();
-  saveRecipeData();
-  saveOrderData();
-});
-</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module" src="./v2/modules/main.js"></script>
 </body>
 </html>
+
