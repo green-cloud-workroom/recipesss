@@ -76,6 +76,7 @@ export const reducers = {
       ui: {
         ...state.ui,
         selectedProductIds: newSelected,
+        selectedPresetIds: (state.ui.selectedPresetIds || []).filter(id => !removedPresetIds.has(id)),
         resultOptions: restResultOpts,
         editingProductId: state.ui.editingProductId === productId ? null : state.ui.editingProductId
       }
@@ -269,13 +270,35 @@ export const reducers = {
       const [pid] = key.split("__");
       if (pid !== presetId) newOrderQty[key] = qty;
     });
-    return { ...state, presets: rest, orderQuantities: newOrderQty };
+    return {
+      ...state,
+      presets: rest,
+      orderQuantities: newOrderQty,
+      ui: {
+        ...state.ui,
+        selectedPresetIds: (state.ui.selectedPresetIds || []).filter(id => id !== presetId)
+      }
+    };
   },
 
   CLEAR_ALL_PRESETS: (state) => ({
     ...state,
     presets: {},
-    orderQuantities: {}
+    orderQuantities: {},
+    ui: { ...state.ui, selectedPresetIds: [] }
+  }),
+
+  // ===== 발주 프리셋 선택 =====
+  TOGGLE_SELECTED_PRESET: (state, { presetId }) => {
+    const list = state.ui.selectedPresetIds || [];
+    const idx = list.indexOf(presetId);
+    const next = idx > -1 ? list.filter(id => id !== presetId) : [...list, presetId];
+    return { ...state, ui: { ...state.ui, selectedPresetIds: next } };
+  },
+
+  SET_SELECTED_PRESETS: (state, { presetIds }) => ({
+    ...state,
+    ui: { ...state.ui, selectedPresetIds: Array.isArray(presetIds) ? presetIds.slice() : [] }
   }),
 
   // ===== 발주 수량 =====

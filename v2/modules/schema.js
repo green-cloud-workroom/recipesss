@@ -31,6 +31,7 @@ export function createEmptyState() {
     orderQuantities: {}, // "presetId__ingredientId" → 수량
     ui: {
       selectedProductIds: [],
+      selectedPresetIds: [],
       resultOptions: {}, // productId → { unitIngredientId, weight, supplementOnly, presetLabel }
       editingProductId: null,
       activeTab: "recipe"

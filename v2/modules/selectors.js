@@ -207,6 +207,39 @@ export function getOrderPreviewRows(state) {
     .filter(Boolean);
 }
 
+// 선택된 프리셋들의 영양제 양 (출력 탭용)
+export function getSelectedPresetsView(state) {
+  const selectedIds = state.ui.selectedPresetIds || [];
+  return selectedIds
+    .map(id => state.presets[id])
+    .filter(Boolean)
+    .map(preset => {
+      const product = state.products[preset.productId];
+      if (!product) return null;
+      const ratio = getPresetRatio(state, preset);
+      const supplements = product.composition
+        .map(row => {
+          const ing = state.ingredients[row.ingredientId];
+          if (!ing || ing.kind !== "supplement" || !ing.name || !row.weight) return null;
+          return {
+            ingredientId: row.ingredientId,
+            name: ing.name,
+            displayName: ing.displayName || ing.name,
+            scaledWeight: row.weight * ratio
+          };
+        })
+        .filter(Boolean);
+      return {
+        preset,
+        product,
+        displayName: getPresetDisplayName(state, preset),
+        ratio,
+        supplements
+      };
+    })
+    .filter(Boolean);
+}
+
 // 헬퍼: 이름으로 ingredient 찾기 (같은 kind 우선)
 export function findIngredientByName(state, name, preferredKind = null) {
   const trimmed = String(name || "").trim();

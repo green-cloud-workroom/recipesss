@@ -1,17 +1,20 @@
-// ui-tab-preview.js — 출력 미리보기 탭
+// ui-tab-preview.js — 출력 탭 (v2.1)
 //
-// 책임: orderQuantities를 표로 정리해서 출력용 화면
-// 의존: store, selectors
+// 변경: orderQuantities(부족 수량) → 선택된 프리셋들의 영양제 일람표.
+// 인쇄/공유용 깔끔한 형태. 프리셋별로 그룹화.
 
-import { getOrderPreviewRows } from "./selectors.js";
-import { esc } from "./utils.js";
+import { getSelectedPresetsView } from "./selectors.js";
+import { esc, fmt } from "./utils.js";
 
 export function initPreviewTab(store) {
   const areaEl = document.getElementById("previewArea");
 
   const RERENDER_ON = [
-    "SET_ORDER_QUANTITY", "REMOVE_PRESET", "CLEAR_ALL_PRESETS",
-    "UPDATE_INGREDIENT", "UPDATE_PRODUCT",
+    "TOGGLE_SELECTED_PRESET", "SET_SELECTED_PRESETS",
+    "REMOVE_PRESET", "CLEAR_ALL_PRESETS",
+    "UPDATE_INGREDIENT", "UPDATE_PRODUCT", "UPDATE_COMPOSITION_ROW",
+    "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
+    "REPLACE_COMPOSITION_INGREDIENT",
     "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT",
     "SET_ACTIVE_TAB"
   ];
@@ -19,37 +22,38 @@ export function initPreviewTab(store) {
 
   function render() {
     if (store.getState().ui.activeTab !== "preview") return;
-    const rows = getOrderPreviewRows(store.getState());
+    const views = getSelectedPresetsView(store.getState());
 
-    if (!rows.length) {
-      areaEl.innerHTML = '<div class="empty">입력된 부족 수량이 없습니다.</div>';
+    if (!views.length) {
+      areaEl.innerHTML = '<div class="empty">발주 탭에서 프리셋을 선택해 주세요.</div>';
       return;
     }
 
     const today = new Date().toLocaleDateString("ko-KR");
     areaEl.innerHTML = `
       <div class="preview-box">
-        <div class="preview-title">영양제 발주 목록</div>
-        <div class="preview-sub">${today}</div>
-        <table class="pv-table">
-          <thead>
-            <tr>
-              <th>코드</th>
-              <th class="left">제품/프리셋</th>
-              <th class="left">영양제</th>
-              <th>수량</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(r => `
-              <tr>
-                <td>${esc(r.code)}</td>
-                <td class="left">${esc(r.presetName)}</td>
-                <td class="left">${esc(r.supplementName)}</td>
-                <td>${r.qty}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
+        <div class="preview-title">영양제 분배 목록</div>
+        <div class="preview-sub">${today} · ${views.length}개 프리셋</div>
+        ${views.map(v => `
+          <div class="preview-preset-block">
+            <div class="preview-preset-head">
+              <span class="badge">${esc(v.preset.code)}</span>
+              <span class="preview-preset-name">${esc(v.displayName)}</span>
+            </div>
+            ${v.supplements.length ? `
+              <table class="pv-table">
+                <thead><tr><th class="left">영양제</th><th>중량</th></tr></thead>
+                <tbody>
+                  ${v.supplements.map(s => `
+                    <tr>
+                      <td class="left">${esc(s.displayName)}${s.displayName !== s.name ? ` <span class="pv-sub">(${esc(s.name)})</span>` : ""}</td>
+                      <td>${fmt(s.scaledWeight)}g</td>
+                    </tr>`).join("")}
+                </tbody>
+              </table>
+            ` : '<div class="empty">영양제가 등록되어 있지 않습니다.</div>'}
+          </div>
+        `).join("")}
       </div>`;
   }
 

@@ -15,13 +15,25 @@ export const LEGACY_KEYS = {
   order: "recipe_cost_order_v1"
 };
 
+// 스키마가 진화할 때 누락된 필드를 자동으로 채운다.
+function ensureV2Shape(state) {
+  const empty = createEmptyState();
+  if (!state) return empty;
+  return {
+    ...empty,
+    ...state,
+    meta: { ...empty.meta, ...(state.meta || {}) },
+    ui: { ...empty.ui, ...(state.ui || {}) }
+  };
+}
+
 export function loadV2() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || parsed.version !== SCHEMA_VERSION) return null;
-    return parsed;
+    return ensureV2Shape(parsed);
   } catch (e) {
     console.warn("v2 로드 실패:", e);
     return null;

@@ -482,8 +482,59 @@
     color: var(--text2); font-size: 12px;
   }
   .btn-icon:hover { background: var(--bg2); color: var(--text); }
-  .preset-line { display: flex; align-items: center; gap: 6px; }
+  .preset-line {
+    display: flex; align-items: center; gap: 6px;
+    border: 0.5px solid transparent;
+    border-radius: 8px;
+    padding: 5px 7px;
+    cursor: pointer;
+  }
+  .preset-line:hover { background: var(--bg2); }
+  .preset-line.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .preset-line.selected .badge,
+  .preset-line.selected .preset-line-name { color: var(--accentText); }
+  .preset-line.selected .btn-icon { color: var(--accentText); border-color: rgba(255,255,255,0.3); }
   .preset-line .btn-icon { margin-left: auto; padding: 2px 6px; font-size: 10px; }
+  .preset-line-name { flex: 1; font-size: 13px; }
+  .order-compact { width: auto; }
+  .order-compact th, .order-compact td { padding: 8px 10px; font-size: 12px; }
+  .order-sup-col { width: 140px; }
+  .order-sup-name { font-weight: 600; white-space: nowrap; }
+  .order-col-head {
+    min-width: 70px; max-width: 90px;
+    text-align: center; font-weight: 600;
+    font-size: 11px;
+  }
+  .order-col-sub {
+    font-size: 9px; font-weight: 400;
+    color: var(--text3);
+    display: block; margin-top: 2px;
+    line-height: 1.2;
+  }
+  .order-cell-compact {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .order-cell-unit {
+    font-size: 10px; color: var(--text3);
+    margin-left: 1px;
+  }
+  .preview-preset-block {
+    margin-top: 18px; padding-top: 14px;
+    border-top: 0.5px solid var(--border);
+  }
+  .preview-preset-block:first-of-type { border-top: 0; padding-top: 0; }
+  .preview-preset-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .preview-preset-name { font-weight: 700; }
+  .pv-sub { color: var(--text3); font-size: 11px; }
   .product-name-input {
     flex: 1; padding: 8px 10px; border: 0.5px solid var(--border);
     border-radius: 8px; background: var(--bg2); color: var(--text); font-size: 14px;
@@ -560,9 +611,12 @@
       <div class="panel">
         <div class="section-row">
           <div class="slabel" style="margin:0">발주 프리셋</div>
-          <button class="btn btn-sm" id="clearPresetsBtn">전체 초기화</button>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" id="selectAllPresetsBtn">전체 선택</button>
+            <button class="btn btn-sm" id="clearPresetsBtn">전체 초기화</button>
+          </div>
         </div>
-        <div class="info-box">결과 탭에서 중량과 프리셋명을 입력하고 저장하면 여기에서 바로 사용할 수 있습니다.</div>
+        <div class="info-box">프리셋을 클릭하면 오른쪽에 영양제 양이 표시됩니다.</div>
         <div id="presetGrid" class="preset-grid"></div>
         <div class="slabel">영양제 치환명</div>
         <table>
@@ -572,7 +626,7 @@
       </div>
       <div class="panel">
         <div class="section-row">
-          <div class="slabel" style="margin:0">부족 수량 입력</div>
+          <div class="slabel" style="margin:0">선택 프리셋 영양제 양</div>
           <button class="btn btn-primary" id="generatePreviewBtn">출력 미리보기 생성</button>
         </div>
         <div id="orderArea"></div>
@@ -584,8 +638,8 @@
     <div class="card">
       <div class="section-row">
         <div>
-          <div style="font-size:14px;font-weight:700">출력 미리보기</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:4px">발주 데이터를 정리한 출력용 목록입니다.</div>
+          <div style="font-size:14px;font-weight:700">영양제 분배 목록</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">발주 탭에서 선택한 프리셋들의 영양제 양을 보여줍니다.</div>
         </div>
       </div>
       <div id="previewArea"></div>
