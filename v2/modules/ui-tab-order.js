@@ -6,9 +6,9 @@
 //   - 셀: 그램 수치만 표시. 부족 수량 input/라벨 제거.
 //   - 셀 padding 축소로 자동으로 좁아짐.
 
-import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-unused-sup-cleanup-1";
-import { esc, fmt } from "./utils.js?v=20260513-unused-sup-cleanup-1";
-import { toast } from "./ui-shell.js?v=20260513-unused-sup-cleanup-1";
+import { getPresetsByProduct, getPresetDisplayName, getPresetRatio, getProductView } from "./selectors.js?v=20260513-alias-input-1";
+import { esc, fmt } from "./utils.js?v=20260513-alias-input-1";
+import { toast } from "./ui-shell.js?v=20260513-alias-input-1";
 
 export function initOrderTab(store) {
   const presetGrid = document.getElementById("presetGrid");
@@ -67,6 +67,16 @@ export function initOrderTab(store) {
       store.dispatch({ type: "REMOVE_UNUSED_SUPPLEMENT", ingredientId: btn.dataset.iid });
       toast("미사용 영양제 삭제 완료");
     }
+  });
+
+  supMapTable.addEventListener("change", e => {
+    const input = e.target.closest("[data-field='supplement-display-name']");
+    if (!input) return;
+    store.dispatch({
+      type: "UPDATE_INGREDIENT",
+      ingredientId: input.dataset.iid,
+      patch: { displayName: input.value }
+    });
   });
 
   // 전체 선택/해제 버튼
@@ -131,7 +141,13 @@ export function initOrderTab(store) {
         aliasRows.push(`
           <tr>
             <td>${esc(ing.name)}${used ? "" : ' <span class="orphan-badge">미사용</span>'}</td>
-            <td>${esc(ing.displayName || ing.name)}</td>
+            <td>
+              <input
+                data-field="supplement-display-name"
+                data-iid="${ing.id}"
+                value="${esc(ing.displayName || ing.name)}"
+                placeholder="${esc(ing.name)}">
+            </td>
             <td style="text-align:right;width:58px">
               ${used ? "" : `<button class="btn-icon" data-action="remove-unused-supplement" data-iid="${ing.id}" data-name="${esc(ing.name)}" title="삭제">삭제</button>`}
             </td>
