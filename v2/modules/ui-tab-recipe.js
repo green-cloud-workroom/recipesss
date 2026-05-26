@@ -282,11 +282,13 @@ function handleClickAction(store, target, openProductIds, render) {
       render();
       break;
     case "remove-product": {
-      if (confirm("이 제품을 삭제할까요?")) {
+      const product = getProductList(store.getState()).find(item => item.id === pid);
+      showDeleteProductModal(product).then(confirmed => {
+        if (!confirmed) return;
         openProductIds.delete(pid);
         store.dispatch({ type: "REMOVE_PRODUCT", productId: pid });
         toast("제품 삭제됨");
-      }
+      });
       break;
     }
     case "add-row":
@@ -296,6 +298,108 @@ function handleClickAction(store, target, openProductIds, render) {
       store.dispatch({ type: "REMOVE_COMPOSITION_ROW", productId: pid, index: idx });
       break;
   }
+}
+
+function showDeleteProductModal(product) {
+  return new Promise(resolve => {
+    const existing = document.getElementById("deleteProductModal");
+    if (existing) existing.remove();
+
+    const name = product?.displayName || product?.name || "선택한 레시피";
+    const modal = document.createElement("div");
+    modal.id = "deleteProductModal";
+    modal.className = "delete-product-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.innerHTML = `
+      <div class="delete-product-dialog">
+        <div class="delete-product-warning">해당 레시피가 영구적으로 삭제됩니다</div>
+        <div class="delete-product-name">${esc(name)}</div>
+        <div class="delete-product-help">삭제 후에는 되돌릴 수 없습니다.</div>
+        <div class="delete-product-actions">
+          <button type="button" class="btn" data-delete-cancel>취소</button>
+          <button type="button" class="btn btn-danger delete-product-confirm" data-delete-confirm>영구 삭제</button>
+        </div>
+      </div>`;
+
+    const style = document.createElement("style");
+    style.id = "deleteProductModalStyle";
+    style.textContent = `
+      .delete-product-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(0, 0, 0, 0.48);
+      }
+      .delete-product-dialog {
+        width: min(520px, 100%);
+        border: 1px solid rgba(220, 38, 38, 0.35);
+        border-radius: 10px;
+        background: var(--bg);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+        padding: 28px;
+        text-align: center;
+      }
+      .delete-product-warning {
+        color: #dc2626;
+        font-size: 28px;
+        line-height: 1.25;
+        font-weight: 800;
+      }
+      .delete-product-name {
+        margin-top: 16px;
+        color: var(--text);
+        font-size: 17px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+      }
+      .delete-product-help {
+        margin-top: 8px;
+        color: var(--text2);
+        font-size: 13px;
+      }
+      .delete-product-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 24px;
+      }
+      .delete-product-confirm {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #fff;
+        font-weight: 800;
+      }
+      @media (max-width: 560px) {
+        .delete-product-dialog { padding: 22px; }
+        .delete-product-warning { font-size: 24px; }
+        .delete-product-actions { flex-direction: column-reverse; }
+      }`;
+
+    const cleanup = confirmed => {
+      modal.remove();
+      style.remove();
+      document.removeEventListener("keydown", onKeydown);
+      resolve(confirmed);
+    };
+
+    const onKeydown = event => {
+      if (event.key === "Escape") cleanup(false);
+    };
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal || event.target.closest("[data-delete-cancel]")) cleanup(false);
+      if (event.target.closest("[data-delete-confirm]")) cleanup(true);
+    });
+
+    document.addEventListener("keydown", onKeydown);
+    document.head.appendChild(style);
+    document.body.appendChild(modal);
+    modal.querySelector("[data-delete-cancel]")?.focus();
+  });
 }
 
 function handleChangeAction(store, target) {
