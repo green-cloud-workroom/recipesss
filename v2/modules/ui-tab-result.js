@@ -152,7 +152,7 @@ function renderCard(state, productId, supplementOnly) {
       <select class="unit-select" data-change="result-unit" data-pid="${productId}">
         ${unitOptions.map(u => `
           <option value="${u.ingredientId}" ${u.ingredientId === (opt.unitIngredientId || pv.unitIngredientId) ? "selected" : ""}>
-            ${esc(u.name)} 기준 ${fmt(u.weight)}g${u.unitName ? `/${esc(u.unitName)}` : ""}
+            ${esc(u.name)} ${fmt(u.weight)}g${u.unitName ? `/${esc(u.unitName)}` : ""}
           </option>`).join("")}
       </select>
       <div class="unit-input-wrap">
