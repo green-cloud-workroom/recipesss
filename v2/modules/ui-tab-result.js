@@ -195,7 +195,6 @@ function renderCard(state, productId, supplementOnly) {
         </table>
       </div>
       <div class="rcard-foot">
-        <div style="font-size:12px;color:var(--text2)">기준 중량에 맞춰 자동 계산합니다.</div>
         <div class="foot-item"><div class="foot-label">총 중량</div><div class="foot-val">${fmt(totalWeight)}g</div></div>
         <div class="foot-item"><div class="foot-label">총 원가</div><div class="foot-val">${fmtInt(totalCost)}원</div></div>
       </div>
