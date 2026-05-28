@@ -10,7 +10,7 @@ import { initRecipeTab } from "./ui-tab-recipe.js?v=20260528-duplicate-recipe-1"
 import { initPriceTab } from "./ui-tab-price.js?v=20260513-preset-group-select-1";
 import { initResultTab } from "./ui-tab-result.js?v=20260526-result-input-2";
 import { initOrderTab } from "./ui-tab-order.js?v=20260513-preset-group-select-1";
-import { initPreviewTab } from "./ui-tab-preview.js?v=20260513-preset-group-select-1";
+import { initPreviewTab } from "./ui-tab-preview.js?v=20260528-preview-compact-1";
 import { initCloudSync, loadCloudState } from "./cloud-sync.js?v=20260513-preset-group-select-1";
 import { initAuthControls, requireAuth } from "./auth-gate.js?v=20260513-preset-group-select-1";
 

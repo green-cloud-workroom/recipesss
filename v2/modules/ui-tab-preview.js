@@ -92,9 +92,10 @@ function renderOutputOne(views) {
 }
 
 function renderOutputTwo(views) {
+  const groupedHtml = renderGroupedAliasTables(views);
   return `
     ${renderEggshellOnlyTable(views)}
-    ${renderGroupedAliasTables(views)}
+    ${groupedHtml ? `<div class="preview-groups-row">${groupedHtml}</div>` : ""}
   `;
 }
 

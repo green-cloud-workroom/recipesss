@@ -822,6 +822,32 @@
   .pv-eggshell-only {
     max-width: 220px;
   }
+  .preview-groups-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 14px 18px;
+    margin-top: 10px;
+  }
+  .preview-groups-row .preview-preset-block {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+    flex: 0 1 auto;
+  }
+  .preview-groups-row .pv-output-table {
+    width: auto;
+    min-width: 0;
+  }
+  .preview-groups-row .pv-output-table th,
+  .preview-groups-row .pv-output-table td {
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .preview-groups-row .pv-output-table td.left,
+  .preview-groups-row .pv-output-table th.left {
+    padding-right: 14px;
+  }
   .pv-sub { color: var(--text3); font-size: 11px; }
   .product-name-input {
     flex: 1; padding: 8px 10px; border: 0.5px solid var(--border);
@@ -961,7 +987,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="./v2/modules/main.js?v=20260528-preset-code-fix-1"></script>
+<script type="module" src="./v2/modules/main.js?v=20260528-preview-compact-1"></script>
 </body>
 </html>
 
