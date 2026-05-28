@@ -69,7 +69,7 @@ export function initRecipeTab(store) {
   }, true);
 
   [
-    "ADD_PRODUCT", "REMOVE_PRODUCT", "UPDATE_PRODUCT",
+    "ADD_PRODUCT", "DUPLICATE_PRODUCT", "REMOVE_PRODUCT", "UPDATE_PRODUCT",
     "ADD_COMPOSITION_ROW", "REMOVE_COMPOSITION_ROW",
     "REPLACE_COMPOSITION_INGREDIENT",
     "IMPORT_PRODUCTS", "RESTORE_SNAPSHOT", "REMOTE_SYNC"
@@ -165,6 +165,7 @@ function renderCard(product) {
         </div>
         <div class="product-actions">
           <button class="btn" data-action="close-card" data-pid="${product.id}">닫기</button>
+          <button class="btn" data-action="duplicate-product" data-pid="${product.id}">복사</button>
           <button class="btn btn-danger" data-action="remove-product" data-pid="${product.id}">삭제</button>
         </div>
       </div>
@@ -281,6 +282,15 @@ function handleClickAction(store, target, openProductIds, render) {
       openProductIds.delete(pid);
       render();
       break;
+    case "duplicate-product": {
+      const beforeIds = new Set(getProductList(store.getState()).map(product => product.id));
+      store.dispatch({ type: "DUPLICATE_PRODUCT", productId: pid });
+      const created = getProductList(store.getState()).find(product => !beforeIds.has(product.id));
+      if (created) openProductIds.add(created.id);
+      render();
+      toast("레시피 복사됨");
+      break;
+    }
     case "remove-product": {
       const product = getProductList(store.getState()).find(item => item.id === pid);
       showDeleteProductModal(product).then(confirmed => {

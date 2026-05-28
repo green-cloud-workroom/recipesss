@@ -32,6 +32,29 @@ export const reducers = {
     };
   },
 
+  // 기존 제품을 복사. composition은 같은 ingredient를 참조 (마스터 데이터 공유 유지).
+  // 새 제품은 원본 바로 뒤에 삽입.
+  DUPLICATE_PRODUCT: (state, { productId }) => {
+    const source = state.products[productId];
+    if (!source) return state;
+    const cloned = createProduct({
+      name: source.name ? `${source.name} (복사)` : "",
+      species: source.species,
+      unitIngredientId: source.unitIngredientId,
+      unitLabel: source.unitLabel,
+      composition: source.composition.map(row => ({ ...row }))
+    });
+    const idx = state.productOrder.indexOf(productId);
+    const newOrder = state.productOrder.slice();
+    if (idx >= 0) newOrder.splice(idx + 1, 0, cloned.id);
+    else newOrder.push(cloned.id);
+    return {
+      ...state,
+      products: { ...state.products, [cloned.id]: cloned },
+      productOrder: newOrder
+    };
+  },
+
   UPDATE_PRODUCT: (state, { productId, patch }) => {
     const current = state.products[productId];
     if (!current) return state;
