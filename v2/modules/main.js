@@ -1,10 +1,10 @@
 // main.js - application bootstrap.
 
 import { loadV2, loadV1, saveState } from "./repository.js?v=20260513-preset-group-select-1";
-import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260513-preset-group-select-1";
+import { migrateV1toV2, normalizeV2State } from "./migrations.js?v=20260528-preset-code-fix-1";
 import { createEmptyState } from "./schema.js?v=20260513-preset-group-select-1";
 import { createStore } from "./store.js?v=20260513-preset-group-select-1";
-import { reducers } from "./actions.js?v=20260528-duplicate-recipe-1";
+import { reducers } from "./actions.js?v=20260528-preset-code-fix-1";
 import { initShell, toast } from "./ui-shell.js?v=20260513-preset-group-select-1";
 import { initRecipeTab } from "./ui-tab-recipe.js?v=20260528-duplicate-recipe-1";
 import { initPriceTab } from "./ui-tab-price.js?v=20260513-preset-group-select-1";

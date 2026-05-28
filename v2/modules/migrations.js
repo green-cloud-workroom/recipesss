@@ -12,6 +12,7 @@
 //     (resultOptions.unitId가 row.id를 가리키고 있어서)
 
 import { createEmptyState, createIngredient, createProduct, createPreset } from "./schema.js?v=20260513-preset-group-select-1";
+import { computeNormalizedPresets } from "./preset-codes.js?v=20260528-preset-code-fix-1";
 
 // 종 접두어 추출. 화이트리스트.
 const SPECIES_PREFIX_RE = /^\((고양이|강아지)\)\s*/;
@@ -245,12 +246,17 @@ export function normalizeV2State(state) {
     changed = true;
   });
 
+  // preset code 충돌 해소 (서로 다른 product가 같은 prefix 사용하던 케이스)
+  const normalizedPresets = computeNormalizedPresets(state);
+  if (normalizedPresets) changed = true;
+
   if (!changed) return { state, changed: false };
   return {
     state: {
       ...state,
       ingredients,
-      prices
+      prices,
+      ...(normalizedPresets ? { presets: normalizedPresets } : {})
     },
     changed: true
   };

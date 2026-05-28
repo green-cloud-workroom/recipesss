@@ -11,6 +11,7 @@
 
 import { createProduct, createIngredient, createPreset } from "./schema.js?v=20260513-preset-group-select-1";
 import { loadSnapshot } from "./repository.js?v=20260513-preset-group-select-1";
+import { generatePresetCode } from "./preset-codes.js?v=20260528-preset-code-fix-1";
 
 // 헬퍼: composition에서 ingredient 사용 여부
 function isIngredientUsedAnywhere(state, ingredientId, excludeProductId = null) {
@@ -310,12 +311,9 @@ export const reducers = {
       inputAmount,
       inputUnitLabel
     });
-    // code 자동 생성: 같은 제품 프리셋 수 기반
+    // code 자동 생성: 다른 product와 prefix가 충돌하지 않게 결정.
     if (!preset.code) {
-      const existing = Object.values(state.presets).filter(p => p.productId === productId).length;
-      const productIdx = state.productOrder.indexOf(productId);
-      const prefix = productIdx >= 0 && productIdx < 26 ? String.fromCharCode(65 + productIdx) : "P";
-      preset.code = `${prefix}${existing}`;
+      preset.code = generatePresetCode(state, productId);
     }
     return { ...state, presets: { ...state.presets, [preset.id]: preset } };
   },
