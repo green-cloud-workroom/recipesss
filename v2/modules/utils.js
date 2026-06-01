@@ -15,6 +15,14 @@ export function fmt(num) {
     : value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
+// 항상 소수점 2자리 (영양제 중량 등 작은 값 표시용)
+export function fmt2(num) {
+  return (Number(num) || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
 export function fmtInt(num) {
   return Math.round(Number(num) || 0).toLocaleString();
 }

@@ -1,7 +1,7 @@
 // ui-tab-result.js - result cards with saved preset reference chips.
 
 import { getProductList, getResultCardData } from "./selectors.js?v=20260513-preset-group-select-1";
-import { esc, fmt, fmtInt } from "./utils.js?v=20260513-preset-group-select-1";
+import { esc, fmt, fmt2, fmtInt } from "./utils.js?v=20260528-supplement-format-1";
 import { toast } from "./ui-shell.js?v=20260513-preset-group-select-1";
 
 export function initResultTab(store) {
@@ -164,12 +164,16 @@ function renderCard(state, productId, supplementOnly) {
       <span class="ratio-badge">${info.hasInput ? `x ${fmt(info.ratio)}` : "x -"}</span>
     </div>` : `<div style="font-size:12px;color:var(--text3)">생산단위 원료를 먼저 체크해 주세요.</div>`;
 
-  const bodyRows = rows.length ? rows.map(r => `
+  const orderedRows = orderRowsForDisplay(rows);
+  const bodyRows = orderedRows.length ? orderedRows.map(r => {
+    const weightFmt = r.kind === "supplement" ? fmt2(r.scaledWeight) : fmt(r.scaledWeight);
+    return `
     <tr>
       <td>${esc(r.displayName)} <span style="font-size:10px;color:var(--text3)">(${esc(r.name)})</span></td>
-      <td style="text-align:right">${fmt(r.scaledWeight)}g</td>
+      <td style="text-align:right">${weightFmt}g</td>
       <td style="text-align:right">${fmtInt(r.cost)}원</td>
-    </tr>`).join("") : '<tr><td colspan="3" class="empty">표시할 항목이 없습니다.</td></tr>';
+    </tr>`;
+  }).join("") : '<tr><td colspan="3" class="empty">표시할 항목이 없습니다.</td></tr>';
 
   return `
     <div class="rcard">
@@ -199,6 +203,22 @@ function renderCard(state, productId, supplementOnly) {
         <div class="foot-item"><div class="foot-label">총 원가</div><div class="foot-val">${fmtInt(totalCost)}원</div></div>
       </div>
     </div>`;
+}
+
+// 원료는 입력 순서 유지, 영양제는 치환명(없으면 원이름) 가나다순으로 정렬해서 뒤에 붙임.
+function orderRowsForDisplay(rows) {
+  const ingredients = [];
+  const supplements = [];
+  rows.forEach(row => {
+    if (row.kind === "supplement") supplements.push(row);
+    else ingredients.push(row);
+  });
+  supplements.sort((a, b) => {
+    const ka = String(a.displayName || a.name || "");
+    const kb = String(b.displayName || b.name || "");
+    return ka.localeCompare(kb, "ko");
+  });
+  return [...ingredients, ...supplements];
 }
 
 function withSupplementOnly(state, productId, supplementOnly) {
