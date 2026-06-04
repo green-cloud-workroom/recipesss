@@ -755,7 +755,8 @@ function draftToRecipe(
 ### 8.2 TanStack Query 키 정책
 
 ```ts
-// uid 자동 포함
+// 1인 사용(DL-015) — 키에 uid 미포함. 현재 로그인 컨텍스트가 곧 호두님.
+// (다중 사용자 전환 시 키에 uid 추가 + 재로그인 invalidate 필요)
 ['recipeDrafts']                       // 호두님 드래프트 전체
 ['recipeDraft', draftId]
 ['recipes']                            // 등록된 레시피 (공유)
