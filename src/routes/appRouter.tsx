@@ -4,6 +4,7 @@ import { AppLayout } from '../components/AppLayout'
 import { AuthGuard } from '../components/AuthGuard'
 import { LoginPage } from '../pages/LoginPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { RecipesPage } from '../pages/RecipesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
 // SPEC §5.1 라우트 트리 + AuthGuard.
@@ -33,7 +34,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: '/recipes',
-            element: <PlaceholderPage title="레시피 목록" stage="단계 0.5" />,
+            element: <RecipesPage />,
           },
           {
             path: '/ingredients',
