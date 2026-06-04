@@ -78,7 +78,7 @@ function renderOutputOne(views) {
         <tr><th colspan="${group.views.length + 1}" class="pv-product-title">${esc(group.name)}</th></tr>
         <tr>
           <th></th>
-          ${group.views.map(view => `<th>${esc(view.preset.code)}</th>`).join("")}
+          ${group.views.map(view => `<th>${esc(view.preset.code)}${formatUnitInput(view.preset)}</th>`).join("")}
         </tr>
       </thead>
       <tbody>
@@ -206,6 +206,12 @@ function compareCodes(a, b) {
 
 function formatWeight(value) {
   return Number(value) > 0 ? `${fmt(value)}g` : "";
+}
+
+// 출력1 전용: 프리셋 코드 옆에 생산단위 투입량을 괄호로 표시 (예: P2 (3)).
+function formatUnitInput(preset) {
+  const amount = Number(preset && preset.inputAmount);
+  return amount > 0 ? ` (${fmt(amount)})` : "";
 }
 
 function getProductLabel(product) {
