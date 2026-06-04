@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>레시피 원가 계산기 v2</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f6f3;
+    --bg3: #efece6;
+    --text: #191816;
+    --text2: #6a6864;
+    --text3: #9b9791;
+    --border: rgba(0, 0, 0, 0.1);
+    --border2: rgba(0, 0, 0, 0.18);
+    --accent: #1d1c19;
+    --accentText: #ffffff;
+    --infoBg: #e8f0fb;
+    --infoText: #1a4fa0;
+    --warnBg: #fff7dd;
+    --warnText: #8a6200;
+    --radius: 10px;
+    --radiusLg: 14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #f0ede8;
+      --text2: #a0a09c;
+      --text3: #6a6a66;
+      --border: rgba(255, 255, 255, 0.1);
+      --border2: rgba(255, 255, 255, 0.18);
+      --accent: #f0ede8;
+      --accentText: #1c1c1a;
+      --infoBg: #0f2a50;
+      --infoText: #7aabf0;
+      --warnBg: #2f2403;
+      --warnText: #f0c040;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+  button, input, select {
+    font: inherit;
+  }
+  .app-header {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .app-title { font-size: 15px; font-weight: 600; }
+  .app-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .header-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .container { max-width: 1440px; margin: 0 auto; padding: 20px 16px 60px; }
+  .tab-bar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radiusLg);
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 11px 10px;
+    text-align: center;
+    border-radius: 10px;
+    color: var(--text2);
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tab.active { background: var(--accent); color: var(--accentText); }
+  .top-bar, .section-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .count-badge, .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    color: var(--text2);
+    font-size: 12px;
+  }
+  .card, .rcard, .panel {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radiusLg);
+  }
+  .card { padding: 18px 20px; margin-bottom: 14px; }
+  .panel { padding: 16px 18px; }
+  .btn, .save-btn, .download-btn, .import-btn {
+    border: 0.5px solid var(--border2);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 8px 14px;
+  }
+  .btn-primary, .save-btn {
+    background: var(--accent);
+    color: var(--accentText);
+    border-color: var(--accent);
+  }
+  .file-input { display: none; }
+  .btn-danger {
+    color: #c03c2f;
+    border-color: rgba(192, 60, 47, 0.3);
+    background: transparent;
+  }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+  .product-list .card { margin-bottom: 0; }
+  .recipe-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 14px;
+    align-items: stretch;
+    height: calc(100vh - 230px);
+    min-height: 360px;
+    overflow: hidden;
+  }
+  #tab-result .recipe-layout { height: calc(100vh - 170px); }
+  .recipe-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+  }
+  .recipe-sidebar > * {
+    flex: 0 0 auto;
+  }
+  .recipe-layout > section {
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 4px;
+  }
+  .recipe-menu-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .recipe-menu-section {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .recipe-menu-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--bg2);
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .recipe-menu-items {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+  }
+  .recipe-menu-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+  }
+  .recipe-menu-item:hover {
+    background: var(--bg2);
+  }
+  .recipe-menu-item.active {
+    background: var(--accent);
+    color: var(--accentText);
+  }
+  .recipe-menu-name {
+    font-weight: 700;
+    font-size: 12px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .recipe-menu-tag {
+    flex: 0 0 auto;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: var(--bg2);
+    color: var(--text3);
+    font-size: 10px;
+  }
+  .recipe-menu-item.active .recipe-menu-tag {
+    background: rgba(255,255,255,0.16);
+    color: var(--accentText);
+  }
+  .recipe-main-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .recipe-main-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .card.editing { min-width: 0; }
+  .recipe-open-card { overflow: hidden; }
+  .recipe-card-body { overflow-x: auto; }
+  .recipe-card-body table { min-width: 620px; }
+  .card.collapsed { padding: 14px 16px; cursor: pointer; }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .product-summary { flex: 1; min-width: 0; }
+  .product-title {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-meta { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .product-actions { display: flex; gap: 8px; align-items: center; }
+  .product-name-input {
+    width: min(420px, 100%);
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 700;
+    outline: none;
+  }
+  .slabel {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 12px 0 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    border-bottom: 0.5px solid var(--border);
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  th {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 700;
+  }
+  td input[type="text"], td input[type="number"], td select {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 6px;
+  }
+  td input:focus, td select:focus { background: var(--bg2); }
+  td input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+  }
+  .inline-weight {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+  .inline-weight input { width: 82px; text-align: right; }
+  .inline-weight select { width: 56px; }
+  .add-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text2);
+    cursor: pointer;
+    padding: 6px 4px;
+    border-radius: 8px;
+  }
+  .add-row:hover { color: var(--text); }
+  .paste-hint {
+    color: var(--text3);
+    font-size: 11px;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 0.5px solid var(--border2);
+    border-radius: 999px;
+    padding: 7px 14px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .chip.selected { background: var(--accent); color: var(--accentText); border-color: var(--accent); }
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .rcard { overflow: hidden; }
+  .rcard-head { padding: 14px 18px 12px; border-bottom: 0.5px solid var(--border); }
+  .rcard-name { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rcard-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .rcard-title-row .rcard-name { margin-bottom: 0; }
+  .unit-ctrl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .unit-select {
+    max-width: 220px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 7px 10px;
+  }
+  .unit-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 4px 10px;
+  }
+  .unit-weight-input {
+    width: 80px;
+    border: none;
+    background: var(--bg);
+    color: var(--text);
+    text-align: right;
+    outline: none;
+  }
+  .ratio-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--infoBg);
+    color: var(--infoText);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .preset-ref {
+    padding: 12px 18px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    color: var(--text2);
+    font-size: 12px;
+  }
+  .preset-ref-label { font-weight: 700; color: var(--text2); margin-right: 2px; }
+  .preset-ref-chip {
+    border: 0.5px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg2);
+    color: var(--text);
+    padding: 4px 9px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .result-actions {
+    padding: 8px 18px 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 0.5px solid var(--border);
+  }
+  .rcard-body { padding: 4px 18px 12px; }
+  .rcard-foot {
+    padding: 10px 18px 12px;
+    background: var(--bg2);
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .foot-item { text-align: right; }
+  .foot-label { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+  .foot-val { font-size: 18px; font-weight: 800; }
+  .grand { margin-top: 18px; }
+  .grand-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .metric {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .metric-label { color: var(--text2); font-size: 12px; margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 800; }
+  .order-layout {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    height: calc(100vh - 170px);
+    min-height: 420px;
+    overflow: hidden;
+  }
+  #tab-order .order-layout > .panel {
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .info-box {
+    background: var(--infoBg);
+    color: var(--infoText);
+    border-radius: 10px;
+    border: 0.5px solid var(--border);
+    padding: 10px 12px;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  .preset-grid { display: grid; gap: 8px; }
+  .preset-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .preset-card-name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .preset-card-name .btn {
+    flex: 0 0 auto;
+  }
+  .preset-lines { display: grid; gap: 6px; }
+  .preset-line { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .order-product-row {
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .order-product-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .order-product-name { font-size: 14px; font-weight: 700; }
+  .order-table-wrap {
+    overflow-x: auto;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+  }
+  .order-table-wrap table { min-width: 100%; }
+  .order-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .order-cell-grams { font-size: 12px; font-weight: 700; }
+  .order-cell-sub { font-size: 10px; color: var(--text3); }
+  .order-cell-input {
+    width: 74px;
+    border: 0.5px solid var(--border);
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  .preview-box {
+    background: white;
+    color: #111;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .preview-tabs {
+    display: inline-flex;
+    gap: 6px;
+    padding: 4px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    margin: 14px 0 10px;
+  }
+  .preview-tab {
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .preview-tab.active {
+    background: var(--accent);
+    color: var(--accentText);
+  }
+  .preview-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: -48px 0 10px;
+  }
+  .preview-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    border-bottom: 1.5px solid #111;
+    padding-bottom: 4px;
+  }
+  .preview-sub { font-size: 10px; color: #555; margin-bottom: 10px; }
+  .pv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+  }
+  .pv-table th, .pv-table td {
+    border: 0.5px solid #bbb;
+    padding: 5px 6px;
+    text-align: center;
+    color: #111;
+  }
+  .pv-product-title {
+    font-size: 13px;
+    font-weight: 700;
+    background: #f4f4f4;
+  }
+  .pv-table th.left, .pv-table td.left { text-align: left; }
+  .empty {
+    color: var(--text3);
+    text-align: center;
+    padding: 24px;
+    font-size: 13px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--accentText);
+    border-radius: 999px;
+    padding: 10px 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .toast.show { opacity: 1; }
+  .hidden { display: none !important; }
+  @media (max-width: 1080px) {
+    .order-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+    #tab-order .order-layout > .panel {
+      height: auto;
+      overflow: visible;
+    }
+  }
+  @media (max-width: 720px) {
+    .tab-bar { grid-template-columns: 1fr; }
+    .recipe-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      min-height: 0;
+      overflow: visible;
+    }
+    #tab-result .recipe-layout { height: auto; }
+    .recipe-sidebar,
+    .recipe-layout > section {
+      height: auto;
+      overflow: visible;
+      padding-right: 0;
+    }
+    .product-list { grid-template-columns: 1fr; }
+    .grand-grid { grid-template-columns: 1fr; }
+    .app-header { padding: 14px 16px; }
+  }
+  @media print {
+    @page { size: A4 portrait; margin: 12mm; }
+    body { background: white !important; color: #111 !important; }
+    body * { visibility: hidden !important; }
+    .print-active, .print-active * { visibility: visible !important; }
+    .print-active {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      border: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+    }
+    .print-active .pv-table {
+      font-size: 10.5pt;
+      page-break-inside: avoid;
+    }
+    .print-active .pv-table th,
+    .print-active .pv-table td {
+      padding: 5px 6px;
+      border: 0.5pt solid #777;
+    }
+    .preview-preset-block { page-break-inside: avoid; }
+  }
+</style>
+<style>
+  /* v2 추가 클래스 */
+  .card-header-edit { display: flex; gap: 8px; flex: 1; align-items: center; }
+  .species-select {
+    padding: 8px 10px; border: 0.5px solid var(--border);
+    border-radius: 8px; background: var(--bg2); color: var(--text);
+    font-size: 13px; min-width: 90px;
+  }
+  .usage-badge {
+    display: inline-block; margin-left: 6px; padding: 1px 6px;
+    background: var(--bg3); color: var(--text2); border-radius: 8px;
+    font-size: 11px; font-weight: 500;
+  }
+  .orphan-badge {
+    display: inline-block; margin-left: 6px; padding: 1px 6px;
+    background: var(--warnBg); color: var(--warnText); border-radius: 8px;
+    font-size: 11px; font-weight: 500;
+  }
+  .alias-line { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .empty-row {
+    padding: 12px; text-align: center; color: var(--text3); font-size: 12px;
+    background: var(--bg2); border-radius: 8px; margin-bottom: 8px;
+  }
+  .btn-icon {
+    background: transparent; border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 4px 8px; cursor: pointer;
+    color: var(--text2); font-size: 12px;
+  }
+  .btn-icon:hover { background: var(--bg2); color: var(--text); }
+  .preset-line {
+    display: flex; align-items: center; gap: 6px;
+    border: 0.5px solid transparent;
+    border-radius: 8px;
+    padding: 5px 7px;
+    cursor: pointer;
+  }
+  .preset-line:hover { background: var(--bg2); }
+  .preset-line.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .preset-line.selected .badge,
+  .preset-line.selected .preset-line-name { color: var(--accentText); }
+  .preset-line.selected .btn-icon { color: var(--accentText); border-color: rgba(255,255,255,0.3); }
+  .preset-line .btn-icon { margin-left: auto; padding: 2px 6px; font-size: 10px; }
+  .preset-line-name { flex: 1; font-size: 13px; }
+  .alias-table {
+    table-layout: fixed;
+  }
+  .alias-table th:first-child,
+  .alias-table td:first-child {
+    width: 34%;
+    min-width: 96px;
+    word-break: keep-all;
+  }
+  .alias-table th:nth-child(2),
+  .alias-table td:nth-child(2) {
+    width: auto;
+  }
+  .alias-table th:nth-child(3),
+  .alias-table td:nth-child(3) {
+    width: 118px;
+  }
+  .alias-table input.alias-input {
+    width: 100%;
+    min-width: 0;
+    border: 0.5px solid transparent;
+    background: transparent;
+    color: var(--text);
+    border-radius: 6px;
+    padding: 5px 6px;
+  }
+  .alias-table input.alias-input:focus {
+    border-color: var(--border2);
+    background: var(--bg2);
+    outline: none;
+  }
+  .alias-row-hidden {
+    opacity: 0.56;
+  }
+  .alias-row-hidden input.alias-input {
+    color: var(--text2);
+  }
+  .alias-table .btn-icon {
+    margin-left: 4px;
+    min-width: 42px;
+    white-space: nowrap;
+  }
+  .order-compact { width: 100%; }
+  .order-compact th, .order-compact td { padding: 8px 10px; font-size: 12px; }
+  .order-sup-col { width: 140px; }
+  .order-sup-name { font-weight: 600; white-space: nowrap; }
+  .order-col-head {
+    min-width: 110px; max-width: 140px;
+    text-align: center; font-weight: 600;
+    font-size: 11px;
+  }
+  .order-col-sub {
+    font-size: 9px; font-weight: 400;
+    color: var(--text3);
+    display: block; margin-top: 2px;
+    line-height: 1.2;
+  }
+  .order-cell-compact {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .order-cell-unit {
+    font-size: 10px; color: var(--text3);
+    margin-left: 1px;
+  }
+  .preview-preset-block {
+    margin-top: 18px; padding-top: 14px;
+    border-top: 0.5px solid var(--border);
+  }
+  .preview-preset-block:first-of-type { border-top: 0; padding-top: 0; }
+  .preview-preset-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .preview-preset-name { font-weight: 700; }
+  .preview-group-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: #111;
+  }
+  .pv-output-table {
+    margin-bottom: 14px;
+  }
+  .pv-a4-table {
+    page-break-inside: avoid;
+  }
+  .pv-eggshell-only {
+    max-width: 220px;
+  }
+  .preview-groups-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 14px 18px;
+    margin-top: 10px;
+  }
+  .preview-groups-row .preview-preset-block {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+    flex: 0 1 auto;
+  }
+  .preview-groups-row .pv-output-table {
+    width: auto;
+    min-width: 0;
+  }
+  .preview-groups-row .pv-output-table th,
+  .preview-groups-row .pv-output-table td {
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .preview-groups-row .pv-output-table td.left,
+  .preview-groups-row .pv-output-table th.left {
+    padding-right: 14px;
+  }
+  .pv-sub { color: var(--text3); font-size: 11px; }
+  .product-name-input {
+    flex: 1; padding: 8px 10px; border: 0.5px solid var(--border);
+    border-radius: 8px; background: var(--bg2); color: var(--text); font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <div class="app-title">레시피 원가 계산기 <span style="font-size:11px;color:var(--text3);font-weight:400">v2</span></div>
+    <div class="app-sub">데이터는 브라우저에 자동 저장됩니다 · 변경 전 자동 스냅샷</div>
+  </div>
+  <div class="header-btns">
+    <input class="file-input" type="file" id="excelImportInput" accept=".xlsx,.xls">
+    <button class="import-btn" id="importBtn">엑셀 가져오기</button>
+    <button class="download-btn" id="downloadBtn">백업 다운로드</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tab-bar" id="tabBar">
+    <div class="tab active" data-tab="recipe">레시피</div>
+    <div class="tab" data-tab="price">단가</div>
+    <div class="tab" data-tab="result">결과</div>
+    <div class="tab" data-tab="order">발주</div>
+    <div class="tab" data-tab="preview">출력</div>
+  </div>
+
+  <div id="tab-recipe">
+    <div class="top-bar">
+      <span class="count-badge">제품 <span id="productCount">0</span>개</span>
+      <button class="btn btn-primary" id="addProductBtn">제품 추가</button>
+    </div>
+    <div class="recipe-layout">
+      <aside class="recipe-sidebar" id="recipeCategoryList"></aside>
+      <section>
+        <div class="recipe-main-head">
+          <div class="recipe-main-title" id="recipeCategoryTitle">전체 레시피</div>
+          <span class="count-badge"><span id="filteredProductCount">0</span>개 열림</span>
+        </div>
+        <div id="productList"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="tab-price" class="hidden">
+    <div class="top-bar">
+      <span class="count-badge">단가표</span>
+      <label class="count-badge" style="cursor:pointer">
+        <input type="checkbox" id="hideUnusedPrices" style="width:14px;height:14px;accent-color:var(--accent)">
+        미사용 전체 숨기기
+      </label>
+    </div>
+    <div class="card">
+      <div class="slabel" style="margin-top:0">원료 단가</div>
+      <table>
+        <thead><tr><th>원료명</th><th style="text-align:right">단위 (g)</th><th style="text-align:right">단가 (원)</th></tr></thead>
+        <tbody id="ingredientPriceTable"></tbody>
+      </table>
+      <div id="ingredientPriceEmpty" class="empty">레시피 탭에서 원료를 먼저 입력해 주세요.</div>
+    </div>
+    <div class="card">
+      <div class="slabel" style="margin-top:0">영양제 단가</div>
+      <table>
+        <thead><tr><th>영양제명</th><th style="text-align:right">단위 (g)</th><th style="text-align:right">단가 (원)</th></tr></thead>
+        <tbody id="supplementPriceTable"></tbody>
+      </table>
+      <div id="supplementPriceEmpty" class="empty">레시피 탭에서 영양제를 먼저 입력해 주세요.</div>
+    </div>
+  </div>
+
+  <div id="tab-result" class="hidden">
+    <div class="recipe-layout">
+      <aside class="recipe-sidebar" id="productChips"></aside>
+      <section>
+        <div class="recipe-main-head">
+          <div class="recipe-main-title">결과</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+            <label class="count-badge" style="cursor:pointer">
+              <input type="checkbox" id="resultSupplementOnly" style="width:14px;height:14px;accent-color:var(--accent)">
+              영양제만 보기
+            </label>
+            <span class="count-badge"><span id="selectedResultCount">0</span>개 열림</span>
+          </div>
+        </div>
+        <div id="resultArea"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="tab-order" class="hidden">
+    <div class="order-layout">
+      <div class="panel">
+        <div class="section-row">
+          <div class="slabel" style="margin:0">발주 프리셋</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" id="selectAllPresetsBtn">전체 선택</button>
+          </div>
+        </div>
+        <div class="info-box">프리셋을 클릭하면 오른쪽에 영양제 양이 표시됩니다.</div>
+        <div id="presetGrid" class="preset-grid"></div>
+        <div class="slabel">영양제 치환명</div>
+        <div class="section-row" style="margin-bottom:8px">
+          <span class="count-badge">미사용 항목은 삭제할 수 있습니다</span>
+          <button class="btn btn-sm" id="clearUnusedSupplementsBtn">미사용 삭제</button>
+        </div>
+        <table class="alias-table">
+          <thead><tr><th>원래 이름</th><th>치환명</th><th style="width:58px"></th></tr></thead>
+          <tbody id="supMapTable"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="section-row">
+          <div class="slabel" style="margin:0">선택 프리셋 영양제 양</div>
+          <button class="btn btn-primary" id="generatePreviewBtn">출력 미리보기 생성</button>
+        </div>
+        <div id="orderArea"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-preview" class="hidden">
+    <div class="card">
+      <div class="section-row">
+        <div>
+          <div style="font-size:14px;font-weight:700">출력</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">발주 탭에서 선택한 프리셋 기준으로 출력합니다.</div>
+        </div>
+      </div>
+      <div id="previewArea"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module" src="./modules/main.js?v=20260528-supplement-format-1"></script>
+</body>
+</html>
+
