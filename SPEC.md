@@ -916,26 +916,28 @@ v3 상태 (신규):
 
 변환 함수 `migrateV2toV3(state)`. 순수 함수 + Vitest.
 
-### 11.2 데이터 이전 (구 recipesss Firebase → fant-e5ae5)
+### 11.2 데이터 이전 (backups JSON → fant-e5ae5) — DL-031
 
-작업 #14 참조.
+작업 #14 참조. **실행 = 앱 내 1회성 UI** (`/settings`), Node 스크립트 아님 (DL-031).
 
 **절차**:
 ```
-1. 현 recipesss Firebase 'recipe_cost_v2_state' 또는 Firestore recipesssState/{uid} 읽기
-2. migrateV2toV3() 적용
-3. fant-e5ae5의 다음 컬렉션에 write:
+1. /settings 에서 backups/*.json (v2 백업 다운로드 산출물) 업로드
+2. migrateV2toV3(state, { ownerUid: 현재 로그인 uid, now: Date.now() }) 적용
+3. dry-run 미리보기: 변환 결과 개수·샘플을 화면에 표시 (write 전)
+4. 호두님이 "쓰기" 확인 → fant-e5ae5 의 다음 컬렉션에 batch write:
    - recipeDrafts/{uid}/items/{draftId}
    - recipesssIngredients/{uid}/items/{ingredientId}
    - recipesssPresets/{uid}/items/{presetId}
-4. 양쪽 비교 검증:
-   - 레시피 수 일치
-   - 원료 수 일치
-   - 발주 코드·단가 합계 일치
-5. 호두님 OK 후 prod 적용
+   - (prices 는 DL-024 인터페이스 미정 → 이번 이전 대상에서 제외, 보류)
+5. write 후 검증: 쓰인 문서 수가 변환 결과 수와 일치하는지 화면에 표시
+   - 레시피(드래프트) 수 / 원료 수 / 프리셋 수
 ```
 
-Node.js 스크립트 (`scripts/migrate-to-fant-e5ae5.ts`) 1회 실행.
+**소스 = `backups/2026-06-03-pre-rewrite.json`** (DL-031). 구 recipesss Firebase 라이브
+읽기는 폐기 — recipesss는 client SDK만 보유하고 구 프로젝트 credential 도 없으며, 구
+Firebase 는 읽기전용(DL-019)이라 스냅샷 이후 변경분이 없다는 전제. 변환 함수
+`migrateV2toV3` 는 이 백업을 픽스처로 회귀 검증됨 (`src/features/migration/`).
 
 ### 11.3 폴더 이동 (OneDrive → C:\dev\recipesss)
 
@@ -1066,6 +1068,7 @@ Node.js 스크립트 (`scripts/migrate-to-fant-e5ae5.ts`) 1회 실행.
 | **DL-028** | 2026-06-03 | **부족분 판정 = 확정값 우선, 없으면 계산값** | 호두님 의도가 정답값. 펫푸드 라벨링 관례. |
 | **DL-029** | 2026-06-03 | **원료 변경 시 확정값 자동 갱신 (= 새 계산값으로 덮어쓰기)** | 워크플로우: 원료 셋업 끝 → 마지막 단계에서 확정값 미세조정 → 등록. UI에 명시. |
 | **DL-030** | 2026-06-03 | **원료 마스터 = USDA + 수동 원료 추가 + 영양값 직접 입력 (영양제 포함)** | 영양제·특수 원료는 USDA에 없음. 수동 입력 필수. 모든 원료가 같은 nutrientProfile 필드 보유. |
+| **DL-031** | 2026-06-04 | **마이그레이션 실행 = 앱 내 1회성 UI(/settings) + `backups/*.json` 소스 (구 §11.2 "Node.js 스크립트 + 구 Firebase 라이브 읽기" supersede)** | recipesss는 client SDK(`firebase`)만 보유·admin 없음. 앱 내 실행은 이미 로그인된 uid·Auth context를 그대로 써 credential 추가 0, dry-run이 화면에 보임. `backups/2026-06-03-pre-rewrite.json`은 `migrateV2toV3`로 회귀 검증됨. 단 스냅샷 이후 구 앱 변경분은 미포함(DL-019 구 Firebase 읽기전용이라 변경 없음 전제). |
 
 ### 결정 변경 절차
 1. 변경 사유와 영향 범위를 §13 새 행으로 추가. 이전 행은 두고 ~~취소선~~ + supersede.
