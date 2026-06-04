@@ -542,7 +542,10 @@ fant-e5ae5/
 
 `@react-pdf/renderer` 사용. A4 portrait.
 
-**출력 1**: 현 recipesss "출력 1" 양식 (난각분만 표)
+**출력 1**: 현 recipesss "출력 1" 양식 (난각분만 표). 프리셋 코드 헤더 옆에
+생산단위 투입량(`preset.inputAmount`)을 괄호로 표시 — 예: `P2 (3)`. 투입량이
+없는 프리셋은 괄호 생략. (2026-06-04 호두님 요청; v2 `ui-tab-preview.js`
+`formatUnitInput`와 동일 규칙)
 **출력 2**: 현 recipesss "출력 2" 양식 (영양제 그룹별 표)
 
 두 버전 모두 폰트 Noto Sans KR Regular/Bold 임베드.
