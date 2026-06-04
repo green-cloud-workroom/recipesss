@@ -1,19 +1,26 @@
 import type { User } from 'firebase/auth'
 import { create } from 'zustand'
 
-// 단계 0-B: 골격만. Firebase onAuthStateChanged 구독은 단계 0 후속(또는 0.5)에서 연결.
-// DL-015: 1인 사용 — role 없음. 이메일 + 로그아웃만 사이드바 푸터.
+import type { AuthStatus } from '../types/auth'
 
-type AuthState = {
+// 1인 사용 (DL-015) — role/claim 없음. user 존재 여부만으로 인증 판단.
+
+type AuthStore = {
   user: User | null
-  loading: boolean
-  setUser: (user: User | null) => void
-  setLoading: (loading: boolean) => void
+  status: AuthStatus
+  error: string | null
+  setAuthenticated: (user: User) => void
+  setUnauthenticated: () => void
+  setError: (error: string) => void
+  setInitializing: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  loading: true,
-  setUser: (user) => set({ user, loading: false }),
-  setLoading: (loading) => set({ loading }),
+  status: 'initializing',
+  error: null,
+  setAuthenticated: (user) => set({ user, status: 'authenticated', error: null }),
+  setUnauthenticated: () => set({ user: null, status: 'unauthenticated', error: null }),
+  setError: (error) => set({ user: null, status: 'unauthenticated', error }),
+  setInitializing: () => set({ status: 'initializing' }),
 }))

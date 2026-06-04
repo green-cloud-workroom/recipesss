@@ -1,6 +1,7 @@
 import { Suspense, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
+import { logout } from '../features/auth/authActions'
 import { navigationGroups } from '../config/navigation'
 import { useAuthStore } from '../stores/authStore'
 
@@ -16,8 +17,7 @@ export function AppLayout() {
   const closeSidebar = () => setSidebarOpen(false)
 
   function handleLogout() {
-    // 단계 0-B placeholder. 0 후속 또는 0.5에서 firebase signOut 연결.
-    console.log('[auth] logout — placeholder')
+    void logout()
   }
 
   return (
