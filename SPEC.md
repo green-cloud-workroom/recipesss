@@ -10,7 +10,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 문서 버전 | v0.2 |
+| 문서 버전 | v0.3 |
 | 최종 갱신 | 2026-06-03 |
 | 대상 앱 코드명 | recipesss |
 | 대상 리포 | github.com/green-cloud-workroom/recipesss |
@@ -63,10 +63,12 @@ fant-e5ae5 (Firebase 프로젝트 하나)
 ### 범위 (MVP에 포함)
 - 레시피 작성 = 영양 매트릭스 = 원가 계산 **하나의 화면**으로 통합 (DL-024)
 - 원료 추가·중량 조절 시 영양 매트릭스·원가 즉시 갱신
+- **영양값 = 계산값 + 확정값 이중 컬럼** (DL-027). 확정값 수동 편집 가능. 부족분 판정은 확정값 우선 (DL-028).
 - 임시저장 (`recipeDrafts/`) + 등록 (`recipes/`로 승격, 영양제 자동 제외)
-- 원료 마스터에 USDA FoodData Central 영양 데이터 import
+- 원료 마스터에 USDA FoodData Central 영양 데이터 import + **수동 원료 추가·영양값 직접 입력** (영양제 포함, DL-030)
 - 자견·성견·자묘·성묘 × 영양소 부족분 매트릭스 (AAFCO 기준)
-- 발주 프리셋 + 간결한 표시 (예: `(고양이)치킨 a0 20 / a1 40`)
+- 발주 그룹 3페이지: 프리셋 설정·발주·PDF 출력 (DL-026)
+- 발주 간결한 표시 (예: `(고양이)치킨 a0 20 / a1 40`)
 - 레시피 1건 → PDF 출력 2가지 버전
 - 레시피 목록 (활성/임시/비활성 상태 필터)
 - 표 드래그&드롭으로 행 순서 이동 (DL-022)
@@ -259,6 +261,10 @@ type RecipeDraft = {
   standardId: string            // NutrientProfile id (기본: AAFCO_2024_CAT_ADULT 등)
   status: 'draft' | 'inactive'  // inactive = 사용 중단 (목록에서 필터)
   sortOrder: number             // 드래그&드롭 정렬
+  // 영양값 (DL-027): 계산값은 자동 계산하므로 저장 X, 확정값만 저장.
+  // 원료 변경 시 자동 갱신 (DL-029) — 이전 수동값은 덮어쓰임.
+  declaredNutrients?: NutrientValues   // 호두님 확정값 (모든 영양소 수동 가능)
+  declaredNutrientsUpdatedAt?: number  // 마지막 자동 갱신 시점 (UI에서 "최신 동기화" 표시용)
   createdAt: number
   updatedAt: number
   // 등록 후 추적용
@@ -431,7 +437,8 @@ fant-e5ae5/
 └─ 원료 마스터 (/ingredients)           ← USDA 검색은 모달로 내장
 
 발주
-├─ 발주 프리셋 (/orders)                 ← 프리셋 설정·발주 한 페이지에서
+├─ 프리셋 설정 (/presets)                ← 각 레시피마다 어떤 양으로 만들지 정의
+├─ 발주 (/orders)                        ← 정의된 프리셋 선택·수량 입력
 └─ PDF 출력 (/print/:recipeId)           ← 출력 1·2 두 버전
 
 원가
@@ -451,14 +458,23 @@ fant-e5ae5/
 [중단 좌] 원료 행 표 (드래그&드롭, +원료 추가 버튼)
          영양제 행 표 (드래그&드롭, +영양제 추가 버튼)
 [중단 우] 영양 매트릭스 (자견·성견·자묘·성묘 × 영양소)
-         즉시 갱신. 부족·초과 색상 표시.
+         각 영양소 행에 [계산값] [확정값(편집)] [표준 min~max] [상태] 컬럼 (DL-027)
+         부족·초과 색상 표시 (확정값 기준 — DL-028)
 [하단]   Ca:P 비율 카드 · 종합 판정 배지 · 원가 합계
 [액션]   임시저장 (recipeDrafts 갱신) · 등록 (recipes로 승격, 영양제 제외)
 ```
 
 **원료 추가 흐름**:
-- 표 행 `+ 원료 추가` 클릭 → 검색 모달 → 원료 마스터 후보 리스트 + "USDA에서 가져오기" 버튼
+- 표 행 `+ 원료 추가` 클릭 → 검색 모달 → 원료 마스터 후보 리스트 + "USDA에서 가져오기" + "수동으로 추가" 버튼
 - 선택 시 행 추가. 중량 입력. 즉시 매트릭스 갱신.
+
+**영양값 계산값 + 확정값 (DL-027, DL-028, DL-029)**:
+- 각 영양소 행에 두 칸: 계산값(자동), 확정값(편집 가능).
+- 초기·자동 갱신: 확정값 = 계산값 그대로.
+- 호두님이 확정값 칸 직접 입력 가능 (전 영양소).
+- 부족분·종합 판정은 **확정값 기준** (없으면 계산값).
+- **⚠️ 원료 변경 시**: 계산값 갱신 → 확정값도 새 계산값으로 자동 덮어쓰기. 이전 수동 수정값은 사라짐.
+- UI에 명시: "원료 수정 시 확정값이 새 계산값으로 갱신됩니다. 보장 분석 등 라벨링 직전 단계에 사용하세요."
 
 **임시저장**:
 - 자동 저장 (3초 디바운스) + 명시적 "임시저장" 버튼
@@ -467,6 +483,7 @@ fant-e5ae5/
 **등록 (DL-025)**:
 - "이 레시피 등록" 버튼 → 확인 모달 → 변환 함수 실행 → `recipes/{recipeId}` 생성
 - 변환 시 영양제 행 자동 제외, 필드 정규화(`name`/`species`/`composition`/`unitLabel`만 push)
+- **확정값은 푸시에 포함 X** (recipesss 내부 metadata + PDF 출력용)
 - 등록 후 드래프트에 `registeredRecipeId`·`registeredAt` 기록 (드래프트는 남김; 수정용)
 
 ### 5.3 레시피 목록 (`/recipes`)
@@ -481,31 +498,47 @@ fant-e5ae5/
   - 복제 (현 `복사` 기능 그대로)
   - 삭제
 
-### 5.4 원료 마스터 + USDA 검색 (`/ingredients`)
+### 5.4 원료 마스터 + USDA 검색 (`/ingredients`) — DL-030
 
 - 원료 리스트 (kind 그룹: 원료/영양제) — 드래그&드롭 정렬
-- 원료 클릭 → 상세 패널: 이름·치환명·alias·**nutrientProfile 표시**·공급사
+- 원료 클릭 → 상세 패널: 이름·치환명·alias·**nutrientProfile 표시·편집**·공급사
 - 단가 컬럼은 없음 (DL-024)
-- "USDA에서 가져오기" 버튼 → 모달:
-  - 검색어 입력 → FDC API 호출 → 후보 5~10개
-  - 후보 클릭 → 영양값 미리보기 → "이 원료에 적용" 또는 "신규 원료로 추가"
-  - 결측 영양소는 표시 (수동 입력 가능)
-- 별도 `/ingredients/usda` 페이지 없음. 원료 마스터 안 모달에서 처리.
+- **추가 흐름 3가지**:
+  1. **USDA에서 가져오기** (버튼 → 모달):
+     - 검색어 입력 → FDC API → 후보 5~10개
+     - 후보 클릭 → 영양값 미리보기 → "이 원료에 적용" 또는 "신규 원료로 추가"
+     - 결측 영양소는 표시 (수동 입력 가능)
+  2. **수동 원료 추가** (버튼):
+     - kind 선택 (원료/영양제), 이름·치환명 입력
+     - **영양값 직접 입력 폼** (모든 영양소). 빈칸은 `null`로 저장.
+     - 공급사 정보 (선택)
+     - 영양제도 동일 UI — 영양제가 추가하는 영양소(예: 비타민E 영양제 → vit_e 값) 직접 입력
+  3. **기존 원료 편집** — 영양값 행 클릭하면 수정 가능 (USDA에서 가져온 값도 사용자 수정 가능)
+- 별도 `/ingredients/usda` 페이지 없음. 모두 원료 마스터 안에서 처리.
 
-### 5.5 발주 프리셋 (`/orders`) — 간결 표시
+### 5.5 프리셋 설정 (`/presets`) — DL-026
 
-- 프리셋 설정과 발주 한 페이지에서 처리
+각 레시피마다 어떤 양으로 만들지 정의하는 페이지.
+
+- 레시피 목록 좌측, 선택한 레시피의 프리셋 우측
+- 프리셋 추가: 코드(자동 부여) + 목표 양 (g 또는 단위 `마리`/`개`)
+- 프리셋 편집·삭제·드래그&드롭 정렬
+- 프리셋이 정의되어 있어야 §5.6 발주 페이지에서 선택 가능
+
+### 5.6 발주 (`/orders`) — DL-026, 간결 표시
+
+정의된 프리셋을 선택해 이번 회차 주문량 입력.
+
 - 표시 양식: 제품 그룹별로 한 줄 한 줄 짧게
   ```
-  (고양이)치킨    a0 20개   a1 40개   a2 60개   [+ 프리셋 추가]
-  (고양이)본치킨  b0 100g   b1 200g   [+ 프리셋 추가]
-  (강아지)덕      c0 1마리  c1 2마리  [+ 프리셋 추가]
+  (고양이)치킨    [☑] a0 20개   [☐] a1 40개   [☐] a2 60개
+  (고양이)본치킨  [☐] b0 100g   [☑] b1 200g
+  (강아지)덕      [☐] c0 1마리  [☑] c1 2마리
   ```
-- 드래그&드롭으로 프리셋 행 순서·그룹 내 정렬
-- 발주 수량 입력 (현행 유지)
+- 체크박스로 선택. 발주 수량 입력란은 우측 또는 행 우측.
 - 출력 미리보기 생성 → `/print/:recipeId`
 
-### 5.6 PDF 출력 (`/print/:recipeId`) — 출력 1·2 두 버전
+### 5.7 PDF 출력 (`/print/:recipeId`) — 출력 1·2 두 버전
 
 `@react-pdf/renderer` 사용. A4 portrait.
 
@@ -514,11 +547,11 @@ fant-e5ae5/
 
 두 버전 모두 폰트 Noto Sans KR Regular/Bold 임베드.
 
-### 5.7 단가 관리 (`/prices`)
+### 5.8 단가 관리 (`/prices`)
 
 플레이스홀더 페이지. "생산관리앱과 통합 작업 중" 안내. 인터페이스 결정 후 구현.
 
-### 5.8 백업·복원 (`/settings`)
+### 5.9 백업·복원 (`/settings`)
 
 - 현재 상태 JSON export (recipeDrafts + 원료 + 프리셋)
 - JSON 업로드 → 마이그레이션 + 적용
@@ -588,7 +621,37 @@ function evaluateRatios(
 ): RatioResult[]
 ```
 
-### 6.5 등록 시 영양제 제외 변환 (DL-025)
+### 6.5 영양값 계산값 ↔ 확정값 동기화 (DL-027, DL-028, DL-029)
+
+```ts
+// 계산값을 확정값에 자동 복사. composition 변경 시마다 호출.
+function syncDeclaredFromCalculated(
+  draft: RecipeDraft,
+  ingredients: IngredientMap
+): RecipeDraft {
+  const calculated = sumRecipeNutrients(draft, ingredients)
+  return {
+    ...draft,
+    declaredNutrients: calculated,
+    declaredNutrientsUpdatedAt: Date.now()
+  }
+}
+
+// 부족분 판정 시 사용할 값 선택 (확정값 우선)
+function effectiveNutrient(
+  draft: RecipeDraft,
+  ingredients: IngredientMap,
+  key: NutrientKey
+): number | undefined {
+  const declared = draft.declaredNutrients?.[key]
+  if (declared !== undefined && declared !== null) return declared
+  return sumRecipeNutrients(draft, ingredients)[key]
+}
+
+// evaluateDraft 안에서 effectiveNutrient 호출
+```
+
+### 6.6 등록 시 영양제 제외 변환 (DL-025)
 
 ```ts
 // recipeDrafts → recipes 변환. 영양제 제외 + 필드 정규화.
@@ -647,6 +710,10 @@ function draftToRecipe(
 ### 7.4 생산관리앱 푸시 (DL-025)
 
 **메커니즘**: 같은 fant-e5ae5 Firebase 프로젝트 내 다른 컬렉션 쓰기. Firestore 직접 write.
+
+**푸시 페이로드** (DL-025, DL-029):
+- ✅ 포함: `name`, `species`, `composition`(원료만, 영양제 제외), `unitLabel`
+- ❌ 미포함: `declaredNutrients` (확정값), `standardId`, recipesss 내부 metadata
 
 **액션 흐름**:
 ```
@@ -994,6 +1061,11 @@ Node.js 스크립트 (`scripts/migrate-to-fant-e5ae5.ts`) 1회 실행.
 | **DL-023** | 2026-06-03 | **Claude=아키텍트, Codex=구현 협업 (fantapet CLAUDE.md 패턴 채택)** | 검증된 패턴. docs/Codex지시서_*.md로 단계별 핸드오프. |
 | **DL-024** | 2026-06-03 | **메뉴 트리 재정의 (영양 매트릭스+레시피 작성 통합, /lookup 제거, /prices 별도)** | 호두님 의도 반영. 신규 레시피 = 입력·계산·등록 한 화면. |
 | **DL-025** | 2026-06-03 | **푸시 = 영양제 제외 + 이름·종·composition·unitLabel만 → recipes/에 신규 생성** | 생산관리앱은 영양제 안 다룸. 최소 필드. |
+| **DL-026** | 2026-06-03 | **발주 그룹 = 프리셋 설정·발주·PDF 3페이지로 분리 (DL-024 보강)** | 호두님 원 의도. 프리셋 정의(/presets)와 주문 선택(/orders)이 다른 작업. |
+| **DL-027** | 2026-06-03 | **영양값 = 계산값 + 확정값 이중 컬럼. 확정값 = 모든 영양소 수동 가능** | 라벨링·보장 분석 직전 수동 미세조정 필요. |
+| **DL-028** | 2026-06-03 | **부족분 판정 = 확정값 우선, 없으면 계산값** | 호두님 의도가 정답값. 펫푸드 라벨링 관례. |
+| **DL-029** | 2026-06-03 | **원료 변경 시 확정값 자동 갱신 (= 새 계산값으로 덮어쓰기)** | 워크플로우: 원료 셋업 끝 → 마지막 단계에서 확정값 미세조정 → 등록. UI에 명시. |
+| **DL-030** | 2026-06-03 | **원료 마스터 = USDA + 수동 원료 추가 + 영양값 직접 입력 (영양제 포함)** | 영양제·특수 원료는 USDA에 없음. 수동 입력 필수. 모든 원료가 같은 nutrientProfile 필드 보유. |
 
 ### 결정 변경 절차
 1. 변경 사유와 영향 범위를 §13 새 행으로 추가. 이전 행은 두고 ~~취소선~~ + supersede.
@@ -1034,8 +1106,10 @@ Node.js 스크립트 (`scripts/migrate-to-fant-e5ae5.ts`) 1회 실행.
 - ~~mirror 종료 시점~~ → DL-021
 - ~~표 드래그&드롭~~ → DL-022
 - ~~코덱스 협업 패턴~~ → DL-023
-- ~~메뉴 재정의~~ → DL-024
-- ~~푸시 인터페이스~~ → DL-025
+- ~~메뉴 재정의~~ → DL-024, DL-026 (발주 분리)
+- ~~푸시 인터페이스~~ → DL-025, DL-029 (확정값 미포함)
+- ~~영양값 입력 패턴~~ → DL-027, DL-028, DL-029
+- ~~원료 추가 흐름~~ → DL-030
 
 남은 미해결:
 - 단가 인터페이스 (DL-024 placeholder, 단계 5에서 결정)
