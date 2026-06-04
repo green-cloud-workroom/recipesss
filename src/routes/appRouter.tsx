@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { AppLayout } from '../components/AppLayout'
 import { AuthGuard } from '../components/AuthGuard'
 import { LoginPage } from '../pages/LoginPage'
+import { OrdersPage } from '../pages/OrdersPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { PresetsPage } from '../pages/PresetsPage'
 import { RecipesPage } from '../pages/RecipesPage'
@@ -47,7 +48,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: '/orders',
-            element: <PlaceholderPage title="발주" stage="단계 0.5" />,
+            element: <OrdersPage />,
           },
           {
             path: '/print',

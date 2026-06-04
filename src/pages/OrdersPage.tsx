@@ -1,0 +1,236 @@
+import { useMemo, useState } from 'react'
+
+import {
+  buildOrderSummary,
+  formatOrderLine,
+  groupPresetsByRecipe,
+  speciesLabel,
+  totalSelectedCount,
+  type OrderGroup,
+  type OrderSelection,
+} from '../features/orders/orderSelectors'
+import { usePresets } from '../features/presets/presetQueries'
+import { useRecipeDrafts } from '../features/recipes/recipeQueries'
+import {
+  CARD_CLS,
+  EMPTY_STATE_CLS,
+  INPUT_CLS,
+  PRIMARY_BTN_CLS,
+} from '../lib/ui'
+import { useAuthStore } from '../stores/authStore'
+import type { Preset, RecipeDraft } from '../types/recipe'
+
+const EMPTY_DRAFTS: RecipeDraft[] = []
+const EMPTY_PRESETS: Preset[] = []
+
+export function OrdersPage() {
+  const uid = useAuthStore((state) => state.user?.uid)
+  const draftsQuery = useRecipeDrafts(uid)
+  const presetsQuery = usePresets(uid)
+  const [selection, setSelection] = useState<OrderSelection>({})
+
+  const drafts = draftsQuery.data ?? EMPTY_DRAFTS
+  const presets = presetsQuery.data ?? EMPTY_PRESETS
+  const groups = useMemo(
+    () => groupPresetsByRecipe(drafts, presets),
+    [drafts, presets],
+  )
+  const summary = useMemo(
+    () => buildOrderSummary(groups, selection),
+    [groups, selection],
+  )
+
+  const isLoading = draftsQuery.isLoading || presetsQuery.isLoading
+  const isError = draftsQuery.isError || presetsQuery.isError
+  const queryError = draftsQuery.error ?? presetsQuery.error
+  const selectedCount = totalSelectedCount(selection)
+
+  function togglePreset(presetId: string, checked: boolean) {
+    setSelection((prev) => {
+      if (checked) return { ...prev, [presetId]: prev[presetId] ?? 0 }
+
+      const next = { ...prev }
+      delete next[presetId]
+      return next
+    })
+  }
+
+  function updateQuantity(presetId: string, value: string) {
+    const parsed = Number(value)
+    const quantity = Number.isFinite(parsed) ? Math.max(0, parsed) : 0
+
+    setSelection((prev) => {
+      if (!Object.prototype.hasOwnProperty.call(prev, presetId)) return prev
+      return { ...prev, [presetId]: quantity }
+    })
+  }
+
+  return (
+    <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-title font-bold text-gray-800">발주</h1>
+          <p className="mt-1 text-helper text-gray-500">
+            프리셋을 선택하고 이번 회차 주문량을 입력합니다.
+          </p>
+        </div>
+        <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
+          선택 {selectedCount}개
+        </div>
+      </div>
+
+      {isLoading && (
+        <div className={`mt-4 ${EMPTY_STATE_CLS}`}>불러오는 중...</div>
+      )}
+
+      {isError && (
+        <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+          {queryError instanceof Error
+            ? queryError.message
+            : '발주 데이터를 불러오지 못했습니다.'}
+        </div>
+      )}
+
+      {!isLoading && !isError && groups.length === 0 && (
+        <div className={`mt-4 ${EMPTY_STATE_CLS}`}>
+          발주할 프리셋이 없습니다. 프리셋 설정에서 추가하세요.
+        </div>
+      )}
+
+      {!isLoading && !isError && groups.length > 0 && (
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="space-y-4">
+            {groups.map((group) => (
+              <OrderGroupCard
+                group={group}
+                key={group.draftId}
+                onQuantityChange={updateQuantity}
+                onToggle={togglePreset}
+                selection={selection}
+              />
+            ))}
+          </div>
+
+          <aside className={`${CARD_CLS} self-start`}>
+            <div className="border-b border-gray-100 px-4 py-3">
+              <h2 className="text-sm font-semibold text-gray-800">
+                발주 요약
+              </h2>
+              <p className="mt-1 text-xs text-gray-500">
+                선택한 프리셋과 주문량
+              </p>
+            </div>
+
+            {summary.length === 0 ? (
+              <div className="p-6 text-sm text-gray-400">
+                프리셋을 선택해 주문량을 입력하세요.
+              </div>
+            ) : (
+              <div className="space-y-2 p-4">
+                {summary.map((group) => (
+                  <div
+                    className="rounded-lg bg-gray-50 px-3 py-2 font-mono text-sm text-gray-700"
+                    key={group.draftId}
+                  >
+                    {formatOrderLine(group)}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="border-t border-gray-100 p-4">
+              <button
+                className={`${PRIMARY_BTN_CLS} w-full`}
+                disabled
+                title="단계 4에서 구현"
+                type="button"
+              >
+                출력 미리보기 생성 (단계 4)
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OrderGroupCard({
+  group,
+  onQuantityChange,
+  onToggle,
+  selection,
+}: {
+  group: OrderGroup
+  onQuantityChange: (presetId: string, value: string) => void
+  onToggle: (presetId: string, checked: boolean) => void
+  selection: OrderSelection
+}) {
+  return (
+    <section className={CARD_CLS}>
+      <div className="flex flex-col gap-1 border-b border-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-sm font-semibold text-gray-800">
+          ({speciesLabel(group.species)}){group.draftName}
+        </h2>
+        <span className="text-xs text-gray-400">
+          프리셋 {group.presets.length}개
+        </span>
+      </div>
+
+      <div className="divide-y divide-gray-100">
+        {group.presets.map((preset) => {
+          const checked = Object.prototype.hasOwnProperty.call(
+            selection,
+            preset.id,
+          )
+          const quantity = selection[preset.id] ?? 0
+
+          return (
+            <label
+              className="grid gap-3 px-4 py-3 text-sm text-gray-700 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center"
+              key={preset.id}
+            >
+              <span className="flex min-w-0 items-center gap-3">
+                <input
+                  checked={checked}
+                  className="h-4 w-4 rounded border-gray-300"
+                  onChange={(event) =>
+                    onToggle(preset.id, event.target.checked)
+                  }
+                  type="checkbox"
+                />
+                <span className="min-w-0">
+                  <span className="font-medium text-gray-800">
+                    {preset.code}
+                  </span>
+                  {preset.label && (
+                    <span className="ml-2 text-gray-500">{preset.label}</span>
+                  )}
+                </span>
+              </span>
+
+              <span className="grid grid-cols-[1fr_auto] items-center gap-2">
+                <input
+                  className={INPUT_CLS}
+                  disabled={!checked}
+                  min="0"
+                  onChange={(event) =>
+                    onQuantityChange(preset.id, event.target.value)
+                  }
+                  step="1"
+                  type="number"
+                  value={quantity}
+                />
+                <span className="w-8 text-xs text-gray-400">
+                  {group.unitLabel}
+                </span>
+              </span>
+            </label>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+export default OrdersPage
