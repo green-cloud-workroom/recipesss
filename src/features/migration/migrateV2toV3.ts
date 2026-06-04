@@ -104,8 +104,9 @@ export function migrateV2toV3(
     targetWeight: preset.targetWeight,
     label: preset.label,
     unitIngredientId: preset.unitIngredientId,
-    inputAmount: preset.inputAmount,
-    inputUnitLabel: preset.inputUnitLabel,
+    // 일부 v2 preset 은 이 필드가 누락 → 미설정으로 정규화 (Firestore undefined 거부 방지).
+    inputAmount: preset.inputAmount ?? 0,
+    inputUnitLabel: preset.inputUnitLabel ?? '',
     sortOrder: index,
     createdAt: now,
   }))

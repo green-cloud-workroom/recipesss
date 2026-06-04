@@ -35,8 +35,9 @@ export type V2Preset = {
   targetWeight: number
   label: string
   unitIngredientId: string
-  inputAmount: number
-  inputUnitLabel: string
+  // ⚠️ 일부 v2 preset 레코드엔 이 두 필드가 아예 없음(미설정 발주). optional.
+  inputAmount?: number
+  inputUnitLabel?: string
   // v2엔 sortOrder / createdAt 없음
 }
 

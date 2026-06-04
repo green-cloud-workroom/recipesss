@@ -138,6 +138,32 @@ describe('migrateV2toV3 — 실제 백업 픽스처', () => {
       })
     }
   })
+
+  it('변환 결과 어떤 필드도 undefined 아님 (Firestore undefined 거부 방지)', () => {
+    const records = [
+      ...result.recipeDrafts,
+      ...result.ingredients,
+      ...result.presets,
+    ]
+    for (const record of records) {
+      for (const [key, value] of Object.entries(record)) {
+        expect(value, `${(record as { id: string }).id}.${key}`).not.toBe(
+          undefined,
+        )
+      }
+    }
+  })
+
+  it('누락된 preset inputAmount/inputUnitLabel 은 0/빈문자열로 정규화', () => {
+    // 실제 백업엔 이 필드가 없는 preset 이 존재한다.
+    expect(
+      result.presets.every(
+        (p) =>
+          typeof p.inputAmount === 'number' &&
+          typeof p.inputUnitLabel === 'string',
+      ),
+    ).toBe(true)
+  })
 })
 
 describe('migrateV2toV3 — 경계 케이스', () => {
