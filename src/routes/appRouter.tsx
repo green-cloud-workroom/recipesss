@@ -4,6 +4,7 @@ import { AppLayout } from '../components/AppLayout'
 import { AuthGuard } from '../components/AuthGuard'
 import { LoginPage } from '../pages/LoginPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { PresetsPage } from '../pages/PresetsPage'
 import { RecipesPage } from '../pages/RecipesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
@@ -42,7 +43,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: '/presets',
-            element: <PlaceholderPage title="프리셋 설정" stage="단계 0.5" />,
+            element: <PresetsPage />,
           },
           {
             path: '/orders',
