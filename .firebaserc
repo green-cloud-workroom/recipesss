@@ -1,5 +1,12 @@
 {
   "projects": {
-    "default": "recipeee-da9d3"
+    "default": "fant-e5ae5"
+  },
+  "targets": {
+    "fant-e5ae5": {
+      "hosting": {
+        "recipesss": ["recipesss-app"]
+      }
+    }
   }
 }
