@@ -188,7 +188,7 @@ export default {
 - 데스크탑(`md:` 이상): 사이드바 고정 좌측, 메인 우측
 - 모바일: 햄버거 헤더 + 슬라이드인 사이드바 (블랙 30% overlay)
 - 메인 영역: `flex-1 overflow-auto p-4 md:p-6`
-- 사이드바 푸터: 사용자 이메일·역할·로그아웃 (recipesss는 1인이므로 단순 표시만)
+- 사이드바 푸터: **이메일 + 로그아웃 버튼만** (DL-015). 운영관리앱의 역할(`claims.role`) 표시는 제거 — recipesss는 1인 단일 사용이므로 의미 없음.
 
 **모달** (`components/common/Modal.tsx`):
 - 백드롭: `fixed inset-0 z-50 bg-black/40 p-4`
@@ -746,6 +746,31 @@ Firestore의 v2 상태도 동일하게 처리. `recipesssState/{uid}` 문서의 
 5. (선택) 이후 OneDrive 동기화 영향 0 확인
 ```
 
+### 11.5 데이터 안전 정책 (DL-014)
+
+데이터는 **3중**으로 안전망:
+
+1. **브라우저 localStorage** — 호두님 기기에 항상 있음. 코드/배포와 무관.
+2. **Firebase Firestore** — 구글 서버. 다기기 동기화. 코드 배포 변경에도 영향 없음.
+3. **리포 `backups/` 디렉토리** — 변환/재설계 직전 시점의 JSON 스냅샷을 영구 보관 (`backups/README.md` 참조).
+
+**중요 원칙**:
+- GitHub Pages·Firebase Hosting 같은 *호스팅 변경*은 데이터에 0 영향. 코드 파일과 사용자 데이터는 물리적으로 분리되어 있음.
+- 큰 작업(스키마 변경, 호스팅 이전, 마이그레이션) **직전에** 반드시 `backups/<YYYY-MM-DD>-<사유>.json` 추가 후 commit.
+- 마이그레이션 함수(`migrateV2toV3` 등)는 모두 **순수 함수 + Vitest 케이스**. 호두님 실데이터로 회귀 검증한 뒤에만 prod 적용.
+
+### 11.6 GitHub Pages 제거 절차 (DL-013)
+
+```
+1. Firebase Hosting recipesss 타겟에 신규 앱 배포 완료
+2. 신규 URL에서 데이터·기능 모두 정상 확인 (호두님 OK)
+3. GitHub 리포 Settings → Pages → Source: "None" 선택 → 비활성화
+4. 구 URL (green-cloud-workroom.github.io/recipesss/)은 404가 됨
+5. 아이폰 홈 화면에 추가된 PWA 아이콘은 신규 URL로 재설치
+```
+
+**주의**: 위 1~4 진행 사이에 호두님 데이터는 0 변경. 사용자 데이터는 Firebase Firestore와 호두님 브라우저 localStorage에 있고, 두 곳 모두 호스팅 변경과 무관.
+
 ---
 
 ## 12. 단계별 일정
@@ -814,6 +839,11 @@ Firestore의 v2 상태도 동일하게 처리. `recipesssState/{uid}` 문서의 
 | DL-009 | 2026-06-03 | 승인 워크플로우·QR 코드 = MVP 제외 | 1인 사용. 후속 PR로 가능. |
 | DL-010 | 2026-06-03 | 폴더 위치 = C:\dev\recipesss | OneDrive 동기화 충돌 제거. 개발장 관례. |
 | DL-011 | 2026-06-03 | 코드 리포 = github.com/green-cloud-workroom/recipesss 유지 | 기존 리모트 그대로. |
+| DL-012 | 2026-06-03 | AAFCO 2024 표준 표 = 단계 1 직전 클로드가 공식 자료로 수동 입력 | 호두님이 공식 자료 미보유. 공개 자료로 재조립 가능. |
+| DL-013 | 2026-06-03 | GitHub Pages = 완전 제거 (병행 운영 X) | 혼동 소지 제거. 신규 Firebase Hosting 검증 후 비활성. 데이터 영향 0 (§11.5, §11.6). |
+| DL-014 | 2026-06-03 | 데이터 안전 정책 = localStorage·Firestore·리포 `backups/` 3중 | 호스팅 변경·재설계와 무관하게 사용자 데이터 항상 보호. |
+| DL-015 | 2026-06-03 | 사이드바 푸터 = 이메일 + 로그아웃만 | 1인 사용이라 역할 표시 무의미. 운영관리앱 mirror에서 의도적 차이. |
+| DL-016 | 2026-06-03 | USDA API 키 발급 = 단계 2 시작 직전 호두님 본인 발급 | 외부 서비스 계정 동의 등 본인 책임 영역. |
 
 ### 결정 변경 절차
 1. 변경 사유와 영향 범위를 §13 새 행으로 추가 (이전 행은 두고 superseded 표시)
@@ -841,13 +871,13 @@ Firestore의 v2 상태도 동일하게 처리. `recipesssState/{uid}` 문서의 
 
 ## 부록 B. 미해결 사항 (호두님 확인 필요)
 
-다음은 SPEC 본문엔 디폴트로 들어가 있으나 시작 전 명시 확인 받고 싶은 항목.
+해결 완료 → §13 결정 로그로 이관:
+- ~~AAFCO 자료 입수~~ → DL-012: 단계 1 직전 제가 공식 자료(AAFCO 2024 Dog/Cat Nutrient Profiles)로 입력
+- ~~USDA API 키~~ → DL-016: 호두님이 단계 2 시작 직전 fdc.nal.usda.gov에서 발급. 본인 이메일 사용.
+- ~~GitHub Pages 처리~~ → DL-013: 신규 배포 검증 후 완전 비활성화
+- ~~사이드바 푸터~~ → DL-015: 이메일 + 로그아웃만
 
-1. **현 OneDrive 폴더에 미커밋 변경 있는지 확인** — 폴더 이동 전 commit 필수
-2. **USDA API 키 발급 여부** — 단계 2 들어가기 전 필요 ([fdc.nal.usda.gov](https://fdc.nal.usda.gov))
-3. **AAFCO 2024 표준 표 입수** — 단계 1에서 수동 입력 필요. PDF/공식 자료 호두님이 갖고 계신지?
-4. **현 GitHub Pages 도메인 폐기 여부** — recipesss.web.app으로 이전 후 GH Pages는 어떻게? (404? 리다이렉트? 그대로?)
-5. **앱 안의 사용자 표기** — 1인이지만 사이드바 푸터에 이메일·역할 표시할지, 아니면 해당 영역 제거할지
+남은 미해결: 없음.
 
 ---
 

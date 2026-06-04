@@ -1,0 +1,4133 @@
+{
+  "meta": {
+    "savedAt": 1780410050921
+  },
+  "products": {
+    "prod_x0247dge": {
+      "id": "prod_x0247dge",
+      "unitLabel": "",
+      "composition": [
+        {
+          "weight": 1400,
+          "unit": "kg",
+          "ingredientId": "ing_3rnzenly"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_i8k447e4",
+          "weight": 2405.5
+        },
+        {
+          "weight": 240.9,
+          "unit": "g",
+          "ingredientId": "ing_q588es2r"
+        },
+        {
+          "ingredientId": "ing_v3v64nsw",
+          "unit": "g",
+          "weight": 153.7
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd",
+          "weight": 14.06
+        },
+        {
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g",
+          "weight": 656
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 9.87
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 0.32
+        },
+        {
+          "weight": 0.01,
+          "ingredientId": "ing_74mb616h",
+          "unit": "g"
+        },
+        {
+          "weight": 1.46,
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j"
+        },
+        {
+          "weight": 1.03,
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj"
+        },
+        {
+          "weight": 0.15,
+          "ingredientId": "ing_9ff84197",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "weight": 0.2,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        }
+      ],
+      "unitIngredientId": "ing_3rnzenly",
+      "species": "cat",
+      "name": "메추리"
+    },
+    "prod_0w4z8041": {
+      "id": "prod_0w4z8041",
+      "unitLabel": "",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_3rnzenly",
+          "weight": 6000
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_i8k447e4",
+          "weight": 10308
+        },
+        {
+          "ingredientId": "ing_q588es2r",
+          "unit": "g",
+          "weight": 1581
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw",
+          "weight": 1216
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 48.7
+        },
+        {
+          "weight": 2677,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 24.3
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 1.22
+        },
+        {
+          "weight": 0.24,
+          "unit": "g",
+          "ingredientId": "ing_74mb616h"
+        },
+        {
+          "weight": 1.46,
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_iroiht4p",
+          "weight": 0
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_kxr5pgtl",
+          "weight": 0
+        },
+        {
+          "weight": 0,
+          "ingredientId": "ing_vph8rha9",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_fsuhbjly",
+          "weight": 0
+        }
+      ],
+      "species": "dog",
+      "unitIngredientId": "ing_3rnzenly",
+      "name": "메추리"
+    },
+    "prod_eludnl6f": {
+      "id": "prod_eludnl6f",
+      "unitLabel": "",
+      "composition": [
+        {
+          "weight": 770,
+          "unit": "kg",
+          "ingredientId": "ing_urf1bz4h"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_ulswiddk",
+          "weight": 36.2
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q588es2r",
+          "weight": 42
+        },
+        {
+          "weight": 35,
+          "ingredientId": "ing_v3v64nsw",
+          "unit": "g"
+        },
+        {
+          "weight": 3.5,
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd"
+        },
+        {
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g",
+          "weight": 131
+        },
+        {
+          "weight": 4.9,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "weight": 0.05,
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3"
+        },
+        {
+          "weight": 0.057,
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g"
+        },
+        {
+          "weight": 0.015,
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_9ff84197",
+          "weight": 0.02
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.015
+        },
+        {
+          "weight": 0.001,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        }
+      ],
+      "species": "cat",
+      "unitIngredientId": "ing_urf1bz4h",
+      "name": "더블 치킨"
+    },
+    "prod_qa0ju5sz": {
+      "unitLabel": "마리",
+      "id": "prod_qa0ju5sz",
+      "name": "동결 주식치킨",
+      "unitIngredientId": "ing_r42wn6rm",
+      "species": "dog",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_r42wn6rm",
+          "weight": 800
+        },
+        {
+          "weight": 2000,
+          "ingredientId": "ing_4sg8drmz",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_1r6mmzk6",
+          "weight": 1600
+        },
+        {
+          "ingredientId": "ing_q588es2r",
+          "unit": "g",
+          "weight": 270
+        },
+        {
+          "ingredientId": "ing_v3v64nsw",
+          "unit": "g",
+          "weight": 250
+        },
+        {
+          "weight": 23,
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd"
+        },
+        {
+          "weight": 24,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "weight": 1.7,
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4",
+          "weight": 0.2
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h",
+          "weight": 0.03
+        },
+        {
+          "weight": 0.08,
+          "unit": "g",
+          "ingredientId": "ing_9ff84197"
+        },
+        {
+          "weight": 0.08,
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g"
+        },
+        {
+          "weight": 0.7,
+          "unit": "g",
+          "ingredientId": "ing_74mb616h"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7",
+          "weight": 0.01
+        },
+        {
+          "ingredientId": "ing_qndl8eit",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_yhlepja1",
+          "weight": 130
+        },
+        {
+          "weight": 130,
+          "unit": "g",
+          "ingredientId": "ing_ipvu04z1"
+        },
+        {
+          "ingredientId": "ing_5zzz05za",
+          "unit": "g",
+          "weight": 20
+        },
+        {
+          "weight": 15,
+          "ingredientId": "ing_utrck35d",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_y12ekpr4",
+          "unit": "g",
+          "weight": 10
+        },
+        {
+          "weight": 5,
+          "ingredientId": "ing_7vpodse1",
+          "unit": "g"
+        },
+        {
+          "weight": 5,
+          "unit": "g",
+          "ingredientId": "ing_t6i1rij0"
+        }
+      ]
+    },
+    "prod_o3y9d3zg": {
+      "id": "prod_o3y9d3zg",
+      "unitLabel": "",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_i8k447e4",
+          "weight": 63
+        },
+        {
+          "weight": 7,
+          "ingredientId": "ing_q588es2r",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_afkryt5v",
+          "weight": 17.4
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 0.38500000000000006
+        },
+        {
+          "ingredientId": "ing_qmkhs29l",
+          "unit": "g",
+          "weight": 0.003
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_72q6w3ap",
+          "weight": 0.002
+        },
+        {
+          "weight": 0.002,
+          "ingredientId": "ing_1o2c7usn",
+          "unit": "g"
+        }
+      ],
+      "species": null,
+      "unitIngredientId": "ing_i8k447e4",
+      "name": "치킨 캐서롤 파티"
+    },
+    "prod_4p76n4a3": {
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_emvkeoiv",
+          "weight": 850
+        },
+        {
+          "ingredientId": "ing_j93k5zha",
+          "unit": "g",
+          "weight": 100
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 6
+        },
+        {
+          "weight": 240,
+          "ingredientId": "ing_afkryt5v",
+          "unit": "g"
+        },
+        {
+          "weight": 5.7,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_ursx3ebd",
+          "weight": 0.03
+        },
+        {
+          "ingredientId": "ing_w23z4jxt",
+          "unit": "g",
+          "weight": 0.03
+        }
+      ],
+      "species": null,
+      "unitIngredientId": "ing_emvkeoiv",
+      "name": "래빗 테린 크런치",
+      "id": "prod_4p76n4a3",
+      "unitLabel": ""
+    },
+    "prod_7kpt5s9u": {
+      "unitLabel": "",
+      "id": "prod_7kpt5s9u",
+      "name": "보리",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_f6xbnf09",
+          "weight": 10000
+        },
+        {
+          "weight": 2000,
+          "ingredientId": "ing_bjd17oue",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_yhlepja1",
+          "weight": 400
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_n6wbgtgm",
+          "weight": 3200
+        },
+        {
+          "weight": 51.67,
+          "unit": "g",
+          "ingredientId": "ing_la1h3og6"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_o6gpv640",
+          "weight": 5
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3",
+          "weight": 0.67
+        },
+        {
+          "weight": 0.83,
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4"
+        },
+        {
+          "weight": 0.1,
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h"
+        },
+        {
+          "weight": 0.17,
+          "unit": "g",
+          "ingredientId": "ing_9ff84197"
+        },
+        {
+          "ingredientId": "ing_74mb616h",
+          "unit": "g",
+          "weight": 0.23
+        },
+        {
+          "weight": 0.3,
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j"
+        }
+      ],
+      "species": "cat",
+      "unitIngredientId": "ing_f6xbnf09"
+    },
+    "prod_amew8j2z": {
+      "composition": [
+        {
+          "weight": 850,
+          "ingredientId": "ing_emvkeoiv",
+          "unit": "kg"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_j93k5zha",
+          "weight": 75
+        },
+        {
+          "weight": 4.36,
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd"
+        },
+        {
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g",
+          "weight": 225
+        },
+        {
+          "weight": 6,
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4"
+        },
+        {
+          "weight": 0.2,
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "weight": 0.015,
+          "unit": "g",
+          "ingredientId": "ing_9ff84197"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7",
+          "weight": 0.1
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_qndl8eit",
+          "weight": 0.9
+        },
+        {
+          "ingredientId": "ing_yhlepja1",
+          "unit": "g",
+          "weight": 65
+        },
+        {
+          "weight": 60,
+          "ingredientId": "ing_ipvu04z1",
+          "unit": "g"
+        },
+        {
+          "weight": 12,
+          "ingredientId": "ing_5zzz05za",
+          "unit": "g"
+        },
+        {
+          "weight": 10,
+          "unit": "g",
+          "ingredientId": "ing_y12ekpr4"
+        },
+        {
+          "weight": 10,
+          "ingredientId": "ing_utrck35d",
+          "unit": "g"
+        },
+        {
+          "weight": 4,
+          "ingredientId": "ing_t6i1rij0",
+          "unit": "g"
+        },
+        {
+          "weight": 4,
+          "unit": "g",
+          "ingredientId": "ing_7vpodse1"
+        }
+      ],
+      "unitIngredientId": "ing_emvkeoiv",
+      "species": "dog",
+      "name": "래빗",
+      "id": "prod_amew8j2z",
+      "unitLabel": ""
+    },
+    "prod_xto94vcl": {
+      "id": "prod_xto94vcl",
+      "unitLabel": "",
+      "composition": [
+        {
+          "weight": 70,
+          "ingredientId": "ing_2u608iku",
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ing_afkryt5v",
+          "unit": "g",
+          "weight": 34.9
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4",
+          "weight": 0.39200000000000007
+        },
+        {
+          "weight": 0.005,
+          "unit": "g",
+          "ingredientId": "ing_a1fv6k5h"
+        },
+        {
+          "ingredientId": "ing_8cuy634o",
+          "unit": "g",
+          "weight": 0.005
+        },
+        {
+          "ingredientId": "ing_d9zoxd3c",
+          "unit": "g",
+          "weight": 0.005
+        },
+        {
+          "ingredientId": "ing_6dhi1if1",
+          "unit": "g",
+          "weight": 0.005
+        }
+      ],
+      "unitIngredientId": "ing_2u608iku",
+      "species": null,
+      "name": "올드 패션 비프 스튜"
+    },
+    "prod_o09pxlj3": {
+      "composition": [
+        {
+          "weight": 770,
+          "ingredientId": "ing_urf1bz4h",
+          "unit": "kg"
+        },
+        {
+          "weight": 36.2,
+          "ingredientId": "ing_ulswiddk",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q588es2r",
+          "weight": 42
+        },
+        {
+          "weight": 35,
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw"
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 3.5
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_n6wbgtgm",
+          "weight": 131
+        },
+        {
+          "weight": 4.9,
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4"
+        },
+        {
+          "weight": 0.2,
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g"
+        },
+        {
+          "weight": 0.05,
+          "ingredientId": "ing_aoahrqs3",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 0.057
+        },
+        {
+          "weight": 0.015,
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h"
+        },
+        {
+          "weight": 0.02,
+          "unit": "g",
+          "ingredientId": "ing_9ff84197"
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.015
+        },
+        {
+          "weight": 0.001,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        }
+      ],
+      "unitIngredientId": "ing_urf1bz4h",
+      "species": "cat",
+      "name": "치킨",
+      "id": "prod_o09pxlj3",
+      "unitLabel": ""
+    },
+    "prod_e959c5b2": {
+      "unitLabel": "",
+      "id": "prod_e959c5b2",
+      "name": "래빗",
+      "species": "cat",
+      "unitIngredientId": "ing_5mj4kx0v",
+      "composition": [
+        {
+          "weight": 1800,
+          "unit": "kg",
+          "ingredientId": "ing_5mj4kx0v"
+        },
+        {
+          "weight": 140,
+          "ingredientId": "ing_j93k5zha",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_v3v64nsw",
+          "unit": "g",
+          "weight": 60
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 9
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_n6wbgtgm",
+          "weight": 340
+        },
+        {
+          "weight": 12,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g",
+          "weight": 0.5
+        },
+        {
+          "weight": 0.3,
+          "ingredientId": "ing_aoahrqs3",
+          "unit": "g"
+        },
+        {
+          "weight": 0.4,
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h",
+          "weight": 0.01
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.06
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.04
+        },
+        {
+          "weight": 0.4,
+          "unit": "g",
+          "ingredientId": "ing_qndl8eit"
+        },
+        {
+          "weight": 0.004,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        },
+        {
+          "weight": 0.4,
+          "ingredientId": "ing_qndl8eit",
+          "unit": "g"
+        }
+      ]
+    },
+    "prod_omrtijx7": {
+      "unitLabel": "",
+      "id": "prod_omrtijx7",
+      "name": "동결 주식 덕",
+      "species": "dog",
+      "unitIngredientId": "ing_ulswiddk",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_ulswiddk",
+          "weight": 2000
+        },
+        {
+          "ingredientId": "ing_coy9d8sh",
+          "unit": "g",
+          "weight": 5000
+        },
+        {
+          "ingredientId": "ing_q588es2r",
+          "unit": "g",
+          "weight": 390
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw",
+          "weight": 350
+        },
+        {
+          "weight": 35.5,
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd"
+        },
+        {
+          "weight": 33,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g",
+          "weight": 0.2
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4",
+          "weight": 0.3
+        },
+        {
+          "weight": 0.01,
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_9ff84197",
+          "weight": 0.08
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.12
+        },
+        {
+          "ingredientId": "ing_74mb616h",
+          "unit": "g",
+          "weight": 0.3
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7",
+          "weight": 0.1
+        },
+        {
+          "weight": 2,
+          "ingredientId": "ing_qndl8eit",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_yhlepja1",
+          "unit": "g",
+          "weight": 0.5
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_p5tg3016",
+          "weight": 0.5
+        },
+        {
+          "weight": 0.5,
+          "ingredientId": "ing_5zzz05za",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_utrck35d",
+          "weight": 0.5
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_7vpodse1",
+          "weight": 0.2
+        },
+        {
+          "weight": 0.2,
+          "unit": "g",
+          "ingredientId": "ing_t6i1rij0"
+        }
+      ]
+    },
+    "prod_llqc9gqf": {
+      "unitIngredientId": "ing_6pi7nnio",
+      "species": "cat",
+      "composition": [
+        {
+          "weight": 1000,
+          "unit": "kg",
+          "ingredientId": "ing_6pi7nnio"
+        },
+        {
+          "weight": 3000,
+          "unit": "g",
+          "ingredientId": "ing_4sg8drmz"
+        },
+        {
+          "ingredientId": "ing_ulswiddk",
+          "unit": "g",
+          "weight": 2000
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q588es2r",
+          "weight": 350
+        },
+        {
+          "weight": 285,
+          "ingredientId": "ing_v3v64nsw",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 15
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 40
+        },
+        {
+          "weight": 2,
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj"
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 0.12
+        },
+        {
+          "weight": 0.045,
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g"
+        },
+        {
+          "weight": 0.12,
+          "ingredientId": "ing_9ff84197",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j",
+          "weight": 0.4
+        },
+        {
+          "ingredientId": "ing_74mb616h",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7",
+          "weight": 0.075
+        }
+      ],
+      "name": "동결 주식 오션피쉬",
+      "id": "prod_llqc9gqf",
+      "unitLabel": ""
+    },
+    "prod_0iq7fbj9": {
+      "unitLabel": "",
+      "id": "prod_0iq7fbj9",
+      "name": "오리 시료 - 보리 완성",
+      "unitIngredientId": "ing_f6xbnf09",
+      "species": null,
+      "composition": [
+        {
+          "weight": 10000,
+          "unit": "kg",
+          "ingredientId": "ing_f6xbnf09"
+        },
+        {
+          "weight": 2000,
+          "unit": "g",
+          "ingredientId": "ing_bjd17oue"
+        },
+        {
+          "weight": 400,
+          "unit": "g",
+          "ingredientId": "ing_yhlepja1"
+        },
+        {
+          "ingredientId": "ing_afkryt5v",
+          "unit": "g",
+          "weight": 3200
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_la1h3og6",
+          "weight": 51.67
+        },
+        {
+          "weight": 5,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        },
+        {
+          "weight": 0.67,
+          "ingredientId": "ing_aoahrqs3",
+          "unit": "g"
+        },
+        {
+          "weight": 0.83,
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4"
+        },
+        {
+          "weight": 0.1,
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h"
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.17
+        },
+        {
+          "weight": 0.23,
+          "ingredientId": "ing_74mb616h",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.3
+        }
+      ]
+    },
+    "prod_f7fimuuz": {
+      "unitLabel": "",
+      "id": "prod_f7fimuuz",
+      "name": "튜나&치킨",
+      "composition": [
+        {
+          "weight": 500,
+          "unit": "kg",
+          "ingredientId": "ing_15cukqqo"
+        },
+        {
+          "ingredientId": "ing_urf1bz4h",
+          "unit": "kg",
+          "weight": 4000
+        },
+        {
+          "ingredientId": "ing_ulswiddk",
+          "unit": "g",
+          "weight": 1000
+        },
+        {
+          "weight": 310,
+          "ingredientId": "ing_q588es2r",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw",
+          "weight": 275
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd",
+          "weight": 30
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_n6wbgtgm",
+          "weight": 1040
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 34
+        },
+        {
+          "weight": 2,
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g"
+        },
+        {
+          "weight": 0.8,
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4"
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "weight": 0.02,
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j"
+        },
+        {
+          "weight": 0.1,
+          "ingredientId": "ing_74mb616h",
+          "unit": "g"
+        },
+        {
+          "weight": 0.075,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        }
+      ],
+      "species": "cat",
+      "unitIngredientId": "ing_urf1bz4h"
+    },
+    "prod_jmvdf9bz": {
+      "unitLabel": "",
+      "id": "prod_jmvdf9bz",
+      "name": "동결 주식 덕",
+      "composition": [
+        {
+          "weight": 2000,
+          "unit": "kg",
+          "ingredientId": "ing_ulswiddk"
+        },
+        {
+          "weight": 5000,
+          "unit": "g",
+          "ingredientId": "ing_coy9d8sh"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q588es2r",
+          "weight": 390
+        },
+        {
+          "weight": 350,
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw"
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 35.5
+        },
+        {
+          "weight": 58,
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4"
+        },
+        {
+          "weight": 2,
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj"
+        },
+        {
+          "weight": 0.4,
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4",
+          "weight": 0.4
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h",
+          "weight": 0.01
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.08
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.12
+        },
+        {
+          "ingredientId": "ing_74mb616h",
+          "unit": "g",
+          "weight": 0.3
+        },
+        {
+          "ingredientId": "ing_az8v3zi7",
+          "unit": "g",
+          "weight": 0.1
+        }
+      ],
+      "species": "cat",
+      "unitIngredientId": "ing_ulswiddk"
+    },
+    "prod_qftdpztn": {
+      "name": "본치킨",
+      "unitIngredientId": "ing_r42wn6rm",
+      "species": "dog",
+      "composition": [
+        {
+          "weight": 800,
+          "unit": "kg",
+          "ingredientId": "ing_r42wn6rm"
+        },
+        {
+          "weight": 2000,
+          "unit": "g",
+          "ingredientId": "ing_urf1bz4h"
+        },
+        {
+          "ingredientId": "ing_ulswiddk",
+          "unit": "g",
+          "weight": 1600
+        },
+        {
+          "ingredientId": "ing_6vea058l",
+          "unit": "g",
+          "weight": 270
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_sru7g9mw",
+          "weight": 250
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 23
+        },
+        {
+          "weight": 650,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4",
+          "weight": 24
+        },
+        {
+          "weight": 0.2,
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4",
+          "weight": 0.3
+        },
+        {
+          "weight": 0.04,
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.08
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j",
+          "weight": 0.08
+        },
+        {
+          "ingredientId": "ing_74mb616h",
+          "unit": "g",
+          "weight": 0.2
+        },
+        {
+          "weight": 0.1,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        },
+        {
+          "weight": 0.1,
+          "ingredientId": "ing_qndl8eit",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_yhlepja1",
+          "weight": 150
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_ipvu04z1",
+          "weight": 150
+        },
+        {
+          "weight": 20,
+          "unit": "g",
+          "ingredientId": "ing_5zzz05za"
+        },
+        {
+          "ingredientId": "ing_utrck35d",
+          "unit": "g",
+          "weight": 15
+        },
+        {
+          "weight": 10,
+          "unit": "g",
+          "ingredientId": "ing_y12ekpr4"
+        },
+        {
+          "ingredientId": "ing_7vpodse1",
+          "unit": "g",
+          "weight": 5
+        },
+        {
+          "weight": 5,
+          "ingredientId": "ing_t6i1rij0",
+          "unit": "g"
+        }
+      ],
+      "unitLabel": "마리",
+      "id": "prod_qftdpztn"
+    },
+    "prod_b1oaji64": {
+      "species": "cat",
+      "unitIngredientId": "ing_1zl52qp2",
+      "composition": [
+        {
+          "ingredientId": "ing_1zl52qp2",
+          "unit": "kg",
+          "weight": 2000
+        },
+        {
+          "weight": 9000,
+          "unit": "g",
+          "ingredientId": "ing_coy9d8sh"
+        },
+        {
+          "weight": 650,
+          "unit": "g",
+          "ingredientId": "ing_q588es2r"
+        },
+        {
+          "weight": 590,
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw"
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 60
+        },
+        {
+          "weight": 2200,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "weight": 70,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj",
+          "weight": 3.5
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_wn9fmvz5",
+          "weight": 0.15
+        },
+        {
+          "weight": 0.07,
+          "ingredientId": "ing_az8v3zi7",
+          "unit": "g"
+        },
+        {
+          "weight": 0.01,
+          "ingredientId": "ing_74mb616h",
+          "unit": "g"
+        }
+      ],
+      "name": "본덕",
+      "id": "prod_b1oaji64",
+      "unitLabel": ""
+    },
+    "prod_binv0ck2": {
+      "id": "prod_binv0ck2",
+      "unitLabel": "",
+      "species": null,
+      "unitIngredientId": "ing_9aimovyj",
+      "composition": [
+        {
+          "weight": 69,
+          "ingredientId": "ing_9aimovyj",
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ing_afkryt5v",
+          "unit": "g",
+          "weight": 24.85
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 0.2622
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_402ko8o6",
+          "weight": 0.005
+        },
+        {
+          "weight": 0.001,
+          "unit": "g",
+          "ingredientId": "ing_697ebheo"
+        },
+        {
+          "weight": 0.005,
+          "unit": "g",
+          "ingredientId": "ing_m2fay5ae"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_e20hbguz",
+          "weight": 0.005
+        }
+      ],
+      "name": "골드 크림 커리 덕"
+    },
+    "prod_3qxzsv9o": {
+      "unitLabel": "",
+      "id": "prod_3qxzsv9o",
+      "name": "램",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_o29cwrrm",
+          "weight": 700
+        },
+        {
+          "ingredientId": "ing_fv9r7ffa",
+          "unit": "g",
+          "weight": 2000
+        },
+        {
+          "weight": 200,
+          "unit": "g",
+          "ingredientId": "ing_ufzm44iv"
+        },
+        {
+          "ingredientId": "ing_76xc34do",
+          "unit": "g",
+          "weight": 270
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd",
+          "weight": 30
+        },
+        {
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g",
+          "weight": 1150
+        },
+        {
+          "weight": 19,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g",
+          "weight": 0.8
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3",
+          "weight": 0.19
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4",
+          "weight": 0.23
+        },
+        {
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.15
+        }
+      ],
+      "unitIngredientId": "ing_o29cwrrm",
+      "species": "cat"
+    },
+    "prod_j3tasput": {
+      "id": "prod_j3tasput",
+      "unitLabel": "",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_50vk5rrh",
+          "weight": 70
+        },
+        {
+          "weight": 34.9,
+          "ingredientId": "ing_afkryt5v",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 0.39200000000000007
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_402ko8o6",
+          "weight": 0.005
+        },
+        {
+          "weight": 0.005,
+          "unit": "g",
+          "ingredientId": "ing_giuwdqor"
+        },
+        {
+          "weight": 0.005,
+          "unit": "g",
+          "ingredientId": "ing_qfam13mg"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_eaw1i6jo",
+          "weight": 0.005
+        }
+      ],
+      "species": null,
+      "unitIngredientId": "ing_50vk5rrh",
+      "name": "포크 디너 플레이트"
+    },
+    "prod_wqpyla0b": {
+      "unitLabel": "",
+      "id": "prod_wqpyla0b",
+      "name": "램",
+      "unitIngredientId": "ing_08ngn9pb",
+      "species": "dog",
+      "composition": [
+        {
+          "weight": 700,
+          "ingredientId": "ing_08ngn9pb",
+          "unit": "kg"
+        },
+        {
+          "weight": 2000,
+          "unit": "g",
+          "ingredientId": "ing_cl8wplde"
+        },
+        {
+          "weight": 200,
+          "unit": "g",
+          "ingredientId": "ing_ufzm44iv"
+        },
+        {
+          "weight": 270,
+          "ingredientId": "ing_acpqzx1g",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 14.5
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_n6wbgtgm",
+          "weight": 750
+        },
+        {
+          "weight": 19,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "weight": 0.3,
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_aoahrqs3",
+          "unit": "g",
+          "weight": 0.2
+        },
+        {
+          "weight": 0.05,
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g"
+        },
+        {
+          "weight": 0.05,
+          "unit": "g",
+          "ingredientId": "ing_74mb616h"
+        },
+        {
+          "weight": 0.1,
+          "unit": "g",
+          "ingredientId": "ing_az8v3zi7"
+        },
+        {
+          "weight": 0.05,
+          "ingredientId": "ing_qndl8eit",
+          "unit": "g"
+        },
+        {
+          "weight": 200,
+          "unit": "g",
+          "ingredientId": "ing_yhlepja1"
+        },
+        {
+          "ingredientId": "ing_ipvu04z1",
+          "unit": "g",
+          "weight": 180
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_5zzz05za",
+          "weight": 30
+        },
+        {
+          "weight": 40,
+          "ingredientId": "ing_y12ekpr4",
+          "unit": "g"
+        },
+        {
+          "weight": 10,
+          "unit": "g",
+          "ingredientId": "ing_utrck35d"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_t6i1rij0",
+          "weight": 3
+        },
+        {
+          "ingredientId": "ing_7vpodse1",
+          "unit": "g",
+          "weight": 3
+        }
+      ]
+    },
+    "prod_r977j059": {
+      "name": "본치킨",
+      "species": "cat",
+      "unitIngredientId": "ing_r42wn6rm",
+      "composition": [
+        {
+          "ingredientId": "ing_r42wn6rm",
+          "unit": "kg",
+          "weight": 800
+        },
+        {
+          "weight": 2000,
+          "unit": "g",
+          "ingredientId": "ing_urf1bz4h"
+        },
+        {
+          "weight": 180,
+          "unit": "g",
+          "ingredientId": "ing_q588es2r"
+        },
+        {
+          "weight": 150,
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_wq56d2a7",
+          "weight": 120
+        },
+        {
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g",
+          "weight": 14
+        },
+        {
+          "weight": 530,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "weight": 7,
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj",
+          "weight": 0.8
+        },
+        {
+          "weight": 0.23,
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3"
+        },
+        {
+          "weight": 0.25,
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h",
+          "weight": 0.1
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_9ff84197",
+          "weight": 0.11
+        },
+        {
+          "weight": 0.2,
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g"
+        }
+      ],
+      "unitLabel": "마리",
+      "id": "prod_r977j059"
+    },
+    "prod_qrdtxruk": {
+      "name": "본덕",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_1zl52qp2",
+          "weight": 1000
+        },
+        {
+          "weight": 1000,
+          "ingredientId": "ing_cvo81vds",
+          "unit": "g"
+        },
+        {
+          "weight": 4000,
+          "unit": "g",
+          "ingredientId": "ing_9aimovyj"
+        },
+        {
+          "weight": 480,
+          "ingredientId": "ing_6vea058l",
+          "unit": "g"
+        },
+        {
+          "weight": 450,
+          "unit": "g",
+          "ingredientId": "ing_sru7g9mw"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd",
+          "weight": 28
+        },
+        {
+          "weight": 1100,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "weight": 34,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g",
+          "weight": 0.2
+        },
+        {
+          "weight": 0.3,
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g",
+          "weight": 0.01
+        },
+        {
+          "weight": 0.08,
+          "ingredientId": "ing_9ff84197",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j",
+          "weight": 0.12
+        },
+        {
+          "ingredientId": "ing_74mb616h",
+          "unit": "g",
+          "weight": 0.3
+        },
+        {
+          "ingredientId": "ing_az8v3zi7",
+          "unit": "g",
+          "weight": 0.1
+        },
+        {
+          "weight": 0.2,
+          "unit": "g",
+          "ingredientId": "ing_qndl8eit"
+        },
+        {
+          "weight": 600,
+          "unit": "g",
+          "ingredientId": "ing_yhlepja1"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_ipvu04z1",
+          "weight": 600
+        },
+        {
+          "weight": 50,
+          "unit": "g",
+          "ingredientId": "ing_5zzz05za"
+        },
+        {
+          "weight": 40,
+          "ingredientId": "ing_utrck35d",
+          "unit": "g"
+        },
+        {
+          "weight": 20,
+          "unit": "g",
+          "ingredientId": "ing_y12ekpr4"
+        },
+        {
+          "weight": 10,
+          "unit": "g",
+          "ingredientId": "ing_7vpodse1"
+        },
+        {
+          "ingredientId": "ing_t6i1rij0",
+          "unit": "g",
+          "weight": 10
+        }
+      ],
+      "unitIngredientId": "ing_1zl52qp2",
+      "species": "dog",
+      "unitLabel": "",
+      "id": "prod_qrdtxruk"
+    },
+    "prod_swmsof0i": {
+      "name": "미디엄",
+      "species": "cat",
+      "unitIngredientId": "ing_urf1bz4h",
+      "composition": [
+        {
+          "weight": 300,
+          "ingredientId": "ing_urf1bz4h",
+          "unit": "kg"
+        },
+        {
+          "weight": 200,
+          "unit": "g",
+          "ingredientId": "ing_ulswiddk"
+        },
+        {
+          "weight": 25,
+          "unit": "g",
+          "ingredientId": "ing_q588es2r"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw",
+          "weight": 20
+        },
+        {
+          "weight": 3,
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g"
+        },
+        {
+          "weight": 88,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "weight": 3,
+          "unit": "g",
+          "ingredientId": "ing_xvlo5sw4"
+        },
+        {
+          "weight": 0.2,
+          "ingredientId": "ing_k4iydtcj",
+          "unit": "g"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3",
+          "weight": 0.015
+        },
+        {
+          "weight": 0.04,
+          "unit": "g",
+          "ingredientId": "ing_nn83tyz4"
+        },
+        {
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g",
+          "weight": 0.01
+        },
+        {
+          "ingredientId": "ing_9ff84197",
+          "unit": "g",
+          "weight": 0.014
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.03
+        },
+        {
+          "weight": 0.07,
+          "ingredientId": "ing_az8v3zi7",
+          "unit": "g"
+        },
+        {
+          "weight": 0.01,
+          "ingredientId": "ing_74mb616h",
+          "unit": "g"
+        }
+      ],
+      "unitLabel": "",
+      "id": "prod_swmsof0i"
+    },
+    "prod_u7ktdi5u": {
+      "unitLabel": "",
+      "id": "prod_u7ktdi5u",
+      "name": "덕",
+      "composition": [
+        {
+          "unit": "kg",
+          "ingredientId": "ing_oan35j4g",
+          "weight": 650
+        },
+        {
+          "weight": 50,
+          "ingredientId": "ing_cvo81vds",
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ing_q588es2r",
+          "unit": "g",
+          "weight": 38.7
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw",
+          "weight": 34.8
+        },
+        {
+          "weight": 3.8,
+          "unit": "g",
+          "ingredientId": "ing_4ik0erfd"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_n6wbgtgm",
+          "weight": 145
+        },
+        {
+          "weight": 3,
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g"
+        },
+        {
+          "weight": 0.2,
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj"
+        },
+        {
+          "weight": 0.04,
+          "unit": "g",
+          "ingredientId": "ing_aoahrqs3"
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 0.05
+        },
+        {
+          "weight": 0.005,
+          "unit": "g",
+          "ingredientId": "ing_rma82u9h"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_9ff84197",
+          "weight": 0.008
+        },
+        {
+          "ingredientId": "ing_q61ak58j",
+          "unit": "g",
+          "weight": 0.02
+        },
+        {
+          "weight": 0.04,
+          "ingredientId": "ing_az8v3zi7",
+          "unit": "g"
+        }
+      ],
+      "species": "cat",
+      "unitIngredientId": "ing_cvo81vds"
+    },
+    "prod_4rkkxla5": {
+      "unitLabel": "",
+      "id": "prod_4rkkxla5",
+      "name": "치멍",
+      "composition": [
+        {
+          "weight": 1500,
+          "ingredientId": "ing_4sg8drmz",
+          "unit": "kg"
+        },
+        {
+          "weight": 1000,
+          "unit": "g",
+          "ingredientId": "ing_ulswiddk"
+        },
+        {
+          "ingredientId": "ing_q588es2r",
+          "unit": "g",
+          "weight": 130
+        },
+        {
+          "weight": 110,
+          "unit": "g",
+          "ingredientId": "ing_v3v64nsw"
+        },
+        {
+          "weight": 12,
+          "ingredientId": "ing_4ik0erfd",
+          "unit": "g"
+        },
+        {
+          "weight": 420,
+          "ingredientId": "ing_n6wbgtgm",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_xvlo5sw4",
+          "unit": "g",
+          "weight": 16
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_k4iydtcj",
+          "weight": 0.25
+        },
+        {
+          "weight": 0.14,
+          "ingredientId": "ing_aoahrqs3",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_nn83tyz4",
+          "unit": "g",
+          "weight": 0.46
+        },
+        {
+          "weight": 0.07,
+          "ingredientId": "ing_rma82u9h",
+          "unit": "g"
+        },
+        {
+          "weight": 0.05,
+          "ingredientId": "ing_9ff84197",
+          "unit": "g"
+        },
+        {
+          "weight": 0.1,
+          "unit": "g",
+          "ingredientId": "ing_q61ak58j"
+        },
+        {
+          "weight": 0.025,
+          "ingredientId": "ing_74mb616h",
+          "unit": "g"
+        },
+        {
+          "weight": 0.05,
+          "ingredientId": "ing_az8v3zi7",
+          "unit": "g"
+        },
+        {
+          "weight": 0.3,
+          "ingredientId": "ing_qndl8eit",
+          "unit": "g"
+        },
+        {
+          "weight": 120,
+          "ingredientId": "ing_yhlepja1",
+          "unit": "g"
+        },
+        {
+          "ingredientId": "ing_ipvu04z1",
+          "unit": "g",
+          "weight": 100
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_5zzz05za",
+          "weight": 13
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_y12ekpr4",
+          "weight": 10
+        },
+        {
+          "weight": 10,
+          "unit": "g",
+          "ingredientId": "ing_utrck35d"
+        },
+        {
+          "unit": "g",
+          "ingredientId": "ing_t6i1rij0",
+          "weight": 5
+        },
+        {
+          "ingredientId": "ing_7vpodse1",
+          "unit": "g",
+          "weight": 5
+        }
+      ],
+      "species": "dog",
+      "unitIngredientId": "ing_4sg8drmz"
+    }
+  },
+  "ui": {
+    "resultOptions": {
+      "prod_qrdtxruk": {
+        "weight": "3",
+        "presetLabel": "",
+        "supplementOnly": false,
+        "unitIngredientId": ""
+      },
+      "prod_o09pxlj3": {
+        "supplementOnly": false,
+        "unitIngredientId": "ing_urf1bz4h",
+        "presetLabel": "",
+        "weight": "60"
+      },
+      "prod_r977j059": {
+        "weight": "5",
+        "presetLabel": "",
+        "supplementOnly": false,
+        "unitIngredientId": "ing_r42wn6rm"
+      },
+      "prod_e959c5b2": {
+        "supplementOnly": false,
+        "unitIngredientId": "ing_5mj4kx0v",
+        "presetLabel": "",
+        "weight": "8.5"
+      },
+      "prod_qftdpztn": {
+        "weight": "5",
+        "supplementOnly": false,
+        "unitIngredientId": "",
+        "presetLabel": ""
+      },
+      "prod_4rkkxla5": {
+        "weight": "20",
+        "presetLabel": "",
+        "supplementOnly": false,
+        "unitIngredientId": ""
+      },
+      "prod_f7fimuuz": {
+        "presetLabel": "",
+        "unitIngredientId": "",
+        "supplementOnly": false,
+        "weight": "34"
+      },
+      "prod_u7ktdi5u": {
+        "weight": "4",
+        "supplementOnly": false,
+        "unitIngredientId": "ing_cvo81vds",
+        "presetLabel": ""
+      },
+      "prod_jmvdf9bz": {
+        "weight": "16",
+        "unitIngredientId": "",
+        "presetLabel": "",
+        "supplementOnly": false
+      },
+      "prod_swmsof0i": {
+        "weight": "45",
+        "supplementOnly": false,
+        "unitIngredientId": "",
+        "presetLabel": ""
+      },
+      "prod_llqc9gqf": {
+        "weight": "25",
+        "unitIngredientId": "",
+        "presetLabel": "",
+        "supplementOnly": false
+      },
+      "prod_amew8j2z": {
+        "weight": "5",
+        "presetLabel": "",
+        "unitIngredientId": "",
+        "supplementOnly": false
+      },
+      "prod_wqpyla0b": {
+        "supplementOnly": false,
+        "presetLabel": "",
+        "unitIngredientId": "",
+        "weight": "5"
+      },
+      "prod_eludnl6f": {
+        "weight": "140",
+        "supplementOnly": false,
+        "presetLabel": "",
+        "unitIngredientId": ""
+      },
+      "prod_0w4z8041": {
+        "weight": "2",
+        "unitIngredientId": "",
+        "supplementOnly": false,
+        "presetLabel": ""
+      },
+      "prod_7kpt5s9u": {
+        "weight": "15",
+        "supplementOnly": false,
+        "presetLabel": "",
+        "unitIngredientId": ""
+      },
+      "prod_3qxzsv9o": {
+        "weight": "5",
+        "unitIngredientId": "ing_o29cwrrm",
+        "supplementOnly": false,
+        "presetLabel": ""
+      },
+      "prod_x0247dge": {
+        "unitIngredientId": "",
+        "presetLabel": "",
+        "supplementOnly": false,
+        "weight": "3"
+      }
+    },
+    "editingProductId": null,
+    "selectedProductIds": [
+      "prod_o09pxlj3",
+      "prod_r977j059"
+    ],
+    "selectedPresetIds": [
+      "preset_gl9peuog",
+      "preset_3hxe9l52",
+      "preset_1t6h77pw",
+      "preset_3f756hmi",
+      "preset_yw9biv2g",
+      "preset_wr203l7x",
+      "preset_kmbemspv",
+      "preset_7ajn2w45",
+      "preset_jtptcu50",
+      "preset_je1ox2z0",
+      "preset_r0l1d1c3",
+      "preset_541nnr9r",
+      "preset_vx4i311u",
+      "preset_oxvxvqso",
+      "preset_0m17gqig"
+    ],
+    "activeTab": "result"
+  },
+  "version": 2,
+  "presets": {
+    "preset_ft5j1b6h": {
+      "productId": "prod_4rkkxla5",
+      "id": "preset_ft5j1b6h",
+      "code": "L0",
+      "inputAmount": 1.5,
+      "unitIngredientId": "ing_4sg8drmz",
+      "inputUnitLabel": "kg",
+      "targetWeight": 1500,
+      "label": ""
+    },
+    "preset_kpf9bg41": {
+      "label": "",
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_1zl52qp2",
+      "inputAmount": 2,
+      "targetWeight": 2000,
+      "productId": "prod_qrdtxruk",
+      "id": "preset_kpf9bg41",
+      "code": "N3"
+    },
+    "preset_zexqpg7o": {
+      "code": "R3",
+      "id": "preset_zexqpg7o",
+      "productId": "prod_jmvdf9bz",
+      "targetWeight": 4000,
+      "unitIngredientId": "ing_ulswiddk",
+      "inputAmount": 4,
+      "inputUnitLabel": "kg",
+      "label": ""
+    },
+    "preset_s16bwyxa": {
+      "label": "",
+      "targetWeight": 140000,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 140,
+      "inputUnitLabel": "kg",
+      "code": "B6",
+      "productId": "prod_eludnl6f",
+      "id": "preset_s16bwyxa"
+    },
+    "preset_g06f7ami": {
+      "targetWeight": 4000,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_cvo81vds",
+      "inputAmount": 4,
+      "label": "",
+      "code": "D7",
+      "id": "preset_g06f7ami",
+      "productId": "prod_u7ktdi5u"
+    },
+    "preset_dwvv7dk5": {
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_08ngn9pb",
+      "inputAmount": 4,
+      "targetWeight": 4000,
+      "label": "",
+      "productId": "prod_wqpyla0b",
+      "id": "preset_dwvv7dk5",
+      "code": "O6"
+    },
+    "preset_ddcu04kt": {
+      "code": "G4",
+      "productId": "prod_swmsof0i",
+      "id": "preset_ddcu04kt",
+      "label": "",
+      "targetWeight": 37500,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 37.5
+    },
+    "preset_vwh46ga1": {
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_1zl52qp2",
+      "inputAmount": 2.5,
+      "targetWeight": 2500,
+      "label": "",
+      "productId": "prod_qrdtxruk",
+      "id": "preset_vwh46ga1",
+      "code": "N4"
+    },
+    "preset_5qtzc7aa": {
+      "label": "",
+      "inputAmount": 9,
+      "inputUnitLabel": "g",
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 9,
+      "productId": "prod_f7fimuuz",
+      "id": "preset_5qtzc7aa",
+      "code": "J0"
+    },
+    "preset_wnbtargd": {
+      "code": "F0",
+      "id": "preset_wnbtargd",
+      "productId": "prod_3qxzsv9o",
+      "label": "",
+      "targetWeight": 500,
+      "inputAmount": 0.5,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_o29cwrrm"
+    },
+    "preset_h96hzp34": {
+      "id": "preset_h96hzp34",
+      "productId": "prod_u7ktdi5u",
+      "code": "D5",
+      "unitIngredientId": "ing_cvo81vds",
+      "inputUnitLabel": "kg",
+      "inputAmount": 3,
+      "targetWeight": 3000,
+      "label": ""
+    },
+    "preset_dqlm991u": {
+      "productId": "prod_u7ktdi5u",
+      "id": "preset_dqlm991u",
+      "code": "D1",
+      "label": "",
+      "inputAmount": 2,
+      "unitIngredientId": "ing_cvo81vds",
+      "inputUnitLabel": "kg",
+      "targetWeight": 2000
+    },
+    "preset_b9menh6p": {
+      "productId": "prod_4rkkxla5",
+      "id": "preset_b9menh6p",
+      "code": "L1",
+      "label": "",
+      "unitIngredientId": "ing_4sg8drmz",
+      "inputUnitLabel": "kg",
+      "inputAmount": 3,
+      "targetWeight": 3000
+    },
+    "preset_2s4b6j3e": {
+      "productId": "prod_o09pxlj3",
+      "id": "preset_2s4b6j3e",
+      "code": "A3",
+      "label": "",
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 80000
+    },
+    "preset_1pqwij0k": {
+      "inputUnitLabel": "kg",
+      "inputAmount": 17.5,
+      "unitIngredientId": "ing_5mj4kx0v",
+      "targetWeight": 17500,
+      "label": "",
+      "id": "preset_1pqwij0k",
+      "productId": "prod_e959c5b2",
+      "code": "E0"
+    },
+    "preset_5ly4zjc9": {
+      "productId": "prod_o09pxlj3",
+      "id": "preset_5ly4zjc9",
+      "code": "A0",
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 20000,
+      "label": ""
+    },
+    "preset_6d5ipk8a": {
+      "label": "",
+      "inputAmount": 4,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_08ngn9pb",
+      "targetWeight": 4000,
+      "id": "preset_6d5ipk8a",
+      "productId": "prod_wqpyla0b",
+      "code": "O7"
+    },
+    "preset_fwsp9fy9": {
+      "targetWeight": 1500,
+      "inputUnitLabel": "kg",
+      "inputAmount": 1.5,
+      "unitIngredientId": "ing_cvo81vds",
+      "label": "",
+      "code": "D3",
+      "productId": "prod_u7ktdi5u",
+      "id": "preset_fwsp9fy9"
+    },
+    "preset_541nnr9r": {
+      "targetWeight": 1600,
+      "inputAmount": 2,
+      "inputUnitLabel": "마리",
+      "unitIngredientId": "ing_r42wn6rm",
+      "label": "",
+      "code": "M2",
+      "id": "preset_541nnr9r",
+      "productId": "prod_qftdpztn"
+    },
+    "preset_75yq789k": {
+      "inputAmount": 10,
+      "unitIngredientId": "ing_6pi7nnio",
+      "inputUnitLabel": "kg",
+      "targetWeight": 10000,
+      "label": "",
+      "productId": "prod_llqc9gqf",
+      "id": "preset_75yq789k",
+      "code": "T2"
+    },
+    "preset_03ubsx4k": {
+      "label": "",
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 30,
+      "inputUnitLabel": "kg",
+      "targetWeight": 30000,
+      "productId": "prod_swmsof0i",
+      "id": "preset_03ubsx4k",
+      "code": "G3"
+    },
+    "preset_ks05nr2p": {
+      "targetWeight": 2500,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_cvo81vds",
+      "inputAmount": 2.5,
+      "label": "",
+      "code": "D4",
+      "id": "preset_ks05nr2p",
+      "productId": "prod_u7ktdi5u"
+    },
+    "preset_pm7agzqp": {
+      "label": "",
+      "targetWeight": 5000,
+      "inputAmount": 5,
+      "unitIngredientId": "ing_6pi7nnio",
+      "inputUnitLabel": "kg",
+      "code": "T1",
+      "productId": "prod_llqc9gqf",
+      "id": "preset_pm7agzqp"
+    },
+    "preset_v4a7pjld": {
+      "code": "O5",
+      "productId": "prod_wqpyla0b",
+      "id": "preset_v4a7pjld",
+      "label": "",
+      "targetWeight": 500,
+      "unitIngredientId": "ing_08ngn9pb",
+      "inputUnitLabel": "kg",
+      "inputAmount": 0.5
+    },
+    "preset_8p5due2c": {
+      "productId": "prod_qrdtxruk",
+      "id": "preset_8p5due2c",
+      "code": "N2",
+      "label": "",
+      "unitIngredientId": "ing_1zl52qp2",
+      "inputUnitLabel": "kg",
+      "inputAmount": 1.5,
+      "targetWeight": 1500
+    },
+    "preset_l0bgonez": {
+      "label": "",
+      "targetWeight": 6000,
+      "inputAmount": 6,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_4sg8drmz",
+      "code": "L3",
+      "productId": "prod_4rkkxla5",
+      "id": "preset_l0bgonez"
+    },
+    "preset_bi2ahard": {
+      "targetWeight": 7500,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputUnitLabel": "kg",
+      "inputAmount": 7.5,
+      "label": "",
+      "code": "G0",
+      "productId": "prod_swmsof0i",
+      "id": "preset_bi2ahard"
+    },
+    "preset_wr203l7x": {
+      "id": "preset_wr203l7x",
+      "productId": "prod_u7ktdi5u",
+      "code": "D2",
+      "inputAmount": 1,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_cvo81vds",
+      "targetWeight": 1000,
+      "label": ""
+    },
+    "preset_nksftc12": {
+      "code": "T0",
+      "productId": "prod_llqc9gqf",
+      "id": "preset_nksftc12",
+      "targetWeight": 5000,
+      "inputAmount": 5,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_6pi7nnio",
+      "label": ""
+    },
+    "preset_as2p935h": {
+      "productId": "prod_qftdpztn",
+      "id": "preset_as2p935h",
+      "code": "M4",
+      "unitIngredientId": "ing_r42wn6rm",
+      "inputUnitLabel": "마리",
+      "inputAmount": 4,
+      "targetWeight": 3200,
+      "label": ""
+    },
+    "preset_p7e6ayo3": {
+      "code": "E2",
+      "id": "preset_p7e6ayo3",
+      "productId": "prod_e959c5b2",
+      "targetWeight": 12500,
+      "inputAmount": 12.5,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_5mj4kx0v",
+      "label": ""
+    },
+    "preset_igkvxv63": {
+      "productId": "prod_qftdpztn",
+      "id": "preset_igkvxv63",
+      "code": "M5",
+      "label": "",
+      "unitIngredientId": "ing_r42wn6rm",
+      "inputUnitLabel": "마리",
+      "inputAmount": 5,
+      "targetWeight": 4000
+    },
+    "preset_qh16lc76": {
+      "inputUnitLabel": "kg",
+      "inputAmount": 1,
+      "unitIngredientId": "ing_o29cwrrm",
+      "targetWeight": 1000,
+      "label": "",
+      "id": "preset_qh16lc76",
+      "productId": "prod_3qxzsv9o",
+      "code": "F1"
+    },
+    "preset_jggp5bkj": {
+      "label": "",
+      "targetWeight": 2500,
+      "inputUnitLabel": "kg",
+      "inputAmount": 2.5,
+      "unitIngredientId": "ing_08ngn9pb",
+      "code": "O3",
+      "id": "preset_jggp5bkj",
+      "productId": "prod_wqpyla0b"
+    },
+    "preset_vd8a0pky": {
+      "targetWeight": 12500,
+      "inputAmount": 12.5,
+      "unitIngredientId": "ing_5mj4kx0v",
+      "inputUnitLabel": "kg",
+      "label": "",
+      "code": "E1",
+      "id": "preset_vd8a0pky",
+      "productId": "prod_e959c5b2"
+    },
+    "preset_wso7ptct": {
+      "code": "L7",
+      "id": "preset_wso7ptct",
+      "productId": "prod_4rkkxla5",
+      "targetWeight": 12000,
+      "inputUnitLabel": "kg",
+      "inputAmount": 12,
+      "unitIngredientId": "ing_4sg8drmz",
+      "label": ""
+    },
+    "preset_je1ox2z0": {
+      "code": "A7",
+      "id": "preset_je1ox2z0",
+      "productId": "prod_o09pxlj3",
+      "label": "",
+      "targetWeight": 160000,
+      "inputUnitLabel": "kg",
+      "inputAmount": 160,
+      "unitIngredientId": "ing_urf1bz4h"
+    },
+    "preset_6hx8ambx": {
+      "code": "P3",
+      "productId": "prod_amew8j2z",
+      "id": "preset_6hx8ambx",
+      "targetWeight": 4000,
+      "inputAmount": 4,
+      "unitIngredientId": "ing_emvkeoiv",
+      "inputUnitLabel": "kg",
+      "label": ""
+    },
+    "preset_ne9d9vgu": {
+      "code": "A6",
+      "productId": "prod_o09pxlj3",
+      "id": "preset_ne9d9vgu",
+      "targetWeight": 140000,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 140,
+      "inputUnitLabel": "kg",
+      "label": ""
+    },
+    "preset_mx3739xy": {
+      "code": "R1",
+      "id": "preset_mx3739xy",
+      "productId": "prod_jmvdf9bz",
+      "targetWeight": 6000,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_ulswiddk",
+      "inputAmount": 6,
+      "label": ""
+    },
+    "preset_rdocs1j3": {
+      "code": "R2",
+      "id": "preset_rdocs1j3",
+      "productId": "prod_jmvdf9bz",
+      "label": "",
+      "targetWeight": 8000,
+      "inputAmount": 8,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_ulswiddk"
+    },
+    "preset_wqpkf42r": {
+      "label": "",
+      "inputAmount": 2,
+      "unitIngredientId": "ing_ulswiddk",
+      "inputUnitLabel": "kg",
+      "targetWeight": 2000,
+      "id": "preset_wqpkf42r",
+      "productId": "prod_jmvdf9bz",
+      "code": "R0"
+    },
+    "preset_bjudcatu": {
+      "code": "B2",
+      "productId": "prod_eludnl6f",
+      "id": "preset_bjudcatu",
+      "label": "",
+      "targetWeight": 80000,
+      "inputAmount": 80,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h"
+    },
+    "preset_r0l1d1c3": {
+      "id": "preset_r0l1d1c3",
+      "productId": "prod_f7fimuuz",
+      "code": "J3",
+      "inputUnitLabel": "kg",
+      "inputAmount": 24,
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 24000,
+      "label": ""
+    },
+    "preset_ydvlzqrl": {
+      "code": "B0",
+      "id": "preset_ydvlzqrl",
+      "productId": "prod_eludnl6f",
+      "targetWeight": 40000,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 40,
+      "inputUnitLabel": "kg",
+      "label": ""
+    },
+    "preset_xovqqlkq": {
+      "label": "",
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputUnitLabel": "kg",
+      "inputAmount": 14,
+      "targetWeight": 14000,
+      "productId": "prod_f7fimuuz",
+      "id": "preset_xovqqlkq",
+      "code": "J1"
+    },
+    "preset_yw9biv2g": {
+      "code": "C5",
+      "productId": "prod_r977j059",
+      "id": "preset_yw9biv2g",
+      "targetWeight": 12000,
+      "inputAmount": 15,
+      "inputUnitLabel": "마리",
+      "unitIngredientId": "ing_r42wn6rm",
+      "label": ""
+    },
+    "preset_bd8lkbri": {
+      "inputAmount": 3,
+      "unitIngredientId": "ing_o29cwrrm",
+      "inputUnitLabel": "kg",
+      "targetWeight": 3000,
+      "label": "",
+      "productId": "prod_3qxzsv9o",
+      "id": "preset_bd8lkbri",
+      "code": "F3"
+    },
+    "preset_mtu98vl4": {
+      "productId": "prod_f7fimuuz",
+      "id": "preset_mtu98vl4",
+      "code": "J2",
+      "label": "",
+      "inputAmount": 18,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputUnitLabel": "kg",
+      "targetWeight": 18000
+    },
+    "preset_x6tmz03e": {
+      "code": "T3",
+      "productId": "prod_llqc9gqf",
+      "id": "preset_x6tmz03e",
+      "targetWeight": 15000,
+      "inputAmount": 15,
+      "unitIngredientId": "ing_6pi7nnio",
+      "inputUnitLabel": "kg",
+      "label": ""
+    },
+    "preset_brviklct": {
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_ulswiddk",
+      "inputAmount": 10,
+      "targetWeight": 10000,
+      "label": "",
+      "productId": "prod_jmvdf9bz",
+      "id": "preset_brviklct",
+      "code": "R4"
+    },
+    "preset_37dnp2yi": {
+      "targetWeight": 20000,
+      "inputAmount": 25,
+      "inputUnitLabel": "마리",
+      "unitIngredientId": "ing_r42wn6rm",
+      "label": "",
+      "code": "C2",
+      "id": "preset_37dnp2yi",
+      "productId": "prod_r977j059"
+    },
+    "preset_3hxe9l52": {
+      "id": "preset_3hxe9l52",
+      "productId": "prod_eludnl6f",
+      "code": "B3",
+      "inputAmount": 100,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputUnitLabel": "kg",
+      "targetWeight": 100000,
+      "label": ""
+    },
+    "preset_1lam3ikn": {
+      "id": "preset_1lam3ikn",
+      "productId": "prod_llqc9gqf",
+      "code": "T4",
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_6pi7nnio",
+      "inputAmount": 20,
+      "targetWeight": 20000,
+      "label": ""
+    },
+    "preset_fouq97ig": {
+      "code": "L6",
+      "productId": "prod_4rkkxla5",
+      "id": "preset_fouq97ig",
+      "label": "",
+      "targetWeight": 9000,
+      "inputAmount": 9,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_4sg8drmz"
+    },
+    "preset_0xrwj4tq": {
+      "productId": "prod_o09pxlj3",
+      "id": "preset_0xrwj4tq",
+      "code": "A5",
+      "inputAmount": 120,
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputUnitLabel": "kg",
+      "targetWeight": 120000,
+      "label": ""
+    },
+    "preset_42oxru4g": {
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 40000,
+      "label": "",
+      "productId": "prod_o09pxlj3",
+      "id": "preset_42oxru4g",
+      "code": "A1"
+    },
+    "preset_9qe54tha": {
+      "label": "",
+      "targetWeight": 500,
+      "unitIngredientId": "ing_cvo81vds",
+      "inputAmount": 0.5,
+      "inputUnitLabel": "kg",
+      "code": "D0",
+      "productId": "prod_u7ktdi5u",
+      "id": "preset_9qe54tha"
+    },
+    "preset_1t6h77pw": {
+      "code": "B4",
+      "productId": "prod_eludnl6f",
+      "id": "preset_1t6h77pw",
+      "targetWeight": 120000,
+      "inputAmount": 120,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h",
+      "label": ""
+    },
+    "preset_t0dyrthv": {
+      "id": "preset_t0dyrthv",
+      "productId": "prod_jmvdf9bz",
+      "code": "R6",
+      "label": "",
+      "inputAmount": 14,
+      "unitIngredientId": "ing_ulswiddk",
+      "inputUnitLabel": "kg",
+      "targetWeight": 14000
+    },
+    "preset_h1pzirxn": {
+      "productId": "prod_eludnl6f",
+      "id": "preset_h1pzirxn",
+      "code": "B1",
+      "label": "",
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 60,
+      "inputUnitLabel": "kg",
+      "targetWeight": 60000
+    },
+    "preset_in91dz1f": {
+      "id": "preset_in91dz1f",
+      "productId": "prod_7kpt5s9u",
+      "code": "K0",
+      "unitIngredientId": "ing_f6xbnf09",
+      "inputUnitLabel": "kg",
+      "inputAmount": 10,
+      "targetWeight": 10000,
+      "label": ""
+    },
+    "preset_yuozk40c": {
+      "label": "",
+      "unitIngredientId": "ing_r42wn6rm",
+      "targetWeight": 16000,
+      "productId": "prod_r977j059",
+      "id": "preset_yuozk40c",
+      "code": "C1"
+    },
+    "preset_aqu9e98z": {
+      "label": "",
+      "targetWeight": 2000,
+      "inputAmount": 2,
+      "unitIngredientId": "ing_08ngn9pb",
+      "inputUnitLabel": "kg",
+      "code": "O2",
+      "id": "preset_aqu9e98z",
+      "productId": "prod_wqpyla0b"
+    },
+    "preset_gl9peuog": {
+      "id": "preset_gl9peuog",
+      "productId": "prod_e959c5b2",
+      "code": "E3",
+      "label": "",
+      "unitIngredientId": "ing_5mj4kx0v",
+      "inputUnitLabel": "kg",
+      "inputAmount": 8.5,
+      "targetWeight": 8500
+    },
+    "preset_7ajn2w45": {
+      "code": "G2",
+      "productId": "prod_swmsof0i",
+      "id": "preset_7ajn2w45",
+      "label": "",
+      "targetWeight": 22500,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h",
+      "inputAmount": 22.5
+    },
+    "preset_8fgy114j": {
+      "label": "",
+      "unitIngredientId": "ing_4sg8drmz",
+      "inputAmount": 9,
+      "inputUnitLabel": "kg",
+      "targetWeight": 9000,
+      "productId": "prod_4rkkxla5",
+      "id": "preset_8fgy114j",
+      "code": "L5"
+    },
+    "preset_mj12apee": {
+      "code": "L8",
+      "id": "preset_mj12apee",
+      "productId": "prod_4rkkxla5",
+      "targetWeight": 15000,
+      "unitIngredientId": "ing_4sg8drmz",
+      "inputAmount": 15,
+      "inputUnitLabel": "kg",
+      "label": ""
+    },
+    "preset_bhaknuq5": {
+      "code": "L4",
+      "productId": "prod_4rkkxla5",
+      "id": "preset_bhaknuq5",
+      "targetWeight": 7500,
+      "inputAmount": 7.5,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_4sg8drmz",
+      "label": ""
+    },
+    "preset_0m17gqig": {
+      "id": "preset_0m17gqig",
+      "productId": "prod_o09pxlj3",
+      "code": "A2",
+      "label": "",
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 60000
+    },
+    "preset_3f756hmi": {
+      "label": "",
+      "targetWeight": 8000,
+      "unitIngredientId": "ing_r42wn6rm",
+      "code": "C0",
+      "productId": "prod_r977j059",
+      "id": "preset_3f756hmi"
+    },
+    "preset_bcn8kjfl": {
+      "label": "",
+      "targetWeight": 3000,
+      "inputUnitLabel": "kg",
+      "inputAmount": 3,
+      "unitIngredientId": "ing_1zl52qp2",
+      "code": "N5",
+      "id": "preset_bcn8kjfl",
+      "productId": "prod_qrdtxruk"
+    },
+    "preset_2y46b36a": {
+      "productId": "prod_amew8j2z",
+      "id": "preset_2y46b36a",
+      "code": "P1",
+      "unitIngredientId": "ing_emvkeoiv",
+      "inputUnitLabel": "kg",
+      "inputAmount": 2,
+      "targetWeight": 2000,
+      "label": ""
+    },
+    "preset_1rape7ns": {
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_o29cwrrm",
+      "inputAmount": 2,
+      "targetWeight": 2000,
+      "label": "",
+      "productId": "prod_3qxzsv9o",
+      "id": "preset_1rape7ns",
+      "code": "F2"
+    },
+    "preset_57c9e6je": {
+      "label": "",
+      "targetWeight": 5000,
+      "unitIngredientId": "ing_emvkeoiv",
+      "inputAmount": 5,
+      "inputUnitLabel": "kg",
+      "code": "P4",
+      "productId": "prod_amew8j2z",
+      "id": "preset_57c9e6je"
+    },
+    "preset_le6i9xib": {
+      "productId": "prod_u7ktdi5u",
+      "id": "preset_le6i9xib",
+      "code": "D6",
+      "label": "",
+      "unitIngredientId": "ing_cvo81vds",
+      "inputUnitLabel": "kg",
+      "inputAmount": 3.5,
+      "targetWeight": 3500
+    },
+    "preset_6x43o5iq": {
+      "id": "preset_6x43o5iq",
+      "productId": "prod_wqpyla0b",
+      "code": "O1",
+      "label": "",
+      "inputAmount": 1.5,
+      "unitIngredientId": "ing_08ngn9pb",
+      "inputUnitLabel": "kg",
+      "targetWeight": 1500
+    },
+    "preset_kmbemspv": {
+      "label": "",
+      "targetWeight": 15000,
+      "inputAmount": 15,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h",
+      "code": "G1",
+      "id": "preset_kmbemspv",
+      "productId": "prod_swmsof0i"
+    },
+    "preset_ma6uwk22": {
+      "label": "",
+      "targetWeight": 15000,
+      "inputUnitLabel": "kg",
+      "inputAmount": 15,
+      "unitIngredientId": "ing_f6xbnf09",
+      "code": "K1",
+      "productId": "prod_7kpt5s9u",
+      "id": "preset_ma6uwk22"
+    },
+    "preset_8ysv3n50": {
+      "code": "J4",
+      "id": "preset_8ysv3n50",
+      "productId": "prod_f7fimuuz",
+      "targetWeight": 28000,
+      "inputAmount": 28,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h",
+      "label": ""
+    },
+    "preset_hbg7alqo": {
+      "code": "M0",
+      "id": "preset_hbg7alqo",
+      "productId": "prod_qftdpztn",
+      "label": "",
+      "targetWeight": 800,
+      "unitIngredientId": "ing_r42wn6rm",
+      "inputAmount": 1,
+      "inputUnitLabel": "마리"
+    },
+    "preset_df1eehc1": {
+      "id": "preset_df1eehc1",
+      "productId": "prod_r977j059",
+      "code": "C4",
+      "label": "",
+      "inputAmount": 5,
+      "unitIngredientId": "ing_r42wn6rm",
+      "inputUnitLabel": "마리",
+      "targetWeight": 4000
+    },
+    "preset_bo1gbved": {
+      "code": "F4",
+      "id": "preset_bo1gbved",
+      "productId": "prod_3qxzsv9o",
+      "label": "",
+      "targetWeight": 4000,
+      "inputAmount": 4,
+      "unitIngredientId": "ing_o29cwrrm",
+      "inputUnitLabel": "kg"
+    },
+    "preset_8699nxhq": {
+      "code": "M1",
+      "id": "preset_8699nxhq",
+      "productId": "prod_qftdpztn",
+      "targetWeight": 800,
+      "inputUnitLabel": "마리",
+      "inputAmount": 1,
+      "unitIngredientId": "ing_r42wn6rm",
+      "label": ""
+    },
+    "preset_yapt6nmh": {
+      "id": "preset_yapt6nmh",
+      "productId": "prod_3qxzsv9o",
+      "code": "F5",
+      "label": "",
+      "unitIngredientId": "ing_o29cwrrm",
+      "inputUnitLabel": "kg",
+      "inputAmount": 5,
+      "targetWeight": 5000
+    },
+    "preset_ykdvn0p6": {
+      "targetWeight": 4500,
+      "inputAmount": 4.5,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_4sg8drmz",
+      "label": "",
+      "code": "L2",
+      "productId": "prod_4rkkxla5",
+      "id": "preset_ykdvn0p6"
+    },
+    "preset_vx4i311u": {
+      "code": "N1",
+      "id": "preset_vx4i311u",
+      "productId": "prod_qrdtxruk",
+      "targetWeight": 1000,
+      "unitIngredientId": "ing_1zl52qp2",
+      "inputUnitLabel": "kg",
+      "inputAmount": 1,
+      "label": ""
+    },
+    "preset_rg35r5s8": {
+      "unitIngredientId": "ing_1zl52qp2",
+      "inputAmount": 0.5,
+      "inputUnitLabel": "kg",
+      "targetWeight": 500,
+      "label": "",
+      "id": "preset_rg35r5s8",
+      "productId": "prod_qrdtxruk",
+      "code": "N0"
+    },
+    "preset_6kga0hx3": {
+      "code": "P0",
+      "id": "preset_6kga0hx3",
+      "productId": "prod_amew8j2z",
+      "targetWeight": 1000,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_emvkeoiv",
+      "inputAmount": 1,
+      "label": ""
+    },
+    "preset_ma9lk2fv": {
+      "inputAmount": 1,
+      "unitIngredientId": "ing_08ngn9pb",
+      "inputUnitLabel": "kg",
+      "targetWeight": 1000,
+      "label": "",
+      "id": "preset_ma9lk2fv",
+      "productId": "prod_wqpyla0b",
+      "code": "O0"
+    },
+    "preset_8k20orxo": {
+      "inputAmount": 3,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_08ngn9pb",
+      "targetWeight": 3000,
+      "label": "",
+      "id": "preset_8k20orxo",
+      "productId": "prod_wqpyla0b",
+      "code": "O4"
+    },
+    "preset_afbgxlwp": {
+      "targetWeight": 16000,
+      "inputUnitLabel": "kg",
+      "inputAmount": 16,
+      "unitIngredientId": "ing_ulswiddk",
+      "label": "",
+      "code": "R7",
+      "id": "preset_afbgxlwp",
+      "productId": "prod_jmvdf9bz"
+    },
+    "preset_eiflvki7": {
+      "targetWeight": 12000,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_ulswiddk",
+      "inputAmount": 12,
+      "label": "",
+      "code": "R5",
+      "id": "preset_eiflvki7",
+      "productId": "prod_jmvdf9bz"
+    },
+    "preset_lim2l0y6": {
+      "id": "preset_lim2l0y6",
+      "productId": "prod_llqc9gqf",
+      "code": "T5",
+      "inputAmount": 25,
+      "unitIngredientId": "ing_6pi7nnio",
+      "inputUnitLabel": "kg",
+      "targetWeight": 25000,
+      "label": ""
+    },
+    "preset_whna6gsd": {
+      "id": "preset_whna6gsd",
+      "productId": "prod_f7fimuuz",
+      "code": "J5",
+      "inputUnitLabel": "kg",
+      "inputAmount": 34,
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 34000,
+      "label": ""
+    },
+    "preset_63gnc128": {
+      "code": "B5",
+      "id": "preset_63gnc128",
+      "productId": "prod_eludnl6f",
+      "targetWeight": 140000,
+      "inputAmount": 140,
+      "inputUnitLabel": "kg",
+      "unitIngredientId": "ing_urf1bz4h",
+      "label": ""
+    },
+    "preset_60g7z8p3": {
+      "targetWeight": 5000,
+      "inputUnitLabel": "kg",
+      "inputAmount": 5,
+      "unitIngredientId": "ing_08ngn9pb",
+      "label": "",
+      "code": "O8",
+      "productId": "prod_wqpyla0b",
+      "id": "preset_60g7z8p3"
+    },
+    "preset_oxvxvqso": {
+      "inputAmount": 3,
+      "unitIngredientId": "ing_emvkeoiv",
+      "inputUnitLabel": "kg",
+      "targetWeight": 3000,
+      "label": "",
+      "id": "preset_oxvxvqso",
+      "productId": "prod_amew8j2z",
+      "code": "P2"
+    },
+    "preset_jtptcu50": {
+      "label": "",
+      "unitIngredientId": "ing_urf1bz4h",
+      "targetWeight": 100000,
+      "productId": "prod_o09pxlj3",
+      "id": "preset_jtptcu50",
+      "code": "A4"
+    },
+    "preset_q7math55": {
+      "unitIngredientId": "ing_r42wn6rm",
+      "inputAmount": 3,
+      "inputUnitLabel": "마리",
+      "targetWeight": 2400,
+      "label": "",
+      "id": "preset_q7math55",
+      "productId": "prod_qftdpztn",
+      "code": "M3"
+    }
+  },
+  "prices": {
+    "ing_4ik0erfd": {
+      "price": 31050,
+      "unit": 1000
+    },
+    "ing_q61ak58j": {
+      "unit": 1000,
+      "price": 180000
+    },
+    "ing_ulswiddk": {
+      "unit": 1000,
+      "price": 10000
+    },
+    "ing_ufzm44iv": {
+      "price": 8000,
+      "unit": 1000
+    },
+    "ing_y12ekpr4": {
+      "price": 6458,
+      "unit": 1000
+    },
+    "ing_rma82u9h": {
+      "price": 10000,
+      "unit": 1000
+    },
+    "ing_r42wn6rm": {
+      "price": 3400,
+      "unit": 1000
+    },
+    "ing_5zzz05za": {
+      "price": 3125,
+      "unit": 1000
+    },
+    "ing_t6i1rij0": {
+      "unit": 1000,
+      "price": 9430
+    },
+    "ing_o29cwrrm": {
+      "price": 30000,
+      "unit": 1000
+    },
+    "ing_5mj4kx0v": {
+      "price": 25000,
+      "unit": 1000
+    },
+    "ing_74mb616h": {
+      "unit": 1000,
+      "price": 121000
+    },
+    "ing_3rnzenly": {
+      "price": 13370,
+      "unit": 1000
+    },
+    "ing_q588es2r": {
+      "price": 7600,
+      "unit": 1000
+    },
+    "ing_k4iydtcj": {
+      "price": 67000,
+      "unit": 1000
+    },
+    "ing_wq56d2a7": {
+      "price": 0,
+      "unit": 1000
+    },
+    "ing_cvo81vds": {
+      "price": 12000,
+      "unit": 1000
+    },
+    "ing_urf1bz4h": {
+      "unit": 1000,
+      "price": 4300
+    },
+    "ing_7vpodse1": {
+      "price": 10490,
+      "unit": 1000
+    },
+    "ing_utrck35d": {
+      "unit": 1000,
+      "price": 4500
+    },
+    "ing_76xc34do": {
+      "unit": 1000,
+      "price": 9000
+    },
+    "ing_9ff84197": {
+      "unit": 1000,
+      "price": 10000
+    },
+    "ing_nn83tyz4": {
+      "unit": 1000,
+      "price": 10000
+    },
+    "ing_ipvu04z1": {
+      "price": 1957,
+      "unit": 1000
+    },
+    "ing_az8v3zi7": {
+      "unit": 1000,
+      "price": 17250
+    },
+    "ing_yhlepja1": {
+      "unit": 1000,
+      "price": 1900
+    },
+    "ing_qndl8eit": {
+      "price": 11840,
+      "unit": 1000
+    },
+    "ing_n6wbgtgm": {
+      "unit": 1000,
+      "price": 0
+    },
+    "ing_xvlo5sw4": {
+      "price": 420,
+      "unit": 1000
+    },
+    "ing_fv9r7ffa": {
+      "unit": 1000,
+      "price": 23000
+    },
+    "ing_i8k447e4": {
+      "unit": 0,
+      "price": 0
+    },
+    "ing_oan35j4g": {
+      "unit": 1000,
+      "price": 12000
+    },
+    "ing_v3v64nsw": {
+      "price": 10200,
+      "unit": 1000
+    },
+    "ing_bfsbrpye": {
+      "price": 0,
+      "unit": 0
+    },
+    "ing_aoahrqs3": {
+      "price": 10000,
+      "unit": 1000
+    },
+    "ing_j93k5zha": {
+      "price": 5000,
+      "unit": 1000
+    }
+  },
+  "productOrder": [
+    "prod_o09pxlj3",
+    "prod_eludnl6f",
+    "prod_r977j059",
+    "prod_u7ktdi5u",
+    "prod_e959c5b2",
+    "prod_3qxzsv9o",
+    "prod_swmsof0i",
+    "prod_b1oaji64",
+    "prod_f7fimuuz",
+    "prod_7kpt5s9u",
+    "prod_4rkkxla5",
+    "prod_qftdpztn",
+    "prod_qrdtxruk",
+    "prod_wqpyla0b",
+    "prod_amew8j2z",
+    "prod_qa0ju5sz",
+    "prod_jmvdf9bz",
+    "prod_omrtijx7",
+    "prod_llqc9gqf",
+    "prod_o3y9d3zg",
+    "prod_binv0ck2",
+    "prod_4p76n4a3",
+    "prod_j3tasput",
+    "prod_xto94vcl",
+    "prod_0iq7fbj9",
+    "prod_0w4z8041",
+    "prod_x0247dge"
+  ],
+  "ingredients": {
+    "ing_p5tg3016": {
+      "kind": "ingredient",
+      "aliases": [],
+      "id": "ing_p5tg3016",
+      "displayName": "",
+      "name": "호박"
+    },
+    "ing_4ik0erfd": {
+      "kind": "ingredient",
+      "id": "ing_4ik0erfd",
+      "aliases": [],
+      "displayName": "",
+      "name": "노른자"
+    },
+    "ing_ufzm44iv": {
+      "name": "양간",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_ufzm44iv",
+      "kind": "ingredient"
+    },
+    "ing_vph8rha9": {
+      "hidden": false,
+      "name": "",
+      "aliases": [],
+      "id": "ing_vph8rha9",
+      "displayName": "",
+      "kind": "supplement"
+    },
+    "ing_g44q6gxq": {
+      "id": "ing_g44q6gxq",
+      "aliases": [],
+      "displayName": "",
+      "kind": "ingredient",
+      "hidden": false,
+      "name": ""
+    },
+    "ing_la1h3og6": {
+      "name": "난각",
+      "aliases": [],
+      "id": "ing_la1h3og6",
+      "displayName": "",
+      "kind": "supplement"
+    },
+    "ing_1o2c7usn": {
+      "name": "망고 가루",
+      "hidden": true,
+      "kind": "supplement",
+      "displayName": "",
+      "id": "ing_1o2c7usn",
+      "aliases": []
+    },
+    "ing_402ko8o6": {
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_402ko8o6",
+      "name": "단호박 가루"
+    },
+    "ing_4sg8drmz": {
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_4sg8drmz",
+      "name": "가슴"
+    },
+    "ing_e20hbguz": {
+      "name": "밀크 가루",
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_e20hbguz"
+    },
+    "ing_afkryt5v": {
+      "name": "정제수",
+      "displayName": "",
+      "id": "ing_afkryt5v",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_xys6sidd": {
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_xys6sidd",
+      "name": "",
+      "hidden": false
+    },
+    "ing_6pi7nnio": {
+      "aliases": [],
+      "id": "ing_6pi7nnio",
+      "displayName": "",
+      "kind": "ingredient",
+      "name": "대구"
+    },
+    "ing_t6i1rij0": {
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_t6i1rij0",
+      "aliases": [],
+      "name": "크랜베리"
+    },
+    "ing_3rnzenly": {
+      "name": "메추리",
+      "aliases": [],
+      "id": "ing_3rnzenly",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_k4iydtcj": {
+      "kind": "supplement",
+      "id": "ing_k4iydtcj",
+      "aliases": [],
+      "displayName": "가",
+      "name": "멸치가루"
+    },
+    "ing_rtbjmo6c": {
+      "kind": "supplement",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_rtbjmo6c",
+      "name": "",
+      "hidden": false
+    },
+    "ing_1zl52qp2": {
+      "name": "뼈정육",
+      "id": "ing_1zl52qp2",
+      "aliases": [],
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_72q6w3ap": {
+      "name": "크랜베리 가루",
+      "hidden": true,
+      "kind": "supplement",
+      "id": "ing_72q6w3ap",
+      "aliases": [],
+      "displayName": ""
+    },
+    "ing_5mj4kx0v": {
+      "aliases": [],
+      "id": "ing_5mj4kx0v",
+      "displayName": "",
+      "kind": "ingredient",
+      "name": "토끼정육"
+    },
+    "ing_coy9d8sh": {
+      "name": "안심",
+      "displayName": "",
+      "id": "ing_coy9d8sh",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_mm921buv": {
+      "hidden": false,
+      "name": "kj",
+      "displayName": "",
+      "id": "ing_mm921buv",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_utrck35d": {
+      "name": "브로콜리",
+      "kind": "ingredient",
+      "id": "ing_utrck35d",
+      "aliases": [],
+      "displayName": ""
+    },
+    "ing_15cukqqo": {
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_15cukqqo",
+      "aliases": [],
+      "name": "다랑어"
+    },
+    "ing_m2fay5ae": {
+      "name": "파인애플 가루",
+      "aliases": [],
+      "id": "ing_m2fay5ae",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_7vpodse1": {
+      "name": "블루베리",
+      "kind": "ingredient",
+      "id": "ing_7vpodse1",
+      "aliases": [],
+      "displayName": ""
+    },
+    "ing_f669o2fw": {
+      "name": "",
+      "hidden": false,
+      "kind": "ingredient",
+      "aliases": [],
+      "id": "ing_f669o2fw",
+      "displayName": ""
+    },
+    "ing_urf1bz4h": {
+      "name": "가슴살",
+      "aliases": [],
+      "id": "ing_urf1bz4h",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_d9zoxd3c": {
+      "name": "씨앗 뺀 사과 가루",
+      "kind": "ingredient",
+      "id": "ing_d9zoxd3c",
+      "aliases": [],
+      "displayName": ""
+    },
+    "ing_acpqzx1g": {
+      "name": "양염통",
+      "kind": "ingredient",
+      "id": "ing_acpqzx1g",
+      "aliases": [],
+      "displayName": ""
+    },
+    "ing_yhlepja1": {
+      "kind": "ingredient",
+      "aliases": [],
+      "id": "ing_yhlepja1",
+      "displayName": "",
+      "name": "고구마"
+    },
+    "ing_ipvu04z1": {
+      "name": "단호박",
+      "kind": "ingredient",
+      "aliases": [],
+      "id": "ing_ipvu04z1",
+      "displayName": ""
+    },
+    "ing_9ff84197": {
+      "name": "망간",
+      "kind": "supplement",
+      "displayName": "마",
+      "aliases": [],
+      "id": "ing_9ff84197"
+    },
+    "ing_bfsbrpye": {
+      "name": "메추리 (뼈 포함)",
+      "displayName": "",
+      "id": "ing_bfsbrpye",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_v3v64nsw": {
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_v3v64nsw",
+      "name": "닭염통"
+    },
+    "ing_8cuy634o": {
+      "kind": "ingredient",
+      "id": "ing_8cuy634o",
+      "aliases": [],
+      "displayName": "",
+      "name": "익힌 표고버섯 가루"
+    },
+    "ing_fv9r7ffa": {
+      "kind": "ingredient",
+      "id": "ing_fv9r7ffa",
+      "aliases": [],
+      "displayName": "",
+      "name": "양어깨"
+    },
+    "ing_qndl8eit": {
+      "kind": "supplement",
+      "displayName": "자",
+      "id": "ing_qndl8eit",
+      "aliases": [],
+      "name": "소금"
+    },
+    "ing_n6wbgtgm": {
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_n6wbgtgm",
+      "aliases": [],
+      "name": "물"
+    },
+    "ing_a1fv6k5h": {
+      "aliases": [],
+      "id": "ing_a1fv6k5h",
+      "displayName": "",
+      "kind": "ingredient",
+      "name": "찐 토마토 가루"
+    },
+    "ing_eaw1i6jo": {
+      "name": "찐당근 가루",
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_eaw1i6jo",
+      "aliases": []
+    },
+    "ing_ursx3ebd": {
+      "name": "고구마 가루",
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_ursx3ebd",
+      "aliases": []
+    },
+    "ing_bjd17oue": {
+      "name": "오리 정육",
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_bjd17oue"
+    },
+    "ing_08ngn9pb": {
+      "name": "엉덩이",
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_08ngn9pb",
+      "aliases": []
+    },
+    "ing_kxr5pgtl": {
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_kxr5pgtl",
+      "kind": "supplement",
+      "hidden": false,
+      "name": ""
+    },
+    "ing_f6xbnf09": {
+      "name": "오리 안심",
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_f6xbnf09"
+    },
+    "ing_q61ak58j": {
+      "name": "비타민E",
+      "displayName": "바",
+      "aliases": [],
+      "id": "ing_q61ak58j",
+      "kind": "supplement"
+    },
+    "ing_ulswiddk": {
+      "aliases": [],
+      "id": "ing_ulswiddk",
+      "displayName": "",
+      "kind": "ingredient",
+      "name": "정육"
+    },
+    "ing_y12ekpr4": {
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_y12ekpr4",
+      "kind": "ingredient",
+      "name": "애호박"
+    },
+    "ing_r42wn6rm": {
+      "name": "통닭",
+      "aliases": [],
+      "id": "ing_r42wn6rm",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_giuwdqor": {
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_giuwdqor",
+      "name": "바나나 가루"
+    },
+    "ing_rma82u9h": {
+      "name": "구리",
+      "displayName": "라",
+      "id": "ing_rma82u9h",
+      "aliases": [],
+      "kind": "supplement"
+    },
+    "ing_wn9fmvz5": {
+      "aliases": [],
+      "id": "ing_wn9fmvz5",
+      "displayName": "",
+      "kind": "ingredient",
+      "name": "M"
+    },
+    "ing_me2opmwq": {
+      "name": "",
+      "hidden": false,
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_me2opmwq"
+    },
+    "ing_3hn7dk9i": {
+      "hidden": false,
+      "name": "",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_3hn7dk9i",
+      "kind": "ingredient"
+    },
+    "ing_5zzz05za": {
+      "displayName": "",
+      "id": "ing_5zzz05za",
+      "aliases": [],
+      "kind": "ingredient",
+      "name": "당근"
+    },
+    "ing_p0l6t4lm": {
+      "hidden": false,
+      "name": "",
+      "id": "ing_p0l6t4lm",
+      "aliases": [],
+      "displayName": "",
+      "kind": "supplement"
+    },
+    "ing_rylmjtf9": {
+      "hidden": false,
+      "name": "",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_rylmjtf9",
+      "kind": "supplement"
+    },
+    "ing_7j9so1y8": {
+      "kind": "ingredient",
+      "aliases": [],
+      "id": "ing_7j9so1y8",
+      "displayName": "",
+      "name": "닭"
+    },
+    "ing_qfam13mg": {
+      "name": "호박씨 가루",
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_qfam13mg"
+    },
+    "ing_74mb616h": {
+      "aliases": [],
+      "id": "ing_74mb616h",
+      "displayName": "사",
+      "kind": "supplement",
+      "name": "비타민D"
+    },
+    "ing_q588es2r": {
+      "name": "닭간",
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_q588es2r",
+      "aliases": []
+    },
+    "ing_wq56d2a7": {
+      "kind": "ingredient",
+      "aliases": [],
+      "id": "ing_wq56d2a7",
+      "displayName": "",
+      "name": "닭목뼈"
+    },
+    "ing_1r6mmzk6": {
+      "name": "넓적",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_1r6mmzk6",
+      "kind": "ingredient"
+    },
+    "ing_o29cwrrm": {
+      "name": "양엉덩이",
+      "kind": "ingredient",
+      "id": "ing_o29cwrrm",
+      "aliases": [],
+      "displayName": ""
+    },
+    "ing_o6gpv640": {
+      "kind": "supplement",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_o6gpv640",
+      "name": "차전"
+    },
+    "ing_fsuhbjly": {
+      "hidden": false,
+      "name": "",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_fsuhbjly",
+      "kind": "supplement"
+    },
+    "ing_fa1uyx6l": {
+      "id": "ing_fa1uyx6l",
+      "aliases": [],
+      "displayName": "",
+      "kind": "ingredient",
+      "hidden": false,
+      "name": ""
+    },
+    "ing_sru7g9mw": {
+      "name": "염통",
+      "displayName": "",
+      "id": "ing_sru7g9mw",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_cvo81vds": {
+      "name": "오리정육",
+      "aliases": [],
+      "id": "ing_cvo81vds",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_2u608iku": {
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_2u608iku",
+      "kind": "ingredient",
+      "name": "소고기"
+    },
+    "ing_697ebheo": {
+      "name": "강황가루",
+      "aliases": [],
+      "id": "ing_697ebheo",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_az8v3zi7": {
+      "name": "차전차피",
+      "aliases": [],
+      "id": "ing_az8v3zi7",
+      "displayName": "아",
+      "kind": "supplement"
+    },
+    "ing_emvkeoiv": {
+      "name": "토끼고기",
+      "displayName": "",
+      "id": "ing_emvkeoiv",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_qmkhs29l": {
+      "name": "컬리플라워 가루",
+      "hidden": true,
+      "kind": "supplement",
+      "displayName": "",
+      "id": "ing_qmkhs29l",
+      "aliases": []
+    },
+    "ing_nn83tyz4": {
+      "name": "아연",
+      "kind": "supplement",
+      "aliases": [],
+      "id": "ing_nn83tyz4",
+      "displayName": "다"
+    },
+    "ing_9aimovyj": {
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_9aimovyj",
+      "aliases": [],
+      "name": "오리안심"
+    },
+    "ing_76xc34do": {
+      "name": "양심장",
+      "aliases": [],
+      "id": "ing_76xc34do",
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_6vea058l": {
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_6vea058l",
+      "kind": "ingredient",
+      "name": "간"
+    },
+    "ing_gfk9rlah": {
+      "name": "",
+      "hidden": false,
+      "kind": "supplement",
+      "aliases": [],
+      "id": "ing_gfk9rlah",
+      "displayName": ""
+    },
+    "ing_iroiht4p": {
+      "hidden": false,
+      "name": "",
+      "aliases": [],
+      "id": "ing_iroiht4p",
+      "displayName": "",
+      "kind": "supplement"
+    },
+    "ing_xvlo5sw4": {
+      "aliases": [],
+      "id": "ing_xvlo5sw4",
+      "displayName": "",
+      "kind": "supplement",
+      "name": "난각분"
+    },
+    "ing_oan35j4g": {
+      "kind": "ingredient",
+      "id": "ing_oan35j4g",
+      "aliases": [],
+      "displayName": "",
+      "name": "오리가슴"
+    },
+    "ing_cl8wplde": {
+      "name": "어깨",
+      "id": "ing_cl8wplde",
+      "aliases": [],
+      "displayName": "",
+      "kind": "ingredient"
+    },
+    "ing_i8k447e4": {
+      "name": "닭가슴살",
+      "displayName": "",
+      "id": "ing_i8k447e4",
+      "aliases": [],
+      "kind": "ingredient"
+    },
+    "ing_3xvfkr55": {
+      "name": "",
+      "hidden": false,
+      "kind": "supplement",
+      "displayName": "",
+      "id": "ing_3xvfkr55",
+      "aliases": []
+    },
+    "ing_j93k5zha": {
+      "id": "ing_j93k5zha",
+      "aliases": [],
+      "displayName": "",
+      "kind": "ingredient",
+      "name": "토끼간"
+    },
+    "ing_w23z4jxt": {
+      "kind": "ingredient",
+      "displayName": "",
+      "id": "ing_w23z4jxt",
+      "aliases": [],
+      "name": "당근 가루"
+    },
+    "ing_aoahrqs3": {
+      "name": "철",
+      "displayName": "나",
+      "aliases": [],
+      "id": "ing_aoahrqs3",
+      "kind": "supplement"
+    },
+    "ing_6dhi1if1": {
+      "name": "브로콜리 가루",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_6dhi1if1",
+      "kind": "ingredient"
+    },
+    "ing_50vk5rrh": {
+      "name": "돼지 안심",
+      "kind": "ingredient",
+      "displayName": "",
+      "aliases": [],
+      "id": "ing_50vk5rrh"
+    }
+  },
+  "orderQuantities": {}
+}
