@@ -1,14 +1,16 @@
 import type { NutrientProfile, Species } from '../../../types/recipe'
 import { AAFCO_PROFILES } from './aafco'
 import { FEDIAF_2025_PROFILES } from './fediaf2025'
+import { NRC_2006_PROFILES } from './nrc2006'
 
 // 영양 표준 정적 레지스트리 (단계 1-A, DL-032).
 // 표준은 불변 참조 데이터라 앱 번들로 둔다 (Firestore 미사용).
-// 다표준 동등 지원: FEDIAF 2025 + AAFCO 2014. (NRC 등 추가 시 여기서 합침.)
+// 다표준 동등 지원: FEDIAF 2025 (7) + AAFCO 2014 (4) + NRC 2006 (2).
 
 export const ALL_PROFILES: readonly NutrientProfile[] = [
   ...FEDIAF_2025_PROFILES,
   ...AAFCO_PROFILES,
+  ...NRC_2006_PROFILES,
 ]
 
 const BY_ID = new Map(ALL_PROFILES.map((profile) => [profile.id, profile]))
