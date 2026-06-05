@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
+import { countExistingDocs } from '../features/migration/runMigration'
 import {
   buildOrderSummary,
   filterOrderGroups,
-  formatPresetInput,
   formatOrderLine,
+  formatPresetInput,
   groupPresetsByRecipe,
   speciesLabel,
   totalSelectedCount,
@@ -31,6 +33,11 @@ export function OrdersPage() {
   const uid = useAuthStore((state) => state.user?.uid)
   const draftsQuery = useRecipeDrafts(uid)
   const presetsQuery = usePresets(uid)
+  const diagnosticsQuery = useQuery({
+    queryKey: ['recipesssCounts', uid],
+    queryFn: () => countExistingDocs(uid as string),
+    enabled: !!uid,
+  })
   const [selection, setSelection] = useState<OrderSelection>({})
   const [filter, setFilter] = useState<OrderFilter>('all')
 
@@ -70,7 +77,7 @@ export function OrdersPage() {
         <div>
           <h1 className="text-title font-bold text-gray-800">발주</h1>
           <p className="mt-1 text-helper text-gray-500">
-            프리셋을 선택하고 이번 회차 주문량을 입력합니다.
+            프리셋을 선택해 이번 회차 발주 목록을 만듭니다.
           </p>
         </div>
         <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
@@ -92,7 +99,12 @@ export function OrdersPage() {
 
       {!isLoading && !isError && groups.length === 0 && (
         <div className={`mt-4 ${EMPTY_STATE_CLS}`}>
-          발주할 프리셋이 없습니다. 프리셋 설정에서 추가하세요.
+          발주할 프리셋이 없습니다.
+          <OrderDiagnostics
+            counts={diagnosticsQuery.data}
+            isLoading={diagnosticsQuery.isLoading}
+            uid={uid}
+          />
         </div>
       )}
 
@@ -116,63 +128,89 @@ export function OrdersPage() {
           </div>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-4">
-            {filteredGroups.length === 0 ? (
-              <div className={EMPTY_STATE_CLS}>
-                선택한 조건에 맞는 프리셋이 없습니다.
-              </div>
-            ) : (
-              filteredGroups.map((group) => (
-                <OrderGroupCard
-                  group={group}
-                  key={group.draftId}
-                  onToggle={togglePreset}
-                  selection={selection}
-                />
-              ))
-            )}
-          </div>
-
-          <aside className={`${CARD_CLS} self-start`}>
-            <div className="border-b border-gray-100 px-4 py-3">
-              <h2 className="text-sm font-semibold text-gray-800">
-                발주 요약
-              </h2>
-              <p className="mt-1 text-xs text-gray-500">
-                선택한 프리셋과 주문량
-              </p>
-            </div>
-
-            {summary.length === 0 ? (
-              <div className="p-6 text-sm text-gray-400">
-                프리셋을 선택해 주문량을 입력하세요.
-              </div>
-            ) : (
-              <div className="space-y-2 p-4">
-                {summary.map((group) => (
-                  <div
-                    className="rounded-lg bg-gray-50 px-3 py-2 font-mono text-sm text-gray-700"
+            <div className="space-y-4">
+              {filteredGroups.length === 0 ? (
+                <div className={EMPTY_STATE_CLS}>
+                  선택한 조건에 맞는 프리셋이 없습니다.
+                </div>
+              ) : (
+                filteredGroups.map((group) => (
+                  <OrderGroupCard
+                    group={group}
                     key={group.draftId}
-                  >
-                    {formatOrderLine(group)}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="border-t border-gray-100 p-4">
-              <button
-                className={`${PRIMARY_BTN_CLS} w-full`}
-                disabled
-                title="단계 4에서 구현"
-                type="button"
-              >
-                출력 미리보기 생성 (단계 4)
-              </button>
+                    onToggle={togglePreset}
+                    selection={selection}
+                  />
+                ))
+              )}
             </div>
-          </aside>
+
+            <aside className={`${CARD_CLS} self-start`}>
+              <div className="border-b border-gray-100 px-4 py-3">
+                <h2 className="text-sm font-semibold text-gray-800">
+                  발주 요약
+                </h2>
+                <p className="mt-1 text-xs text-gray-500">
+                  선택한 프리셋
+                </p>
+              </div>
+
+              {summary.length === 0 ? (
+                <div className="p-6 text-sm text-gray-400">
+                  프리셋을 선택하세요.
+                </div>
+              ) : (
+                <div className="space-y-2 p-4">
+                  {summary.map((group) => (
+                    <div
+                      className="rounded-lg bg-gray-50 px-3 py-2 font-mono text-sm text-gray-700"
+                      key={group.draftId}
+                    >
+                      {formatOrderLine(group)}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="border-t border-gray-100 p-4">
+                <button
+                  className={`${PRIMARY_BTN_CLS} w-full`}
+                  disabled
+                  title="단계 4에서 구현"
+                  type="button"
+                >
+                  출력 미리보기 생성 (단계 4)
+                </button>
+              </div>
+            </aside>
           </div>
         </>
+      )}
+    </div>
+  )
+}
+
+function OrderDiagnostics({
+  counts,
+  isLoading,
+  uid,
+}: {
+  counts:
+    | { recipeDrafts: number; ingredients: number; presets: number }
+    | undefined
+  isLoading: boolean
+  uid: string | undefined
+}) {
+  return (
+    <div className="mx-auto mt-4 max-w-xl rounded-md bg-gray-50 px-3 py-2 text-left text-xs text-gray-500">
+      <div>현재 uid: {uid ?? '-'}</div>
+      {isLoading || !counts ? (
+        <div className="mt-1">문서 수 확인 중...</div>
+      ) : (
+        <div className="mt-1">
+          recipeDrafts {counts.recipeDrafts} / presets {counts.presets} /
+          ingredients {counts.ingredients}
+        </div>
       )}
     </div>
   )
