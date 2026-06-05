@@ -74,11 +74,11 @@ describe('FEDIAF 2025 profiles', () => {
     }
   })
 
-  it('registry getters work', () => {
-    expect(ALL_PROFILES).toHaveLength(7)
+  it('registry getters work (FEDIAF 7 + AAFCO 4 = 11)', () => {
+    expect(ALL_PROFILES).toHaveLength(11)
     expect(getProfile('FEDIAF_2025_CAT_ADULT_MER75')?.species).toBe('cat')
     expect(getProfile('nope')).toBeUndefined()
-    expect(profilesForSpecies('dog')).toHaveLength(4)
-    expect(profilesForSpecies('cat')).toHaveLength(3)
+    expect(profilesForSpecies('dog')).toHaveLength(6) // FEDIAF 4 + AAFCO 2
+    expect(profilesForSpecies('cat')).toHaveLength(5) // FEDIAF 3 + AAFCO 2
   })
 })

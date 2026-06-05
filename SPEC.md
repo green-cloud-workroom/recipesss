@@ -348,11 +348,13 @@ FEDIAF 2025 기준). 5범주 ~45키: 일반성분(`crudeProtein` `crudeFat` `cru
 `ratios.caP`=Ca/P 비율. min/max는 `NutrientRequirement`(`maxType: 'legal' | 'nutritional'`).
 
 **적재(앱 정적 번들, DL-032)**: `src/features/nutrition/profiles/*`. Firestore 미사용.
-MVP = **FEDIAF 2025 7종** (`src/features/nutrition/profiles/fediaf2025.ts`):
-개 4종(`FEDIAF_2025_DOG_ADULT_MER95`·`_MER110`·`_EARLY_GROWTH_REPRO`·`_LATE_GROWTH`),
-고양이 3종(`FEDIAF_2025_CAT_ADULT_MER75`·`_MER100`·`_GROWTH_REPRO`).
-AAFCO·NRC는 스키마 동일 — 자료 입수 후 추가. 자료원: FEDIAF Nutritional Guidelines 2025
-Table III-3a/b·III-4a/b (DL-012 개정).
+다표준 동등 적재:
+- **FEDIAF 2025 7종** (`fediaf2025.ts`): 개 4종(`FEDIAF_2025_DOG_ADULT_MER95`·`_MER110`·`_EARLY_GROWTH_REPRO`·`_LATE_GROWTH`), 고양이 3종(`FEDIAF_2025_CAT_ADULT_MER75`·`_MER100`·`_GROWTH_REPRO`). per-1000kcal+per-100g-DM 둘 다 수록.
+- **AAFCO 2014 4종** (`aafco.ts`, Model Bills 2015 proposed): 개·고양이 × 성장·번식/성체유지(`AAFCO_2014_DOG_GROWTH`·`_DOG_ADULT`·`_CAT_GROWTH`·`_CAT_ADULT`). 원본=BASED ON CALORIE CONTENT(per 1000kcal)→`perMe`, `perDm`=perMe×0.4(4000kcal/kg DM 가정). selenium/B9/B12/B7/K는 mg→µg 변환.
+- **NRC 2006**: 단위 명확분만 추가 예정(개체요구량·단위(RE/IU) 일부 생략 — DL-032).
+
+자료원: FEDIAF Nutritional Guidelines 2025 Table III-3a/b·III-4a/b; AAFCO Dog/Cat
+Food Nutrient Profiles 2014 (DL-012 개정).
 
 ### 4.6 USDA Cache
 
