@@ -1,0 +1,673 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasApp(appName) {
+      return signedIn()
+        && request.auth.token.app is list
+        && appName in request.auth.token.app;
+    }
+
+    function isProductionApp() {
+      return hasApp('production');
+    }
+
+    function isInventoryApp() {
+      return hasApp('inventory');
+    }
+
+    function hasRole(roleName) {
+      return signedIn()
+        && request.auth.token.roles is map
+        && request.auth.token.roles.production == roleName;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isOffice() {
+      return hasRole('office');
+    }
+
+    function isProductionRole() {
+      return hasRole('production');
+    }
+
+    function isProductionAdmin() {
+      return isProductionApp() && isAdmin();
+    }
+
+    function isProductionWriter() {
+      return isProductionApp() && (isAdmin() || isOffice());
+    }
+
+    function isProductionStaff() {
+      return isProductionApp() && (isAdmin() || isOffice() || isProductionRole());
+    }
+
+    function hasInventoryRole(roleName) {
+      return signedIn()
+        && request.auth.token.roles is map
+        && request.auth.token.roles.inventory == roleName;
+    }
+
+    function isInventoryWriter() {
+      return isInventoryApp()
+        && (hasInventoryRole('owner') || hasInventoryRole('admin') || hasInventoryRole('qc'));
+    }
+
+    function hasOperationsRole() {
+      return signedIn()
+        && request.auth.token.roles is map
+        && request.auth.token.roles.operations is map
+        && request.auth.token.roles.operations.role in ['대표', '매니저', '팀장', '직원'];
+    }
+
+    function isOperationsManager() {
+      return signedIn()
+        && request.auth.token.roles is map
+        && request.auth.token.roles.operations is map
+        && request.auth.token.roles.operations.role in ['대표', '매니저'];
+    }
+
+    function isOperationsOwner() {
+      return signedIn()
+        && request.auth.token.roles is map
+        && request.auth.token.roles.operations is map
+        && request.auth.token.roles.operations.role == '대표';
+    }
+
+    function opsUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function teamType() {
+      return opsUser().teamType;
+    }
+
+    function isOpsAdmin() {
+      return isOperationsOwner() || teamType() == '사무';
+    }
+
+    function canMarketing() {
+      return isOperationsOwner() || teamType() in ['사무', '마케팅'];
+    }
+
+    function isInventoryCollection(collectionName) {
+      return collectionName in [
+        'orders',
+        'orderItems',
+        'matchings',
+        'shippingBatches',
+        'stockLots',
+        'customers',
+        'packingBoxTypes',
+        'packingBoxMatchRules',
+        'packingBoxOrders',
+        'dryIcePackLog',
+        'icePackStockLots',
+        'icePackTransactions',
+        'supplies',
+        'customerSubscriptions',
+        'subscriptionScheduleLogs',
+        'subscriptionVerifications',
+        'donationPrices',
+        'donationInstructions',
+        'autoProcessLogs',
+        'substitutionLearning',
+        'pickingListVersions',
+        'uploadBatches',
+        'stockReservations',
+        'packingBoxMovements',
+        'stockCountSessions',
+        'stockMovements',
+        'stockAdjustments',
+        'setupChecklist',
+        'seedUploadBatches',
+        'seedValidationRuns',
+        'systemSettings',
+        'productReceipts',
+        'accidentLogs',
+        'accidentTypeConfigs',
+        'productMeta'
+      ];
+    }
+    function isInventoryReadCollection(collectionName) {
+      return isInventoryCollection(collectionName)
+        || collectionName == 'recipes';
+    }
+    function isAckUpdateOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'acknowledged',
+        'acknowledgedAt',
+        'acknowledgedBy',
+        'acknowledgedByUid',
+        'read',
+      ]);
+    }
+
+    // recipesss-owned drafts.
+    match /recipeDrafts/{uid}/items/{draftId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // recipesss-owned ingredient master.
+    match /recipesssIngredients/{uid}/items/{ingredientId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // recipesss-owned presets.
+    match /recipesssPresets/{uid}/items/{presetId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+    match /users/{uid} {
+      allow read: if (isProductionApp() && (request.auth.uid == uid || isProductionWriter()))
+        || hasOperationsRole();
+      allow write: if isProductionAdmin();
+      allow update: if isOperationsManager()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'teamId',
+          'teamType',
+          'positionId',
+          'jobTitle',
+          'hireDate',
+          'birthday',
+          'status',
+          'resignationDate',
+          'displayOrder',
+          'weeklyContractHours',
+          'phone',
+          'updatedAt',
+        ]);
+      allow update: if request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'phone',
+          'address',
+          'vehicleNumber',
+          'emergencyContact',
+          'payslipEmail',
+          'photoURL',
+          'updatedAt',
+        ]);
+
+      match /draftCalendars/{draftId} {
+        allow read, write: if hasOperationsRole() && request.auth.uid == uid;
+      }
+    }
+
+    match /companies/{companyId} {
+      allow read: if hasOperationsRole();
+      allow write: if isOperationsOwner();
+    }
+
+    match /teams/{teamId} {
+      allow read: if hasOperationsRole();
+      allow write: if isOperationsOwner();
+    }
+
+    match /positions/{positionId} {
+      allow read: if hasOperationsRole();
+      allow write: if isOperationsOwner();
+    }
+
+    match /marketingSchedules/{scheduleId} {
+      allow read: if hasOperationsRole();
+      allow create, update: if hasOperationsRole();
+      allow delete: if false;
+    }
+
+    match /marketingCategories/{categoryId} {
+      allow read: if hasOperationsRole();
+      allow create, update: if hasOperationsRole();
+      allow delete: if false;
+    }
+
+    match /operatingSchedules/{scheduleId} {
+      allow read: if isOperationsOwner();
+      allow create, update: if isOperationsOwner();
+      allow delete: if isOperationsOwner();
+    }
+
+    // 입출고요청서(명진) — 대표/매니저(담당: 곽지은)
+    match /shippingRequests/{requestId} {
+      allow read: if isOperationsOwner();
+      allow create, update: if isOperationsOwner();
+      allow delete: if isOperationsOwner();
+    }
+
+    // 제브 전자빔조사의뢰서 — 대표/매니저(담당: 김연수)
+    match /zebRequests/{requestId} {
+      allow read: if isOperationsOwner();
+      allow create, update: if isOperationsOwner();
+      allow delete: if isOperationsOwner();
+    }
+
+    // 아이디/비번 — 운영앱 전 직원 create, 본인·팀 단위 read, 대표만 전체 read
+    match /passwordEntries/{entryId} {
+      allow read: if hasOperationsRole() && (
+        isOperationsOwner()
+        || (resource.data.scope == 'personal' && request.auth.uid == resource.data.createdBy)
+        || (resource.data.scope == 'team' && resource.data.teamId == opsUser().teamId)
+      );
+      allow create: if hasOperationsRole()
+        && request.resource.data.createdBy == request.auth.uid
+        && (request.resource.data.scope != 'admin' || isOperationsOwner());
+      allow update, delete: if hasOperationsRole()
+        && (isOperationsManager() || request.auth.uid == resource.data.createdBy);
+    }
+
+    match /memos/{memoId} {
+      allow read: if hasOperationsRole()
+        && (isOperationsOwner() || resource.data.ownerUid == request.auth.uid);
+      allow create: if hasOperationsRole()
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if hasOperationsRole()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if hasOperationsRole()
+        && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /birthdayMessages/{messageId} {
+      allow read: if hasOperationsRole();
+      allow create: if hasOperationsRole()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 500;
+      allow update: if false;
+      allow delete: if hasOperationsRole()
+        && resource.data.authorUid == request.auth.uid;
+    }
+
+    match /notifications/{notificationId} {
+      allow create: if hasOperationsRole()
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.type == 'profileEdit';
+      allow read: if isOperationsManager();
+      allow update: if isOpsAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false;
+    }
+
+    match /attendance/{attendanceId} {
+      allow read: if isOpsAdmin()
+        || (hasOperationsRole() && request.auth.uid == resource.data.uid);
+      allow write: if false;
+    }
+
+    match /leaveRequests/{requestId} {
+      allow read: if isOpsAdmin()
+        || (hasOperationsRole() && request.auth.uid == resource.data.uid);
+      allow create: if hasOperationsRole()
+        && (
+          (
+            request.auth.uid == request.resource.data.uid
+            && request.resource.data.status == '대기'
+            && request.resource.data.type != '결근'
+          )
+          || (
+            isOpsAdmin()
+            && request.resource.data.type == '결근'
+            && request.resource.data.status == '승인'
+          )
+        );
+      allow update: if isOpsAdmin()
+        || (
+          hasOperationsRole()
+          && request.auth.uid == resource.data.uid
+          && resource.data.status == '대기'
+          && request.resource.data.status == '취소'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        );
+      allow delete: if false;
+    }
+
+    match /overtimeRecords/{recordId} {
+      allow read: if isOpsAdmin()
+        || (hasOperationsRole() && request.auth.uid == resource.data.uid)
+        || (
+          hasOperationsRole()
+          && request.auth.token.roles.operations.role == '팀장'
+          && opsUser().teamId == resource.data.teamId
+        );
+      allow create: if isOpsAdmin()
+        || (
+          hasOperationsRole()
+          && request.auth.token.roles.operations.role == '팀장'
+          && opsUser().teamId == request.resource.data.teamId
+        );
+      allow update: if isOpsAdmin()
+        || (
+          hasOperationsRole()
+          && request.auth.token.roles.operations.role == '팀장'
+          && opsUser().teamId == resource.data.teamId
+          && request.resource.data.teamId == resource.data.teamId
+        );
+      allow delete: if isOpsAdmin()
+        || (
+          hasOperationsRole()
+          && request.auth.token.roles.operations.role == '팀장'
+          && opsUser().teamId == resource.data.teamId
+        );
+    }
+
+    match /operationsConfig/{configId} {
+      allow read: if hasOperationsRole();
+      allow write: if isOperationsOwner();
+    }
+
+    match /notices/{noticeId} {
+      allow read: if isOpsAdmin()
+        || (hasOperationsRole() && request.auth.uid in resource.data.recipientUids)
+        || (hasOperationsRole() && resource.data.authorUid == request.auth.uid);
+      allow create: if hasOperationsRole()
+        && request.resource.data.authorUid == request.auth.uid
+        && (
+          (request.resource.data.type == '공지'
+            && request.resource.data.scope == '회사'
+            && isOpsAdmin())
+          || (request.resource.data.type == '전달'
+            && (isOpsAdmin() || opsUser().teamId == request.resource.data.teamId))
+        );
+      allow update, delete: if hasOperationsRole()
+        && (isOpsAdmin() || resource.data.authorUid == request.auth.uid);
+
+      match /acks/{uid} {
+        allow read: if hasOperationsRole();
+        allow create: if hasOperationsRole() && request.auth.uid == uid;
+        allow update, delete: if false;
+      }
+    }
+
+    match /employeePrivateInfo/{uid} {
+      allow read, write: if false;
+    }
+
+    match /householdWorkers/{workerId} {
+      allow read, write: if isOperationsOwner();
+    }
+
+    match /householdMonthly/{monthId} {
+      allow read, write: if isOperationsOwner();
+    }
+
+    match /payrollClosings/{closingId} {
+      allow read, write: if isOperationsOwner();
+    }
+
+    match /payrollOverrides/{overrideId} {
+      allow read, write: if isOperationsOwner();
+    }
+
+    match /staffGroups/{groupId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /settings/{settingId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /recipes/{recipeId} {
+      allow read: if isProductionApp() || isInventoryApp();
+      allow write: if isProductionWriter();
+
+      match /conversionHistory/{historyId} {
+        allow read: if isProductionApp() || isInventoryApp();
+        allow write: if isProductionWriter();
+      }
+    }
+
+    match /productionMethods/{methodId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /conversionHistory/{historyId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /productionPlans/{planId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /productions/{productionId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionWriter();
+    }
+
+    match /productionCompletion/{completionId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /closings/{closingId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /meatTypes/{typeId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+
+      match /priceHistory/{priceId} {
+        allow read: if isProductionApp();
+        allow write: if isProductionWriter();
+      }
+    }
+
+    match /meatStocks/{stockId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionWriter();
+    }
+
+    match /meatLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create: if isProductionStaff();
+      allow update: if isProductionWriter();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /bagTypes/{typeId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionWriter();
+    }
+
+    match /bagLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create: if isProductionStaff();
+      allow update: if isProductionWriter();
+      allow delete: if isProductionWriter();
+    }
+
+    match /eggStock/{stockId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /eggLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create: if isProductionStaff();
+      allow update: if isProductionWriter();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /frozenProducts/{productId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /frozenLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /frozenPanStock/{stockId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /frozenPanLots/{lotId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /frozenPanLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /breadPanLots/{lotId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /breadPanLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /frozenSeparation/{separationId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /frozenSeparationLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /schedules/{scheduleId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /events/{eventId} {
+      allow read: if isProductionApp();
+      allow write: if isProductionWriter();
+    }
+
+    match /holidays/{holidayId} {
+      allow read: if isProductionApp() || isInventoryApp() || hasOperationsRole();
+      allow write: if isProductionWriter();
+    }
+
+    match /supplementTypes/{typeId} {
+      allow read: if isProductionApp();
+      allow create, update, delete: if isProductionWriter();
+    }
+
+    match /supplementStock/{stockId} {
+      allow read: if isProductionApp();
+      allow create, update, delete: if isProductionStaff();
+    }
+
+    match /supplementLogs/{logId} {
+      allow read: if isProductionApp();
+      allow create: if isProductionStaff();
+      allow update: if isProductionWriter();
+      allow delete: if isProductionWriter();
+    }
+
+    match /stockLedger/{ledgerId} {
+      allow read: if isProductionApp();
+      allow create, update: if isProductionStaff();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /activityLogs/{logId} {
+      allow read: if isProductionApp() || isInventoryApp();
+      allow create: if signedIn() && (isProductionApp() || isInventoryApp());
+      allow update: if signedIn() && (isProductionApp() || isInventoryApp()) && isAckUpdateOnly();
+      allow delete: if isProductionAdmin();
+    }
+
+    match /wipeHistory/{historyId} {
+      allow read: if isProductionAdmin();
+      allow write: if isProductionAdmin();
+    }
+
+    match /forecastDaily/{docId} {
+      allow read, write: if isInventoryApp();
+    }
+
+    match /forecastAnalytics/{docId} {
+      allow read, write: if isInventoryApp();
+    }
+
+    match /forecastNotes/{docId} {
+      allow read, write: if isInventoryApp();
+    }
+
+    match /migrationLogs/{logId} {
+      allow read, write: if isInventoryApp();
+
+      match /{subcol}/{subId} {
+        allow read, write: if isInventoryApp();
+      }
+    }
+
+    // [spec_v27] 완제품 입고 전송 outbox — 생산앱 write(create), 재고앱 read + 처리상태 update
+    match /productTransferRequests/{reqId} {
+      allow read: if isProductionApp() || isInventoryApp();
+      allow create: if isProductionWriter();
+      allow update: if isInventoryApp();
+      allow delete: if false;
+    }
+
+    match /{collectionName}/{docId} {
+      allow read: if isInventoryApp() && isInventoryReadCollection(collectionName);
+      allow write: if isInventoryWriter() && isInventoryCollection(collectionName);
+      allow delete: if false;
+    }
+
+    match /shippingBatches/{batchId}/workSessions/{sessionId} {
+      allow read, write: if isInventoryWriter();
+      allow delete: if false;
+    }
+
+    match /supplies/{supplyId}/countHistory/{historyId} {
+      allow read, write: if isInventoryWriter();
+      allow delete: if false;
+    }
+
+    match /donationInstructions/{instructionId}/completionLogs/{logId} {
+      allow read, write: if isInventoryWriter();
+      allow delete: if false;
+    }
+
+    match /stockCountSessions/{sessionId}/lines/{lineId} {
+      allow read, write: if isInventoryWriter();
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+
