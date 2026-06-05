@@ -8,6 +8,7 @@ import {
   type DraftSpeciesFilter,
   type DraftStatusFilter,
 } from '../features/recipes/filterDrafts'
+import { useClearMergeReview } from '../features/recipes/recipeMutations'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
 import { CARD_CLS, EMPTY_STATE_CLS, INPUT_CLS } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
@@ -51,6 +52,7 @@ export function RecipesPage() {
   const navigate = useNavigate()
   const uid = useAuthStore((state) => state.user?.uid)
   const { data, error, isError, isLoading } = useRecipeDrafts(uid)
+  const clearMergeReview = useClearMergeReview(uid)
   const [filter, setFilter] = useState<DraftFilter>(DEFAULT_FILTER)
 
   const drafts = data ?? EMPTY_DRAFTS
@@ -183,7 +185,25 @@ export function RecipesPage() {
                       {draft.name}
                     </td>
                     <td className="px-4 py-3">{speciesLabel(draft.species)}</td>
-                    <td className="px-4 py-3">{statusLabel(draft.status)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span>{statusLabel(draft.status)}</span>
+                        {draft.mergeReviewPending && (
+                          <button
+                            className="rounded-md bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+                            disabled={clearMergeReview.isPending}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              void clearMergeReview.mutateAsync(draft.id)
+                            }}
+                            title="원료 병합으로 중량이 합산된 레시피입니다. 확인 후 사용하세요."
+                            type="button"
+                          >
+                            합산 확인
+                          </button>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-right">
                       {draft.composition.length}
                     </td>

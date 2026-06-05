@@ -24,6 +24,7 @@ import {
   NUTRIENT_META,
   type NutrientCategory,
 } from '../features/nutrition/nutrientKeys'
+import { usePresets } from '../features/presets/presetQueries'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
 import {
   CARD_CLS,
@@ -33,9 +34,11 @@ import {
   SECONDARY_BTN_CLS,
 } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
-import type { Ingredient } from '../types/recipe'
+import type { Ingredient, Preset, RecipeDraft } from '../types/recipe'
 
 const EMPTY_INGREDIENTS: Ingredient[] = []
+const EMPTY_PRESETS: Preset[] = []
+const EMPTY_DRAFTS: RecipeDraft[] = []
 const CATEGORY_ORDER: NutrientCategory[] = [
   'general',
   'amino',
@@ -48,11 +51,13 @@ export function IngredientsPage() {
   const uid = useAuthStore((state) => state.user?.uid)
   const ingredientsQuery = useIngredients(uid)
   const draftsQuery = useRecipeDrafts(uid)
+  const presetsQuery = usePresets(uid)
   const updateIngredient = useUpdateIngredient(uid)
   const deleteIngredient = useDeleteIngredient(uid)
   const mergeIngredients = useMergeIngredients(uid)
   const ingredients = ingredientsQuery.data ?? EMPTY_INGREDIENTS
-  const drafts = draftsQuery.data ?? []
+  const drafts = draftsQuery.data ?? EMPTY_DRAFTS
+  const presets = presetsQuery.data ?? EMPTY_PRESETS
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(
     null,
   )
@@ -75,6 +80,35 @@ export function IngredientsPage() {
     const selected = ingredients.find((item) => item.id === selectedIngredientId)
     return selected ?? ingredients[0]
   }, [ingredients, selectedIngredientId])
+
+  // 병합 경고용: 삭제 대상(= 첫 선택 제외)을 composition에 가진 등록 레시피 (DL-034 #4)
+  const registeredDriftNames = useMemo(() => {
+    const duplicateIds = mergeSelectedIds.slice(1)
+    if (duplicateIds.length === 0) return []
+    return drafts
+      .filter(
+        (draft) =>
+          Boolean(draft.registeredRecipeId) &&
+          draft.composition.some((row) =>
+            duplicateIds.includes(row.ingredientId),
+          ),
+      )
+      .map((draft) => draft.name || '(이름 없음)')
+  }, [drafts, mergeSelectedIds])
+
+  // 병합 경고용: 삭제 대상 중 영양값/출처가 입력돼 있어 소멸하는 원료 (DL-034 #5)
+  const discardedProfileNames = useMemo(() => {
+    const duplicateIds = new Set(mergeSelectedIds.slice(1))
+    return ingredients
+      .filter((ingredient) => duplicateIds.has(ingredient.id))
+      .filter(
+        (ingredient) =>
+          (ingredient.nutrientProfile &&
+            Object.keys(ingredient.nutrientProfile).length > 0) ||
+          Boolean(ingredient.source),
+      )
+      .map((ingredient) => ingredient.name || '(이름 없음)')
+  }, [ingredients, mergeSelectedIds])
 
   const mutationPending =
     updateIngredient.isPending ||
@@ -171,6 +205,7 @@ export function IngredientsPage() {
       const plan = buildIngredientMergePlan({
         drafts,
         ingredients,
+        presets,
         now: Date.now(),
         selectedIds: mergeSelectedIds,
         targetName: mergeName,
@@ -266,6 +301,8 @@ export function IngredientsPage() {
           onClose={() => setMergeModalOpen(false)}
           onConfirm={() => void handleMerge()}
           onNameChange={setMergeName}
+          discardedProfileNames={discardedProfileNames}
+          registeredDriftNames={registeredDriftNames}
         />
       )}
     </div>
@@ -567,6 +604,8 @@ function MergeIngredientModal({
   onClose,
   onConfirm,
   onNameChange,
+  discardedProfileNames,
+  registeredDriftNames,
 }: {
   ingredients: Ingredient[]
   isPending: boolean
@@ -574,6 +613,8 @@ function MergeIngredientModal({
   onClose: () => void
   onConfirm: () => void
   onNameChange: (name: string) => void
+  discardedProfileNames: string[]
+  registeredDriftNames: string[]
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
@@ -588,6 +629,19 @@ function MergeIngredientModal({
           <div className="rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-600">
             {ingredients.map((ingredient) => ingredient.name || '(이름 없음)').join(' / ')}
           </div>
+          {discardedProfileNames.length > 0 && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              ⚠️ 다음 원료의 입력된 영양값/출처가 삭제됩니다:{' '}
+              <b>{discardedProfileNames.join(', ')}</b>. 병합 후 남는 원료에 다시
+              입력해야 합니다.
+            </div>
+          )}
+          {registeredDriftNames.length > 0 && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              ⚠️ 등록된 레시피 {registeredDriftNames.length}건은 재푸시 전까지 옛
+              원료를 유지합니다(자동 반영 안 됨): <b>{registeredDriftNames.join(', ')}</b>
+            </div>
+          )}
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-gray-500">
               병합 후 원료명

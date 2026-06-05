@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteDoc, doc, setDoc, writeBatch } from 'firebase/firestore'
 
 import { db } from '../../firebase'
-import type { Ingredient, RecipeDraft } from '../../types/recipe'
+import type { Ingredient, Preset, RecipeDraft } from '../../types/recipe'
 
 function ingredientRef(uid: string, ingredientId: string) {
   return doc(db, `recipesssIngredients/${uid}/items`, ingredientId)
@@ -10,6 +10,10 @@ function ingredientRef(uid: string, ingredientId: string) {
 
 function draftRef(uid: string, draftId: string) {
   return doc(db, `recipeDrafts/${uid}/items`, draftId)
+}
+
+function presetRef(uid: string, presetId: string) {
+  return doc(db, `recipesssPresets/${uid}/items`, presetId)
 }
 
 export function useUpdateIngredient(uid: string | undefined) {
@@ -30,16 +34,19 @@ export function useMergeIngredients(uid: string | undefined) {
   const queryClient = useQueryClient()
   const ingredientsQueryKey = ['recipesssIngredients', uid]
   const draftsQueryKey = ['recipeDrafts', uid]
+  const presetsQueryKey = ['recipesssPresets', uid]
 
   return useMutation({
     mutationFn: async ({
       changedDrafts,
+      changedPresets,
       deleteIds,
       target,
     }: {
       target: Ingredient
       deleteIds: string[]
       changedDrafts: RecipeDraft[]
+      changedPresets: Preset[]
     }) => {
       if (!uid) throw new Error('로그인이 필요합니다.')
 
@@ -51,12 +58,16 @@ export function useMergeIngredients(uid: string | undefined) {
       for (const draft of changedDrafts) {
         batch.set(draftRef(uid, draft.id), draft)
       }
+      for (const preset of changedPresets) {
+        batch.set(presetRef(uid, preset.id), preset)
+      }
 
       await batch.commit()
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ingredientsQueryKey })
       void queryClient.invalidateQueries({ queryKey: draftsQueryKey })
+      void queryClient.invalidateQueries({ queryKey: presetsQueryKey })
     },
   })
 }
