@@ -446,15 +446,18 @@ fant-e5ae5/
 레시피
 ├─ 신규 레시피 (/recipes/new)            ← 단일 화면 메인
 └─ 레시피 목록 (/recipes)                ← 상태 필터 (활성/임시/비활성)
+                                            행 클릭 → 레시피 상세 (/recipes/:draftId)
                                             영양제 제외 후 생산관리앱 푸시(등록)
 
 원료
 └─ 원료 마스터 (/ingredients)           ← USDA 검색은 모달로 내장
 
 발주
-├─ 프리셋 설정 (/presets)                ← 각 레시피마다 어떤 양으로 만들지 정의
 ├─ 발주 (/orders)                        ← 정의된 프리셋 선택·수량 입력
 └─ PDF 출력 (/print/:recipeId)           ← 출력 1·2 두 버전
+
+  ※ 프리셋 설정은 별도 페이지가 아니라 레시피 상세(/recipes/:draftId)에 통합 (DL-035).
+    구 /presets 페이지·메뉴 제거.
 
 원가
 └─ 단가 관리 (/prices)                   ← 인터페이스 미정 placeholder
@@ -531,14 +534,28 @@ fant-e5ae5/
   3. **기존 원료 편집** — 영양값 행 클릭하면 수정 가능 (USDA에서 가져온 값도 사용자 수정 가능)
 - 별도 `/ingredients/usda` 페이지 없음. 모두 원료 마스터 안에서 처리.
 
-### 5.5 프리셋 설정 (`/presets`) — DL-026
+### 5.5 프리셋 설정 — 레시피 상세 (`/recipes/:draftId`) — DL-035 (DL-026 개정)
 
-각 레시피마다 어떤 양으로 만들지 정의하는 페이지.
+별도 페이지가 아니라 **레시피 상세 화면에 통합**. `/recipes` 목록에서 레시피 클릭 →
+상세 화면. v2 "결과 탭" 방식. (구 `/presets` 페이지·메뉴 제거.)
 
-- 레시피 목록 좌측, 선택한 레시피의 프리셋 우측
-- 프리셋 추가: 코드(자동 부여) + 목표 양 (g 또는 단위 `마리`/`개`)
-- 프리셋 편집·삭제·드래그&드롭 정렬
-- 프리셋이 정의되어 있어야 §5.6 발주 페이지에서 선택 가능
+이번 범위(②, 최소): 레시피 헤더 read + 프리셋 설정 패널. **영양 매트릭스·구성원료
+계산표·원가는 1-D**에서 같은 화면에 얹는다.
+
+**프리셋 정의 방식 (v2 회귀)**: 코드·목표량 직접 입력 ❌. 대신:
+- **생산단위 원료 select** (기본값 = `draft.unitIngredientId`, 변경 가능 — 프리셋별
+  `Preset.unitIngredientId`에 저장)
+- **생산량 입력** (`Preset.inputAmount`)
+- → `targetWeight`·`ratio`·`inputUnitLabel`은 **자동 도출** (§6.7 생산량 환산).
+- → 저장된 프리셋은 칩(20·40·60…)으로 표시.
+
+**자동 코드 (DL-035)**: 한 레시피 안에서 `targetWeight` **오름차순으로 X0·X1·X2…**
+(`prefix` = 레시피별 1글자, suffix = 크기 순위). 코드 suffix·표시 순서 둘 다
+targetWeight 순으로 **고정** — 프리셋 드래그 수동 정렬은 **없음**(0.5-G는 프리셋엔
+미적용). 저장/삭제마다 해당 draft의 프리셋을 일괄 재코딩(`normalizePresetCodes`).
+
+- 기존 마이그레이션 프리셋(약 100개)도 첫 저장 시 자동 재코딩됨.
+- 프리셋이 정의돼 있어야 §5.6 발주에서 선택 가능.
 
 ### 5.6 발주 (`/orders`) — DL-026, 간결 표시
 
@@ -696,6 +713,45 @@ function draftToRecipe(
   }
 }
 ```
+
+### 6.7 프리셋 생산량 환산 (v2 `getRatioInfo` 포팅) — DL-035
+
+프리셋은 `unitIngredientId`(생산단위 원료) + `inputAmount`(생산량)만 입력받고,
+`targetWeight`·`ratio`·`inputUnitLabel`을 도출한다. 순수함수(Firebase·React 없음).
+
+```ts
+type RatioInfo = {
+  ratio: number          // 모든 원료 weight × ratio
+  targetWeight: number   // g
+  inputUnitLabel: string // 입력 단위 표시('마리'/'개'/'g'/'kg')
+  hasInput: boolean
+}
+
+function getPresetRatioInfo(
+  draft: RecipeDraft,
+  unitIngredientId: string,
+  inputAmount: number,
+): RatioInfo
+```
+
+규칙 (v2 `selectors.js` `getRatioInfo` L90-110 동치):
+- `unitRow = draft.composition.find(r => r.ingredientId === unitIngredientId)`.
+  없거나 `weight<=0`이면 `{ ratio:1, targetWeight:0, hasInput:false }`.
+- `unitLabel = (draft.unitIngredientId === unitIngredientId) ? draft.unitLabel.trim() : ''`
+  (레시피 단위원료와 같을 때만 '마리'/'개' 단위).
+- `raw = inputAmount` (≤0이면 `hasInput:false`, `inputUnitLabel = unitLabel || unitRow.unit || 'g'`).
+- `targetWeight = unitLabel ? raw * unitRow.weight`
+  `             : unitRow.unit === 'kg' ? raw*1000 : raw`
+- `ratio = targetWeight / unitRow.weight`.
+- `inputUnitLabel = unitLabel || unitRow.unit || 'g'`.
+
+저장 시 `Preset.targetWeight = targetWeight`, `Preset.inputAmount = raw`,
+`Preset.inputUnitLabel = inputUnitLabel`, `Preset.unitIngredientId = unitIngredientId`.
+
+**자동 코드 재할당** `normalizePresetCodes(presets, draftId)` (v2 `preset-codes.js`
+`computeNormalizedPresets`의 단일 draft 버전): 해당 draft의 프리셋을 `targetWeight`
+오름차순 정렬 → suffix 0,1,2… 재할당, `sortOrder`도 같은 순위로 설정. prefix는
+`pickPrefix`(기존 0.5-F) 결과 1글자. 저장/삭제 mutation에서 호출해 batch write.
 
 ---
 
@@ -1082,7 +1138,7 @@ Firebase 는 읽기전용(DL-019)이라 스냅샷 이후 변경분이 없다는 
 | **DL-023** | 2026-06-03 | **Claude=아키텍트, Codex=구현 협업 (fantapet CLAUDE.md 패턴 채택)** | 검증된 패턴. docs/Codex지시서_*.md로 단계별 핸드오프. |
 | **DL-024** | 2026-06-03 | **메뉴 트리 재정의 (영양 매트릭스+레시피 작성 통합, /lookup 제거, /prices 별도)** | 호두님 의도 반영. 신규 레시피 = 입력·계산·등록 한 화면. |
 | **DL-025** | 2026-06-03 | **푸시 = 영양제 제외 + 이름·종·composition·unitLabel만 → recipes/에 신규 생성** | 생산관리앱은 영양제 안 다룸. 최소 필드. |
-| **DL-026** | 2026-06-03 | **발주 그룹 = 프리셋 설정·발주·PDF 3페이지로 분리 (DL-024 보강)** | 호두님 원 의도. 프리셋 정의(/presets)와 주문 선택(/orders)이 다른 작업. |
+| ~~DL-026~~ | 2026-06-03 | ~~발주 그룹 = 프리셋 설정(/presets)·발주·PDF 3페이지로 분리~~ | **DL-035로 개정 (프리셋 설정은 레시피 상세에 통합, /presets 제거).** |
 | **DL-027** | 2026-06-03 | **영양값 = 계산값 + 확정값 이중 컬럼. 확정값 = 모든 영양소 수동 가능** | 라벨링·보장 분석 직전 수동 미세조정 필요. |
 | **DL-028** | 2026-06-03 | **부족분 판정 = 확정값 우선, 없으면 계산값** | 호두님 의도가 정답값. 펫푸드 라벨링 관례. |
 | **DL-029** | 2026-06-03 | **원료 변경 시 확정값 자동 갱신 (= 새 계산값으로 덮어쓰기)** | 워크플로우: 원료 셋업 끝 → 마지막 단계에서 확정값 미세조정 → 등록. UI에 명시. |
@@ -1091,6 +1147,7 @@ Firebase 는 읽기전용(DL-019)이라 스냅샷 이후 변경분이 없다는 
 | **DL-032** | 2026-06-05 | **영양 표준 = 다표준 동등 지원. FEDIAF 2025 7종 먼저 적재(개 4·고양이 3, 성체 MER 2종 포함). NutrientKey 키셋 ~45 확정. 표준 데이터 = 앱 정적 번들(`src/features/nutrition/profiles/*`, Firestore `nutrientProfiles` 미사용). ME = 수정 Atwater 유지(DL-007). DL-005·DL-012 개정** | 호두님 FEDIAF 공식표(Nutritional Guidelines 2025) 제공 → 좌표 추출로 정확 전사(DM↔ME ×2.5 교차검증). DM+per-1000kcal 두 단위 제공돼 recipesss basis 토글과 호환. 불변 표준이라 정적 번들이 단순(write·seed·규칙 불필요). Calvez 2019(NRC 2006tdf 권장)는 TDF 등 원료데이터 요구로 MVP 부적합 → 수정 Atwater 유지. 성체 MER 2종·calcium 후기성장 대형견(b)·고양이 성장/번식 보수값 등은 `fediaf2025.ts` 주석 참조. AAFCO·NRC는 동일 스키마로 자료 입수 후 추가. |
 | **DL-033** | 2026-06-05 | **firestore.rules 정본 = recipesss git의 통합본(운영+생산+recipesss 3앱). 미커밋 보류(HANDOFF §3) 해제 → git 커밋. 규칙 변경은 이 파일만 수정 후 배포.** | 공유 프로젝트(fant-e5ae5)는 규칙이 1개인데 3앱이 각자 배포하며 recipesss 블록이 **반복 소실(3회 사고: 미게시→계정→재소실)**. git 정본화로 추적·복구 가능. **규칙 deploy는 access control 변경이라 호두님이 직접**(`firebase deploy --only firestore:rules`); Claude는 파일 정본만 관리. 다른 앱(생산·운영)이 규칙 배포할 때도 이 통합본을 써야 재소실 방지(호두님이 3앱 간 조율). recipesss 신규 컬렉션 규칙 추가 시 이 파일에. |
 | **DL-034** | 2026-06-05 | **원료 병합 정합성: ①병합으로 동일 원료 행이 공존하면 weight 합산해 1행으로(첫 등장 위치·unit 유지). ②합산이 일어난 draft는 `mergeReviewPending=true` → 레시피 화면에서 호두님이 확인(붉은 버튼) 전까지 사용 게이트. ③`draft.unitIngredientId`·`Preset.unitIngredientId`가 삭제 대상이면 target으로 치환. ④등록된 `recipes/*`는 미수정(DL-025 단방향 유지) + 모달 경고. ⑤duplicate의 nutrientProfile/source는 삭제로 소멸 → 모달 경고.** | 기존 병합(`71d5f20`)이 composition `ingredientId`만 치환하고 `unitIngredientId`(draft·preset)·중복행을 방치 → dangling 참조 + 중복행 위험. 영양/발주 합계는 row 가산이라 보존되나 ②의 v2 ratio 계산이 `composition에서 unitIngredientId 행 찾기`로 돌아 깨짐. 합산은 사용자 의도와 일치하나 weight가 바뀌므로 자동 적용 대신 확인 게이트. 등록분·영양값 손실은 자동 처리 대신 경고로 호두님 판단에 맡김(재푸시는 DL-025대로 deferred). |
+| **DL-035** | 2026-06-05 | **프리셋 설정 = 레시피 상세 화면(`/recipes/:draftId`)에 통합(별도 `/presets` 페이지·메뉴 제거). 프리셋 입력 = 생산단위 원료 select + 생산량 → `targetWeight`/`ratio`/`inputUnitLabel` 자동 도출(§6.7 v2 `getRatioInfo` 포팅). 자동 코드 = draft 내 `targetWeight` 오름차순 X0·X1…(`normalizePresetCodes`), 코드 suffix·표시순서 둘 다 targetWeight 순 고정 → 프리셋 드래그 정렬(0.5-G) 미적용. DL-026 개정.** | 0.5-D/E/F/G의 별도 `/presets`가 호두님 실제 워크플로우(v2 결과 탭)와 어긋나 코드·생산단위가 꼬임. v2로 회귀: 레시피 클릭 → 그 화면에서 생산량 입력 → 환산·자동코드. 코드를 크기순으로 고정하면 수동 정렬 불필요(예측가능·결정적). 이번 범위(②)는 최소 — 레시피 헤더+프리셋 패널만; 영양 매트릭스·구성표·원가는 1-D에서 같은 `/recipes/:draftId`에 추가. 마이그레이션 프리셋(~100)도 첫 저장 시 자동 재코딩. |
 
 ### 결정 변경 절차
 1. 변경 사유와 영향 범위를 §13 새 행으로 추가. 이전 행은 두고 ~~취소선~~ + supersede.
