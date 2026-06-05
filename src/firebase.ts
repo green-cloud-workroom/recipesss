@@ -14,7 +14,7 @@
 
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
 
 // 같은 fant-e5ae5 프로젝트 — config는 운영관리앱·생산관리앱과 동일.
 // 운영관리앱처럼 환경변수로 분리하는 게 안전. 단계 0-A 시점엔 placeholder.
@@ -29,5 +29,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
-export const db = getFirestore(app)
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+})
 export default app
