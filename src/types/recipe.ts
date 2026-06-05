@@ -96,6 +96,9 @@ export type RecipeDraft = {
   // 등록 후 추적용
   registeredRecipeId?: string
   registeredAt?: number
+  // 원료 병합으로 동일 원료 행이 합산된 경우 true (DL-034). 레시피 화면에서
+  // 호두님이 합산 결과를 확인(붉은 버튼)하기 전까지 사용 게이트로 쓴다.
+  mergeReviewPending?: boolean
 }
 
 // SPEC §4.2 Recipe (생산관리앱 공유 — 등록된 레시피). 영양제 없음 (DL-025).
