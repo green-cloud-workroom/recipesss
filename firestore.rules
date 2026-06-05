@@ -1,5 +1,16 @@
 rules_version = '2';
 
+// ============================================================================
+// ⚠️ 이 파일이 fant-e5ae5(3앱 공유 프로젝트)의 Firestore 규칙 정본이다. (DL-033/DL-036)
+//   - 프로젝트당 규칙은 1개. 운영(fantapet-inventory)·생산(fant-production)·
+//     재고(fant-inv-cutover) 등 다른 repo가 규칙을 배포하면 이 통합본을 덮어쓰며
+//     recipesss 블록(recipeDrafts/recipesssIngredients/recipesssPresets/usdaCache)이
+//     소실된다. 실제 3회 이상 사고 발생 → 범인 = 위 3개 repo의 firestore.rules.
+//   - 정책(DL-036): 규칙 배포는 이 파일 하나에서만. 다른 repo는 firebase.json에서
+//     firestore(rules) 배포 타깃을 제거한다. 새 컬렉션 규칙도 여기에 추가.
+//   - deploy는 호두님 직접: `firebase deploy --only firestore:rules`.
+// ============================================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() {
