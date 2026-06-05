@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 
 import { AppLayout } from '../components/AppLayout'
 import { AuthGuard } from '../components/AuthGuard'
+import { IngredientsPage } from '../pages/IngredientsPage'
 import { LoginPage } from '../pages/LoginPage'
 import { OrdersPage } from '../pages/OrdersPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
@@ -40,7 +41,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: '/ingredients',
-            element: <PlaceholderPage title="원료 마스터" stage="단계 1·2" />,
+            element: <IngredientsPage />,
           },
           {
             path: '/presets',
