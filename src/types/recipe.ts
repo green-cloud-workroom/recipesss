@@ -7,17 +7,64 @@ export type WeightUnit = 'g' | 'kg'
 
 export type IngredientKind = 'ingredient' | 'supplement'
 
-// 영양소 키 enum (SPEC §4.4: 일반성분·아미노산·지방산·미네랄·비타민).
-// ⚠️ 단계 1(영양 엔진)에서 전체 키 셋 확정 예정. 현재는 ME 계산(§6.1)에 쓰이는
-// 일반성분 골격만 둠. erasableSyntaxOnly 제약으로 enum 대신 union 사용.
-// 마이그레이션(0.5-A)은 nutrientProfile을 빈 객체 {}로만 채우므로 키 셋과 무관.
+// 영양소 키 (SPEC §4.4: 일반성분·아미노산·지방산·미네랄·비타민).
+// 단계 1-A에서 전체 키셋 확정 (FEDIAF 2025 기준, DL-032). erasableSyntaxOnly
+// 제약으로 enum 대신 union 사용. 일반성분은 사료 표준 용어(crude*) 유지.
+// 일반성분 fiber/ash/moisture/nfe는 표준 요구량엔 없고 ME·NFE 계산(§6.1/6.2)용.
 export type NutrientKey =
+  // 일반성분
   | 'crudeProtein'
   | 'crudeFat'
   | 'crudeFiber'
   | 'ash'
   | 'moisture'
   | 'nfe'
+  // 아미노산
+  | 'arginine'
+  | 'histidine'
+  | 'isoleucine'
+  | 'leucine'
+  | 'lysine'
+  | 'methionine'
+  | 'methionineCystine'
+  | 'phenylalanine'
+  | 'phenylalanineTyrosine'
+  | 'threonine'
+  | 'tryptophan'
+  | 'valine'
+  | 'taurine'
+  // 지방산
+  | 'linoleicAcid'
+  | 'arachidonicAcid'
+  | 'alphaLinolenicAcid'
+  | 'epaDha'
+  // 미네랄
+  | 'calcium'
+  | 'phosphorus'
+  | 'potassium'
+  | 'sodium'
+  | 'chloride'
+  | 'magnesium'
+  | 'copper'
+  | 'iodine'
+  | 'iron'
+  | 'manganese'
+  | 'selenium'
+  | 'zinc'
+  // 비타민
+  | 'vitaminA'
+  | 'vitaminD'
+  | 'vitaminE'
+  | 'vitaminB1'
+  | 'vitaminB2'
+  | 'vitaminB3'
+  | 'vitaminB5'
+  | 'vitaminB6'
+  | 'vitaminB7'
+  | 'vitaminB9'
+  | 'vitaminB12'
+  | 'choline'
+  | 'vitaminK'
 
 export type NutrientValues = Partial<Record<NutrientKey, number>>
 
@@ -107,4 +154,38 @@ export type Preset = {
 export type Price = {
   price: number
   unit: number
+}
+
+// SPEC §4.5 NutrientProfile (영양 표준). 단계 1-A 정식화 (DL-032).
+// 표준 데이터는 앱 정적 번들 (src/features/nutrition/profiles/*). Firestore 미사용.
+export type NutrientStandard = 'FEDIAF' | 'AAFCO' | 'NRC'
+
+// FEDIAF 생애단계.
+//   adult            성체 유지
+//   early_growth_repro  개: 초기 성장(<14주) & 번식 / 고양이: 성장·번식
+//   late_growth      개: 후기 성장(≥14주)
+export type LifeStage = 'adult' | 'early_growth_repro' | 'late_growth'
+
+// 영양소 1개의 요구량. min/max는 프로파일 basis 단위 기준.
+// maxType: FEDIAF 상한 종류 — 'legal'(EU 법적 (L)) / 'nutritional'(영양 (N)).
+export type NutrientRequirement = {
+  min: number
+  max?: number
+  maxType?: 'legal' | 'nutritional'
+}
+
+export type NutrientProfile = {
+  id: string // 예: 'FEDIAF_2025_DOG_ADULT_MER95'
+  standard: NutrientStandard
+  year: number
+  species: Exclude<Species, null> // 'cat' | 'dog'
+  lifeStage: LifeStage
+  label: string // 한글 표시명 (예: '성견 (MER 95)')
+  mer?: string // 성체 MER 구분 표시 (예: '95 kcal/kg^0.75')
+  // per 1000 kcal ME 기준 (기본 basis, DL-008)
+  perMe: Partial<Record<NutrientKey, NutrientRequirement>>
+  // per 100 g dry matter 기준 (토글)
+  perDm: Partial<Record<NutrientKey, NutrientRequirement>>
+  // Ca/P 비율 (단위가 비율이라 NutrientKey와 분리)
+  ratios?: { caP?: { min: number; max: number } }
 }

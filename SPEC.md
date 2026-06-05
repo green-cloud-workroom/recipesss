@@ -334,11 +334,25 @@ type Ingredient = {
 
 ### 4.4 NutrientValues
 
-§4.1의 이전 정의 그대로. 일반성분·아미노산·지방산·미네랄·비타민 키 enum.
+`Partial<Record<NutrientKey, number>>`. 단계 1-A에서 `NutrientKey` 키셋 확정 (DL-032,
+FEDIAF 2025 기준). 5범주 ~45키: 일반성분(`crudeProtein` `crudeFat` `crudeFiber`
+`ash` `moisture` `nfe` — fiber/ash/moisture/nfe는 ME·NFE 계산용, 표준 요구량엔 없음),
+아미노산(`taurine` 포함 고양이), 지방산, 미네랄, 비타민. 정의: `src/types/recipe.ts`.
+표시 메타(라벨·단위·범주·순서): `src/features/nutrition/nutrientKeys.ts`.
 
 ### 4.5 NutrientProfile (표준)
 
-§4.1의 이전 정의 그대로. MVP는 AAFCO 2024 4종(`AAFCO_2024_DOG_GROWTH`, `_DOG_ADULT`, `_CAT_GROWTH`, `_CAT_ADULT`)만 적재. DL-005 / DL-012.
+영양소별 min/max 표준. **다표준 동등 지원**(DL-032 — DL-005 개정). 구조:
+`{ id, standard, year, species, lifeStage, label, mer?, perMe, perDm, ratios? }`
+(정의 `src/types/recipe.ts`). `perMe`=per 1000 kcal ME(기본 basis), `perDm`=per 100 g DM(토글),
+`ratios.caP`=Ca/P 비율. min/max는 `NutrientRequirement`(`maxType: 'legal' | 'nutritional'`).
+
+**적재(앱 정적 번들, DL-032)**: `src/features/nutrition/profiles/*`. Firestore 미사용.
+MVP = **FEDIAF 2025 7종** (`src/features/nutrition/profiles/fediaf2025.ts`):
+개 4종(`FEDIAF_2025_DOG_ADULT_MER95`·`_MER110`·`_EARLY_GROWTH_REPRO`·`_LATE_GROWTH`),
+고양이 3종(`FEDIAF_2025_CAT_ADULT_MER75`·`_MER100`·`_GROWTH_REPRO`).
+AAFCO·NRC는 스키마 동일 — 자료 입수 후 추가. 자료원: FEDIAF Nutritional Guidelines 2025
+Table III-3a/b·III-4a/b (DL-012 개정).
 
 ### 4.6 USDA Cache
 
@@ -387,8 +401,7 @@ fant-e5ae5/
 │       └── items/
 │           └── {ingredientId}               ← Ingredient
 │
-├── nutrientProfiles/                       ← 읽기 전용 표준 (recipesss 전용)
-│   └── {profileId}                          ← NutrientProfile
+│   (nutrientProfiles 컬렉션 미사용 — 표준은 앱 정적 번들, DL-032)
 │
 ├── usdaCache/                              ← USDA 응답 캐시
 │   └── {fdcId}                              ← UsdaCacheEntry
@@ -570,8 +583,8 @@ fant-e5ae5/
 
 ```ts
 function meKcalPer100g(values: NutrientValues): number {
-  const p = values.protein ?? 0
-  const f = values.fat ?? 0
+  const p = values.crudeProtein ?? 0
+  const f = values.crudeFat ?? 0
   const nfe = nfeGPer100g(values)
   return 3.5 * p + 8.5 * f + 3.5 * nfe
 }
@@ -582,8 +595,8 @@ function meKcalPer100g(values: NutrientValues): number {
 ```ts
 function nfeGPer100g(values: NutrientValues): number {
   const dm = 100 - (values.moisture ?? 0)
-  const known = (values.protein ?? 0) + (values.fat ?? 0) +
-                (values.fiber ?? 0) + (values.ash ?? 0)
+  const known = (values.crudeProtein ?? 0) + (values.crudeFat ?? 0) +
+                (values.crudeFiber ?? 0) + (values.ash ?? 0)
   return Math.max(0, dm - known)
 }
 ```
@@ -1046,14 +1059,14 @@ Firebase 는 읽기전용(DL-019)이라 스냅샷 이후 변경분이 없다는 
 | DL-002 | 2026-06-03 | 호스팅 = Firebase Hosting | 운영관리앱 동일 패턴, SPA rewrites 표준 지원. |
 | DL-003 | 2026-06-03 | 디자인 토큰 = `--fp-*` 그대로 mirror (미정의 상태 포함) | 운영관리앱 mirror. 실제 스타일은 `lib/ui.ts`. |
 | DL-004 | 2026-06-03 | PDF = `@react-pdf/renderer` | React 친화, 폰트 임베딩 표준. |
-| DL-005 | 2026-06-03 | 기본 표준 = AAFCO 2024 | 한국 농식품부 참조. NRC/FEDIAF는 스키마만. |
+| ~~DL-005~~ | 2026-06-03 | ~~기본 표준 = AAFCO 2024~~ | **DL-032로 개정 (다표준 동등, FEDIAF 우선 적재).** |
 | DL-006 | 2026-06-03 | 대상 = 자견·성견·자묘·성묘 4종 | 핸드오프 §3 그대로. 종 한정 시 열 자동 숨김. |
 | DL-007 | 2026-06-03 | ME 식 = 수정 Atwater 3.5/8.5/3.5 고정 | 펫푸드 업계 표준. |
 | DL-008 | 2026-06-03 | 기본 기준 단위 = per 1000 kcal ME | AAFCO 표시 관례. DM 토글. |
 | DL-009 | 2026-06-03 | 승인 워크플로우·QR = MVP 제외 | 1인 사용. |
 | DL-010 | 2026-06-03 | 폴더 위치 = C:\dev\recipesss | OneDrive 동기화 충돌 제거. |
 | DL-011 | 2026-06-03 | 코드 리포 = github.com/green-cloud-workroom/recipesss 유지 | 기존 리모트 그대로. |
-| DL-012 | 2026-06-03 | AAFCO 표준 표 = 단계 1 직전 클로드가 공식 자료로 수동 입력 | 호두님 미보유. |
+| ~~DL-012~~ | 2026-06-03 | ~~AAFCO 표준 표 = 단계 1 직전 클로드가 공식 자료로 수동 입력~~ | **DL-032로 개정 (호두님이 FEDIAF 2025 공식표 제공 → 좌표 추출 전사).** |
 | DL-013 | 2026-06-03 | GitHub Pages = 완전 제거 | 혼동 소지 제거. |
 | DL-014 | 2026-06-03 | 데이터 안전 정책 = localStorage·Firestore·`backups/` 3중 | 호스팅 변경과 무관 보호. |
 | DL-015 | 2026-06-03 | 사이드바 푸터 = 이메일 + 로그아웃만 | 1인 사용. |
@@ -1073,6 +1086,7 @@ Firebase 는 읽기전용(DL-019)이라 스냅샷 이후 변경분이 없다는 
 | **DL-029** | 2026-06-03 | **원료 변경 시 확정값 자동 갱신 (= 새 계산값으로 덮어쓰기)** | 워크플로우: 원료 셋업 끝 → 마지막 단계에서 확정값 미세조정 → 등록. UI에 명시. |
 | **DL-030** | 2026-06-03 | **원료 마스터 = USDA + 수동 원료 추가 + 영양값 직접 입력 (영양제 포함)** | 영양제·특수 원료는 USDA에 없음. 수동 입력 필수. 모든 원료가 같은 nutrientProfile 필드 보유. |
 | **DL-031** | 2026-06-04 | **마이그레이션 실행 = 앱 내 1회성 UI(/settings) + `backups/*.json` 소스 (구 §11.2 "Node.js 스크립트 + 구 Firebase 라이브 읽기" supersede)** | recipesss는 client SDK(`firebase`)만 보유·admin 없음. 앱 내 실행은 이미 로그인된 uid·Auth context를 그대로 써 credential 추가 0, dry-run이 화면에 보임. `backups/2026-06-03-pre-rewrite.json`은 `migrateV2toV3`로 회귀 검증됨. 단 스냅샷 이후 구 앱 변경분은 미포함(DL-019 구 Firebase 읽기전용이라 변경 없음 전제). |
+| **DL-032** | 2026-06-05 | **영양 표준 = 다표준 동등 지원. FEDIAF 2025 7종 먼저 적재(개 4·고양이 3, 성체 MER 2종 포함). NutrientKey 키셋 ~45 확정. 표준 데이터 = 앱 정적 번들(`src/features/nutrition/profiles/*`, Firestore `nutrientProfiles` 미사용). ME = 수정 Atwater 유지(DL-007). DL-005·DL-012 개정** | 호두님 FEDIAF 공식표(Nutritional Guidelines 2025) 제공 → 좌표 추출로 정확 전사(DM↔ME ×2.5 교차검증). DM+per-1000kcal 두 단위 제공돼 recipesss basis 토글과 호환. 불변 표준이라 정적 번들이 단순(write·seed·규칙 불필요). Calvez 2019(NRC 2006tdf 권장)는 TDF 등 원료데이터 요구로 MVP 부적합 → 수정 Atwater 유지. 성체 MER 2종·calcium 후기성장 대형견(b)·고양이 성장/번식 보수값 등은 `fediaf2025.ts` 주석 참조. AAFCO·NRC는 동일 스키마로 자료 입수 후 추가. |
 
 ### 결정 변경 절차
 1. 변경 사유와 영향 범위를 §13 새 행으로 추가. 이전 행은 두고 ~~취소선~~ + supersede.
