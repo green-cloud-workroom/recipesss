@@ -10,32 +10,33 @@ function presetRef(uid: string, presetId: string) {
 
 export function useUpsertPreset(uid: string | undefined) {
   const queryClient = useQueryClient()
+  const queryKey = ['recipesssPresets', uid]
 
   return useMutation({
     mutationFn: async (preset: Preset) => {
       if (!uid) throw new Error('로그인이 필요합니다.')
       await setDoc(presetRef(uid, preset.id), preset)
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['recipesssPresets'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   })
 }
 
 export function useDeletePreset(uid: string | undefined) {
   const queryClient = useQueryClient()
+  const queryKey = ['recipesssPresets', uid]
 
   return useMutation({
     mutationFn: async (presetId: string) => {
       if (!uid) throw new Error('로그인이 필요합니다.')
       await deleteDoc(presetRef(uid, presetId))
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['recipesssPresets'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   })
 }
 
 export function useReorderPresets(uid: string | undefined) {
   const queryClient = useQueryClient()
+  const queryKey = ['recipesssPresets', uid]
 
   return useMutation({
     mutationFn: async (changed: Preset[]) => {
@@ -49,16 +50,15 @@ export function useReorderPresets(uid: string | undefined) {
       await batch.commit()
     },
     onMutate: async (changed: Preset[]) => {
-      await queryClient.cancelQueries({ queryKey: ['recipesssPresets'] })
-      const previous =
-        queryClient.getQueryData<Preset[]>(['recipesssPresets'])
+      await queryClient.cancelQueries({ queryKey })
+      const previous = queryClient.getQueryData<Preset[]>(queryKey)
 
       if (previous) {
         const sortOrderById = new Map(
           changed.map((preset) => [preset.id, preset.sortOrder]),
         )
         queryClient.setQueryData(
-          ['recipesssPresets'],
+          queryKey,
           previous.map((preset) => {
             const sortOrder = sortOrderById.get(preset.id)
             return sortOrder === undefined ? preset : { ...preset, sortOrder }
@@ -70,10 +70,9 @@ export function useReorderPresets(uid: string | undefined) {
     },
     onError: (_err, _changed, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(['recipesssPresets'], context.previous)
+        queryClient.setQueryData(queryKey, context.previous)
       }
     },
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: ['recipesssPresets'] }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   })
 }

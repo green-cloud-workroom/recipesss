@@ -14,6 +14,7 @@ function draftRef(uid: string, draftId: string) {
 
 export function useUpdateIngredient(uid: string | undefined) {
   const queryClient = useQueryClient()
+  const ingredientsQueryKey = ['recipesssIngredients', uid]
 
   return useMutation({
     mutationFn: async (ingredient: Ingredient) => {
@@ -21,12 +22,14 @@ export function useUpdateIngredient(uid: string | undefined) {
       await setDoc(ingredientRef(uid, ingredient.id), ingredient)
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['recipesssIngredients'] }),
+      queryClient.invalidateQueries({ queryKey: ingredientsQueryKey }),
   })
 }
 
 export function useMergeIngredients(uid: string | undefined) {
   const queryClient = useQueryClient()
+  const ingredientsQueryKey = ['recipesssIngredients', uid]
+  const draftsQueryKey = ['recipeDrafts', uid]
 
   return useMutation({
     mutationFn: async ({
@@ -52,14 +55,15 @@ export function useMergeIngredients(uid: string | undefined) {
       await batch.commit()
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['recipesssIngredients'] })
-      void queryClient.invalidateQueries({ queryKey: ['recipeDrafts'] })
+      void queryClient.invalidateQueries({ queryKey: ingredientsQueryKey })
+      void queryClient.invalidateQueries({ queryKey: draftsQueryKey })
     },
   })
 }
 
 export function useDeleteIngredient(uid: string | undefined) {
   const queryClient = useQueryClient()
+  const ingredientsQueryKey = ['recipesssIngredients', uid]
 
   return useMutation({
     mutationFn: async (ingredientId: string) => {
@@ -67,6 +71,6 @@ export function useDeleteIngredient(uid: string | undefined) {
       await deleteDoc(ingredientRef(uid, ingredientId))
     },
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['recipesssIngredients'] }),
+      queryClient.invalidateQueries({ queryKey: ingredientsQueryKey }),
   })
 }

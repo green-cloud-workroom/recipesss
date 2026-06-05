@@ -16,7 +16,7 @@ export async function fetchIngredients(uid: string): Promise<Ingredient[]> {
 
 export function useIngredients(uid: string | undefined) {
   return useQuery({
-    queryKey: ['recipesssIngredients'],
+    queryKey: ['recipesssIngredients', uid],
     queryFn: () => fetchIngredients(uid as string),
     enabled: !!uid,
   })

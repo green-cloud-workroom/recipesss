@@ -16,7 +16,7 @@ export async function fetchPresets(uid: string): Promise<Preset[]> {
 
 export function usePresets(uid: string | undefined) {
   return useQuery({
-    queryKey: ['recipesssPresets'],
+    queryKey: ['recipesssPresets', uid],
     queryFn: () => fetchPresets(uid as string),
     enabled: !!uid,
   })

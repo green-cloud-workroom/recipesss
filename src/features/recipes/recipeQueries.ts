@@ -16,7 +16,7 @@ export async function fetchRecipeDrafts(uid: string): Promise<RecipeDraft[]> {
 
 export function useRecipeDrafts(uid: string | undefined) {
   return useQuery({
-    queryKey: ['recipeDrafts'],
+    queryKey: ['recipeDrafts', uid],
     queryFn: () => fetchRecipeDrafts(uid as string),
     enabled: !!uid,
   })
