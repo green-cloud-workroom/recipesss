@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
+  useCreateIngredient,
   useDeleteIngredient,
   useMergeIngredients,
   useUpdateIngredient,
@@ -26,6 +27,8 @@ import {
 } from '../features/nutrition/nutrientKeys'
 import { usePresets } from '../features/presets/presetQueries'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
+import { useUsdaFood, useUsdaSearch } from '../features/usda/usdaQueries'
+import type { MappedFdcFood } from '../features/usda/usdaTypes'
 import {
   CARD_CLS,
   EMPTY_STATE_CLS,
@@ -52,6 +55,7 @@ export function IngredientsPage() {
   const ingredientsQuery = useIngredients(uid)
   const draftsQuery = useRecipeDrafts(uid)
   const presetsQuery = usePresets(uid)
+  const createIngredient = useCreateIngredient(uid)
   const updateIngredient = useUpdateIngredient(uid)
   const deleteIngredient = useDeleteIngredient(uid)
   const mergeIngredients = useMergeIngredients(uid)
@@ -63,6 +67,7 @@ export function IngredientsPage() {
   )
   const [mergeSelectedIds, setMergeSelectedIds] = useState<string[]>([])
   const [mergeModalOpen, setMergeModalOpen] = useState(false)
+  const [usdaModalOpen, setUsdaModalOpen] = useState(false)
   const [mergeName, setMergeName] = useState('')
   const [search, setSearch] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
@@ -112,6 +117,7 @@ export function IngredientsPage() {
 
   const mutationPending =
     updateIngredient.isPending ||
+    createIngredient.isPending ||
     deleteIngredient.isPending ||
     mergeIngredients.isPending
 
@@ -222,6 +228,57 @@ export function IngredientsPage() {
     }
   }
 
+  async function handleApplyUsda(mapped: MappedFdcFood) {
+    if (!selectedIngredient) return
+    setErrorMsg('')
+    try {
+      await updateIngredient.mutateAsync({
+        ...selectedIngredient,
+        nutrientProfile: mapped.nutrients,
+        source: {
+          type: 'usda',
+          fdcId: mapped.fdcId,
+          importedAt: Date.now(),
+        },
+        moistureBasis: 'as-fed',
+      })
+      setUsdaModalOpen(false)
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : 'USDA 영양값 적용에 실패했습니다.',
+      )
+    }
+  }
+
+  async function handleCreateFromUsda(mapped: MappedFdcFood) {
+    const id = createIngredientId()
+    setErrorMsg('')
+    try {
+      await createIngredient.mutateAsync({
+        id,
+        name: mapped.description,
+        kind: 'ingredient',
+        displayName: '',
+        aliases: [],
+        hidden: false,
+        nutrientProfile: mapped.nutrients,
+        source: {
+          type: 'usda',
+          fdcId: mapped.fdcId,
+          importedAt: Date.now(),
+        },
+        moistureBasis: 'as-fed',
+        sortOrder: nextIngredientSortOrder(ingredients),
+      })
+      setSelectedIngredientId(id)
+      setUsdaModalOpen(false)
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : 'USDA 원료 추가에 실패했습니다.',
+      )
+    }
+  }
+
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -231,8 +288,17 @@ export function IngredientsPage() {
             원료별 100g당 영양값을 직접 입력합니다.
           </p>
         </div>
-        <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
-          원료 {ingredients.length}개
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            className={PRIMARY_BTN_CLS}
+            onClick={() => setUsdaModalOpen(true)}
+            type="button"
+          >
+            USDA에서 가져오기
+          </button>
+          <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
+            원료 {ingredients.length}개
+          </div>
         </div>
       </div>
 
@@ -303,6 +369,16 @@ export function IngredientsPage() {
           onNameChange={setMergeName}
           discardedProfileNames={discardedProfileNames}
           registeredDriftNames={registeredDriftNames}
+        />
+      )}
+
+      {usdaModalOpen && (
+        <UsdaImportModal
+          isPending={mutationPending}
+          onApply={(mapped) => void handleApplyUsda(mapped)}
+          onClose={() => setUsdaModalOpen(false)}
+          onCreate={(mapped) => void handleCreateFromUsda(mapped)}
+          selectedIngredientName={selectedIngredient?.name}
         />
       )}
     </div>
@@ -675,6 +751,186 @@ function MergeIngredientModal({
       </div>
     </div>
   )
+}
+
+function UsdaImportModal({
+  isPending,
+  onApply,
+  onClose,
+  onCreate,
+  selectedIngredientName,
+}: {
+  isPending: boolean
+  onApply: (mapped: MappedFdcFood) => void
+  onClose: () => void
+  onCreate: (mapped: MappedFdcFood) => void
+  selectedIngredientName: string | undefined
+}) {
+  const [query, setQuery] = useState('')
+  const [selectedFdcId, setSelectedFdcId] = useState<number | null>(null)
+  const searchQuery = useUsdaSearch(query)
+  const foodQuery = useUsdaFood(selectedFdcId)
+  const mapped = foodQuery.data
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+      <div className="flex max-h-[88vh] w-full max-w-5xl flex-col rounded-lg bg-white shadow-lg">
+        <div className="border-b border-gray-100 px-4 py-3">
+          <h2 className="text-sm font-semibold text-gray-800">
+            USDA에서 가져오기
+          </h2>
+          <p className="mt-1 text-xs text-gray-500">
+            FoodData Central 값을 100g 기준 영양값으로 변환합니다.
+          </p>
+        </div>
+
+        <div className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 lg:grid-cols-[360px_1fr]">
+          <div className="min-h-0 overflow-y-auto">
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-gray-500">
+                검색
+              </span>
+              <input
+                className={INPUT_CLS}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="chicken breast raw"
+                type="search"
+                value={query}
+              />
+            </label>
+
+            <div className="mt-3 space-y-2">
+              {searchQuery.isFetching && (
+                <div className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500">
+                  검색 중...
+                </div>
+              )}
+              {searchQuery.isError && (
+                <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {searchQuery.error instanceof Error
+                    ? searchQuery.error.message
+                    : 'USDA 검색에 실패했습니다.'}
+                </div>
+              )}
+              {(searchQuery.data ?? []).map((food) => (
+                <button
+                  className={`block w-full rounded-md border px-3 py-2 text-left text-sm ${
+                    selectedFdcId === food.fdcId
+                      ? 'border-gray-800 bg-gray-800 text-white'
+                      : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                  key={food.fdcId}
+                  onClick={() => setSelectedFdcId(food.fdcId)}
+                  type="button"
+                >
+                  <span className="block font-medium">{food.description}</span>
+                  <span className="mt-1 block text-xs opacity-70">
+                    {food.dataType ?? 'USDA'} · FDC {food.fdcId}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-h-0 overflow-y-auto rounded-md border border-gray-100">
+            {!selectedFdcId && (
+              <div className="p-8 text-center text-sm text-gray-400">
+                후보를 선택하면 변환 미리보기가 표시됩니다.
+              </div>
+            )}
+            {foodQuery.isFetching && (
+              <div className="p-8 text-center text-sm text-gray-400">
+                상세 조회 중...
+              </div>
+            )}
+            {foodQuery.isError && (
+              <div className="m-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+                {foodQuery.error instanceof Error
+                  ? foodQuery.error.message
+                  : 'USDA 상세 조회에 실패했습니다.'}
+              </div>
+            )}
+            {mapped && (
+              <div>
+                <div className="border-b border-gray-100 p-4">
+                  <h3 className="text-sm font-semibold text-gray-800">
+                    {mapped.description}
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-500">
+                    매핑 {mapped.mappedKeys.length}개 / 결측{' '}
+                    {mapped.missingKeys.length}개
+                  </p>
+                  {mapped.missingKeys.length > 0 && (
+                    <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      FDC에 없는 영양소는 빈칸으로 남습니다. 필요하면 적용 후 직접
+                      입력하세요.
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-2 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {NUTRIENT_META.filter(
+                    (meta) => mapped.nutrients[meta.key] !== undefined,
+                  ).map((meta) => (
+                    <div
+                      className="rounded-md bg-gray-50 px-3 py-2 text-xs"
+                      key={meta.key}
+                    >
+                      <div className="text-gray-500">{meta.label}</div>
+                      <div className="mt-1 font-semibold text-gray-800">
+                        {formatUsdaNumber(mapped.nutrients[meta.key])}{' '}
+                        {meta.unit}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-gray-100 p-4">
+          <button
+            className={SECONDARY_BTN_CLS}
+            disabled={isPending}
+            onClick={onClose}
+            type="button"
+          >
+            닫기
+          </button>
+          <button
+            className={SECONDARY_BTN_CLS}
+            disabled={!mapped || isPending || !selectedIngredientName}
+            onClick={() => mapped && onApply(mapped)}
+            type="button"
+          >
+            현재 원료에 적용
+          </button>
+          <button
+            className={PRIMARY_BTN_CLS}
+            disabled={!mapped || isPending}
+            onClick={() => mapped && onCreate(mapped)}
+            type="button"
+          >
+            신규 원료로 추가
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function createIngredientId(): string {
+  return `ing_${crypto.randomUUID().slice(0, 8)}`
+}
+
+function nextIngredientSortOrder(ingredients: Ingredient[]): number {
+  if (ingredients.length === 0) return 0
+  return Math.max(...ingredients.map((ingredient) => ingredient.sortOrder)) + 1
+}
+
+function formatUsdaNumber(value: number | undefined): string {
+  if (value === undefined) return ''
+  return Number.isInteger(value) ? String(value) : value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')
 }
 
 export default IngredientsPage

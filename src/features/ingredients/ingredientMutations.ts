@@ -30,6 +30,20 @@ export function useUpdateIngredient(uid: string | undefined) {
   })
 }
 
+export function useCreateIngredient(uid: string | undefined) {
+  const queryClient = useQueryClient()
+  const ingredientsQueryKey = ['recipesssIngredients', uid]
+
+  return useMutation({
+    mutationFn: async (ingredient: Ingredient) => {
+      if (!uid) throw new Error('로그인이 필요합니다.')
+      await setDoc(ingredientRef(uid, ingredient.id), ingredient)
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ingredientsQueryKey }),
+  })
+}
+
 export function useMergeIngredients(uid: string | undefined) {
   const queryClient = useQueryClient()
   const ingredientsQueryKey = ['recipesssIngredients', uid]
