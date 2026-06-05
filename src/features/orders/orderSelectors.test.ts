@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   buildOrderSummary,
+  filterOrderGroups,
   formatOrderLine,
   groupLabel,
   groupPresetsByRecipe,
@@ -155,6 +156,39 @@ describe('buildOrderSummary', () => {
 
   it('omits groups with no selected presets', () => {
     expect(buildOrderSummary(groups, { preset_c: true })).toHaveLength(1)
+  })
+})
+
+describe('filterOrderGroups', () => {
+  const groups: OrderGroup[] = groupPresetsByRecipe(
+    [
+      draft('draft_cat', 'Cat Chicken', 'cat', 0),
+      draft('draft_dog', 'Dog Duck', 'dog', 1),
+      draft('draft_freeze', '동결 주식치킨', 'dog', 2),
+    ],
+    [
+      preset('preset_cat', 'draft_cat', 'a0', 0),
+      preset('preset_dog', 'draft_dog', 'b0', 0),
+      preset('preset_freeze', 'draft_freeze', 'c0', 0),
+    ],
+  )
+
+  it('keeps all groups for the all filter', () => {
+    expect(filterOrderGroups(groups, 'all').map((group) => group.draftId))
+      .toEqual(['draft_cat', 'draft_dog', 'draft_freeze'])
+  })
+
+  it('filters groups by species', () => {
+    expect(filterOrderGroups(groups, 'cat').map((group) => group.draftId))
+      .toEqual(['draft_cat'])
+    expect(filterOrderGroups(groups, 'dog').map((group) => group.draftId))
+      .toEqual(['draft_dog', 'draft_freeze'])
+  })
+
+  it('filters freeze-dried groups by draft name', () => {
+    expect(
+      filterOrderGroups(groups, 'freezeDried').map((group) => group.draftId),
+    ).toEqual(['draft_freeze'])
   })
 })
 

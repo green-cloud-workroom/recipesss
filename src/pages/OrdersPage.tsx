@@ -2,10 +2,12 @@ import { useMemo, useState } from 'react'
 
 import {
   buildOrderSummary,
+  filterOrderGroups,
   formatOrderLine,
   groupPresetsByRecipe,
   speciesLabel,
   totalSelectedCount,
+  type OrderFilter,
   type OrderGroup,
   type OrderSelection,
 } from '../features/orders/orderSelectors'
@@ -17,12 +19,19 @@ import type { Preset, RecipeDraft } from '../types/recipe'
 
 const EMPTY_DRAFTS: RecipeDraft[] = []
 const EMPTY_PRESETS: Preset[] = []
+const ORDER_FILTERS: Array<{ value: OrderFilter; label: string }> = [
+  { value: 'all', label: '전체' },
+  { value: 'cat', label: '고양이' },
+  { value: 'dog', label: '강아지' },
+  { value: 'freezeDried', label: '동결건조' },
+]
 
 export function OrdersPage() {
   const uid = useAuthStore((state) => state.user?.uid)
   const draftsQuery = useRecipeDrafts(uid)
   const presetsQuery = usePresets(uid)
   const [selection, setSelection] = useState<OrderSelection>({})
+  const [filter, setFilter] = useState<OrderFilter>('all')
 
   const drafts = draftsQuery.data ?? EMPTY_DRAFTS
   const presets = presetsQuery.data ?? EMPTY_PRESETS
@@ -30,9 +39,13 @@ export function OrdersPage() {
     () => groupPresetsByRecipe(drafts, presets),
     [drafts, presets],
   )
+  const filteredGroups = useMemo(
+    () => filterOrderGroups(groups, filter),
+    [filter, groups],
+  )
   const summary = useMemo(
-    () => buildOrderSummary(groups, selection),
-    [groups, selection],
+    () => buildOrderSummary(filteredGroups, selection),
+    [filteredGroups, selection],
   )
 
   const isLoading = draftsQuery.isLoading || presetsQuery.isLoading
@@ -83,16 +96,40 @@ export function OrdersPage() {
       )}
 
       {!isLoading && !isError && groups.length > 0 && (
-        <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-4">
-            {groups.map((group) => (
-              <OrderGroupCard
-                group={group}
-                key={group.draftId}
-                onToggle={togglePreset}
-                selection={selection}
-              />
+        <>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {ORDER_FILTERS.map((item) => (
+              <button
+                className={`rounded-md border px-4 py-2 text-sm font-medium ${
+                  filter === item.value
+                    ? 'border-gray-800 bg-gray-800 text-white'
+                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+                key={item.value}
+                onClick={() => setFilter(item.value)}
+                type="button"
+              >
+                {item.label}
+              </button>
             ))}
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="space-y-4">
+            {filteredGroups.length === 0 ? (
+              <div className={EMPTY_STATE_CLS}>
+                선택한 조건에 맞는 프리셋이 없습니다.
+              </div>
+            ) : (
+              filteredGroups.map((group) => (
+                <OrderGroupCard
+                  group={group}
+                  key={group.draftId}
+                  onToggle={togglePreset}
+                  selection={selection}
+                />
+              ))
+            )}
           </div>
 
           <aside className={`${CARD_CLS} self-start`}>
@@ -133,7 +170,8 @@ export function OrdersPage() {
               </button>
             </div>
           </aside>
-        </div>
+          </div>
+        </>
       )}
     </div>
   )

@@ -10,6 +10,8 @@ export type OrderGroup = {
 
 export type OrderSelection = Record<string, true>
 
+export type OrderFilter = 'all' | 'cat' | 'dog' | 'freezeDried'
+
 export type OrderSummaryItem = { code: string }
 export type OrderSummaryGroup = {
   draftId: string
@@ -82,6 +84,30 @@ export function buildOrderSummary(
       },
     ]
   })
+}
+
+export function filterOrderGroups(
+  groups: OrderGroup[],
+  filter: OrderFilter,
+): OrderGroup[] {
+  if (filter === 'all') return groups
+  if (filter === 'cat') {
+    return groups.filter((group) => group.species === 'cat')
+  }
+  if (filter === 'dog') {
+    return groups.filter((group) => group.species === 'dog')
+  }
+
+  return groups.filter((group) => isFreezeDriedName(group.draftName))
+}
+
+function isFreezeDriedName(name: string): boolean {
+  const normalized = name.toLowerCase()
+  return (
+    normalized.includes('동결') ||
+    normalized.includes('freeze') ||
+    normalized.includes('frozen')
+  )
 }
 
 export function formatOrderLine(group: OrderSummaryGroup): string {
