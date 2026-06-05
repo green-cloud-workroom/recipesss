@@ -38,7 +38,7 @@ export function useMergeIngredients(uid: string | undefined) {
       deleteIds: string[]
       changedDrafts: RecipeDraft[]
     }) => {
-      if (!uid) throw new Error('濡쒓렇?몄씠 ?꾩슂?⑸땲??')
+      if (!uid) throw new Error('로그인이 필요합니다.')
 
       const batch = writeBatch(db)
       batch.set(ingredientRef(uid, target.id), target)
