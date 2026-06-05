@@ -1,11 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteDoc, doc, setDoc } from 'firebase/firestore'
+import { deleteDoc, doc, setDoc, writeBatch } from 'firebase/firestore'
 
 import { db } from '../../firebase'
-import type { Ingredient } from '../../types/recipe'
+import type { Ingredient, RecipeDraft } from '../../types/recipe'
 
 function ingredientRef(uid: string, ingredientId: string) {
   return doc(db, `recipesssIngredients/${uid}/items`, ingredientId)
+}
+
+function draftRef(uid: string, draftId: string) {
+  return doc(db, `recipeDrafts/${uid}/items`, draftId)
 }
 
 export function useUpdateIngredient(uid: string | undefined) {
@@ -18,6 +22,39 @@ export function useUpdateIngredient(uid: string | undefined) {
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['recipesssIngredients'] }),
+  })
+}
+
+export function useMergeIngredients(uid: string | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      changedDrafts,
+      deleteIds,
+      target,
+    }: {
+      target: Ingredient
+      deleteIds: string[]
+      changedDrafts: RecipeDraft[]
+    }) => {
+      if (!uid) throw new Error('濡쒓렇?몄씠 ?꾩슂?⑸땲??')
+
+      const batch = writeBatch(db)
+      batch.set(ingredientRef(uid, target.id), target)
+      for (const ingredientId of deleteIds) {
+        batch.delete(ingredientRef(uid, ingredientId))
+      }
+      for (const draft of changedDrafts) {
+        batch.set(draftRef(uid, draft.id), draft)
+      }
+
+      await batch.commit()
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['recipesssIngredients'] })
+      void queryClient.invalidateQueries({ queryKey: ['recipeDrafts'] })
+    },
   })
 }
 
