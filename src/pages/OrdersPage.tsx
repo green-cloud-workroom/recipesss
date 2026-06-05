@@ -11,12 +11,7 @@ import {
 } from '../features/orders/orderSelectors'
 import { usePresets } from '../features/presets/presetQueries'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
-import {
-  CARD_CLS,
-  EMPTY_STATE_CLS,
-  INPUT_CLS,
-  PRIMARY_BTN_CLS,
-} from '../lib/ui'
+import { CARD_CLS, EMPTY_STATE_CLS, PRIMARY_BTN_CLS } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
 import type { Preset, RecipeDraft } from '../types/recipe'
 
@@ -47,21 +42,11 @@ export function OrdersPage() {
 
   function togglePreset(presetId: string, checked: boolean) {
     setSelection((prev) => {
-      if (checked) return { ...prev, [presetId]: prev[presetId] ?? 0 }
+      if (checked) return { ...prev, [presetId]: true }
 
       const next = { ...prev }
       delete next[presetId]
       return next
-    })
-  }
-
-  function updateQuantity(presetId: string, value: string) {
-    const parsed = Number(value)
-    const quantity = Number.isFinite(parsed) ? Math.max(0, parsed) : 0
-
-    setSelection((prev) => {
-      if (!Object.prototype.hasOwnProperty.call(prev, presetId)) return prev
-      return { ...prev, [presetId]: quantity }
     })
   }
 
@@ -104,7 +89,6 @@ export function OrdersPage() {
               <OrderGroupCard
                 group={group}
                 key={group.draftId}
-                onQuantityChange={updateQuantity}
                 onToggle={togglePreset}
                 selection={selection}
               />
@@ -157,12 +141,10 @@ export function OrdersPage() {
 
 function OrderGroupCard({
   group,
-  onQuantityChange,
   onToggle,
   selection,
 }: {
   group: OrderGroup
-  onQuantityChange: (presetId: string, value: string) => void
   onToggle: (presetId: string, checked: boolean) => void
   selection: OrderSelection
 }) {
@@ -177,54 +159,36 @@ function OrderGroupCard({
         </span>
       </div>
 
-      <div className="divide-y divide-gray-100">
+      <div className="flex flex-wrap gap-2 px-4 py-3">
         {group.presets.map((preset) => {
           const checked = Object.prototype.hasOwnProperty.call(
             selection,
             preset.id,
           )
-          const quantity = selection[preset.id] ?? 0
 
           return (
             <label
-              className="grid gap-3 px-4 py-3 text-sm text-gray-700 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center"
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${
+                checked
+                  ? 'border-gray-800 bg-gray-800 text-white'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              }`}
               key={preset.id}
             >
-              <span className="flex min-w-0 items-center gap-3">
-                <input
-                  checked={checked}
-                  className="h-4 w-4 rounded border-gray-300"
-                  onChange={(event) =>
-                    onToggle(preset.id, event.target.checked)
-                  }
-                  type="checkbox"
-                />
-                <span className="min-w-0">
-                  <span className="font-medium text-gray-800">
-                    {preset.code}
-                  </span>
-                  {preset.label && (
-                    <span className="ml-2 text-gray-500">{preset.label}</span>
-                  )}
+              <input
+                checked={checked}
+                className="h-4 w-4 rounded border-gray-300"
+                onChange={(event) => onToggle(preset.id, event.target.checked)}
+                type="checkbox"
+              />
+              <span className="font-medium">{preset.code}</span>
+              {preset.label && (
+                <span
+                  className={checked ? 'text-gray-200' : 'text-gray-500'}
+                >
+                  {preset.label}
                 </span>
-              </span>
-
-              <span className="grid grid-cols-[1fr_auto] items-center gap-2">
-                <input
-                  className={INPUT_CLS}
-                  disabled={!checked}
-                  min="0"
-                  onChange={(event) =>
-                    onQuantityChange(preset.id, event.target.value)
-                  }
-                  step="1"
-                  type="number"
-                  value={quantity}
-                />
-                <span className="w-8 text-xs text-gray-400">
-                  {group.unitLabel}
-                </span>
-              </span>
+              )}
             </label>
           )
         })}

@@ -8,13 +8,12 @@ export type OrderGroup = {
   presets: Preset[]
 }
 
-export type OrderSelection = Record<string, number>
+export type OrderSelection = Record<string, true>
 
-export type OrderSummaryItem = { code: string; quantity: number }
+export type OrderSummaryItem = { code: string }
 export type OrderSummaryGroup = {
   draftId: string
   label: string
-  unitLabel: string
   items: OrderSummaryItem[]
 }
 
@@ -69,7 +68,6 @@ export function buildOrderSummary(
       return [
         {
           code: preset.code,
-          quantity: selection[preset.id] ?? 0,
         },
       ]
     })
@@ -80,7 +78,6 @@ export function buildOrderSummary(
       {
         draftId: group.draftId,
         label: `(${speciesLabel(group.species)})${group.draftName}`,
-        unitLabel: group.unitLabel,
         items,
       },
     ]
@@ -88,9 +85,7 @@ export function buildOrderSummary(
 }
 
 export function formatOrderLine(group: OrderSummaryGroup): string {
-  const body = group.items
-    .map((item) => `${item.code} ${item.quantity}${group.unitLabel}`)
-    .join(' / ')
+  const body = group.items.map((item) => item.code).join(' / ')
 
   return `${group.label}  ${body}`
 }

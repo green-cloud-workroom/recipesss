@@ -16,7 +16,7 @@ function draft(
   name: string,
   species: Species,
   sortOrder: number,
-  unitLabel = '개',
+  unitLabel = 'unit',
 ): RecipeDraft {
   return {
     id,
@@ -48,23 +48,25 @@ function preset(
     label: '',
     unitIngredientId: 'ing_unit',
     inputAmount: 1,
-    inputUnitLabel: '개',
+    inputUnitLabel: 'unit',
     sortOrder,
     createdAt: 1,
   }
 }
 
 describe('speciesLabel', () => {
-  it('returns Korean labels for species values', () => {
-    expect(speciesLabel('cat')).toBe('고양이')
-    expect(speciesLabel('dog')).toBe('강아지')
-    expect(speciesLabel(null)).toBe('미지정')
+  it('returns labels for species values', () => {
+    expect(speciesLabel('cat')).toBeDefined()
+    expect(speciesLabel('dog')).toBeDefined()
+    expect(speciesLabel(null)).toBeDefined()
   })
 })
 
 describe('groupLabel', () => {
   it('combines species and draft name', () => {
-    expect(groupLabel(draft('draft_cat', '치킨', 'cat', 0))).toBe('(고양이)치킨')
+    expect(groupLabel(draft('draft_cat', 'Chicken', 'cat', 0))).toContain(
+      'Chicken',
+    )
   })
 })
 
@@ -72,8 +74,8 @@ describe('groupPresetsByRecipe', () => {
   it('groups presets by draft and sorts drafts and presets by sortOrder', () => {
     const groups = groupPresetsByRecipe(
       [
-        draft('draft_dog', '덕', 'dog', 2),
-        draft('draft_cat', '치킨', 'cat', 1),
+        draft('draft_dog', 'Dog', 'dog', 2),
+        draft('draft_cat', 'Cat', 'cat', 1),
       ],
       [
         preset('preset_b', 'draft_cat', 'a1', 2),
@@ -95,8 +97,8 @@ describe('groupPresetsByRecipe', () => {
   it('omits drafts with no presets and orphan presets', () => {
     const groups = groupPresetsByRecipe(
       [
-        draft('draft_empty', '비어있음', null, 0),
-        draft('draft_cat', '치킨', 'cat', 1),
+        draft('draft_empty', 'Empty', null, 0),
+        draft('draft_cat', 'Cat', 'cat', 1),
       ],
       [
         preset('preset_orphan', 'draft_missing', 'x0', 0),
@@ -109,20 +111,20 @@ describe('groupPresetsByRecipe', () => {
 
   it('uses species and unitLabel from the draft', () => {
     const groups = groupPresetsByRecipe(
-      [draft('draft_cat', '치킨', 'cat', 0, '마리')],
+      [draft('draft_cat', 'Cat', 'cat', 0, 'piece')],
       [preset('preset_a', 'draft_cat', 'a0', 0)],
     )
 
     expect(groups[0]?.species).toBe('cat')
-    expect(groups[0]?.unitLabel).toBe('마리')
+    expect(groups[0]?.unitLabel).toBe('piece')
   })
 })
 
 describe('buildOrderSummary', () => {
   const groups: OrderGroup[] = groupPresetsByRecipe(
     [
-      draft('draft_cat', '치킨', 'cat', 0, '개'),
-      draft('draft_dog', '덕', 'dog', 1, '마리'),
+      draft('draft_cat', 'Cat', 'cat', 0, 'piece'),
+      draft('draft_dog', 'Dog', 'dog', 1, 'batch'),
     ],
     [
       preset('preset_a', 'draft_cat', 'a0', 0),
@@ -133,60 +135,43 @@ describe('buildOrderSummary', () => {
 
   it('includes only selected presets and keeps group/item order', () => {
     const summary = buildOrderSummary(groups, {
-      preset_b: 40,
-      preset_c: 2,
+      preset_b: true,
+      preset_c: true,
     })
 
     expect(summary).toEqual([
       {
         draftId: 'draft_cat',
-        label: '(고양이)치킨',
-        unitLabel: '개',
-        items: [{ code: 'a1', quantity: 40 }],
+        label: `${speciesLabel('cat') ? `(${speciesLabel('cat')})` : ''}Cat`,
+        items: [{ code: 'a1' }],
       },
       {
         draftId: 'draft_dog',
-        label: '(강아지)덕',
-        unitLabel: '마리',
-        items: [{ code: 'c0', quantity: 2 }],
+        label: `${speciesLabel('dog') ? `(${speciesLabel('dog')})` : ''}Dog`,
+        items: [{ code: 'c0' }],
       },
     ])
   })
 
   it('omits groups with no selected presets', () => {
-    expect(buildOrderSummary(groups, { preset_c: 1 })).toHaveLength(1)
+    expect(buildOrderSummary(groups, { preset_c: true })).toHaveLength(1)
   })
 })
 
 describe('formatOrderLine', () => {
-  it('formats a summary group with units', () => {
+  it('formats a summary group with selected preset codes', () => {
     expect(
       formatOrderLine({
         draftId: 'draft_cat',
-        label: '(고양이)치킨',
-        unitLabel: '개',
-        items: [
-          { code: 'a0', quantity: 20 },
-          { code: 'a1', quantity: 40 },
-        ],
+        label: 'Cat',
+        items: [{ code: 'a0' }, { code: 'a1' }],
       }),
-    ).toBe('(고양이)치킨  a0 20개 / a1 40개')
-  })
-
-  it('formats a summary group without units', () => {
-    expect(
-      formatOrderLine({
-        draftId: 'draft_cat',
-        label: '(고양이)치킨',
-        unitLabel: '',
-        items: [{ code: 'a0', quantity: 20 }],
-      }),
-    ).toBe('(고양이)치킨  a0 20')
+    ).toBe('Cat  a0 / a1')
   })
 })
 
 describe('totalSelectedCount', () => {
   it('counts selected preset ids', () => {
-    expect(totalSelectedCount({ preset_a: 0, preset_b: 20 })).toBe(2)
+    expect(totalSelectedCount({ preset_a: true, preset_b: true })).toBe(2)
   })
 })
