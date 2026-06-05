@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Modal } from '../components/common/Modal'
+import { generatePresetCode } from '../features/presets/presetCodes'
 import {
   useDeletePreset,
   useUpsertPreset,
@@ -40,9 +41,12 @@ function newPresetId(): string {
   return `preset_${crypto.randomUUID().replace(/-/g, '').slice(0, 8)}`
 }
 
-function defaultFormValues(preset?: Preset): PresetFormInput {
+function defaultFormValues(
+  preset?: Preset,
+  generatedCode = '',
+): PresetFormInput {
   return {
-    code: preset?.code ?? '',
+    code: preset?.code ?? generatedCode,
     targetWeight: preset?.targetWeight ?? 0,
     label: preset?.label ?? '',
     inputAmount: preset?.inputAmount ?? 0,
@@ -78,6 +82,10 @@ export function PresetsPage() {
   const isError = draftsQuery.isError || presetsQuery.isError
   const queryError = draftsQuery.error ?? presetsQuery.error
   const mutationPending = upsertPreset.isPending || deletePreset.isPending
+  const generatedPresetCode = useMemo(() => {
+    if (!selectedDraft || modalState?.mode !== 'create') return ''
+    return generatePresetCode(presets, drafts, selectedDraft.id)
+  }, [drafts, modalState, presets, selectedDraft])
 
   async function handleSave(values: PresetFormValues, editing?: Preset) {
     if (!selectedDraft) return
@@ -249,6 +257,7 @@ export function PresetsPage() {
       {modalState && selectedDraft && (
         <PresetFormModal
           draft={selectedDraft}
+          generatedCode={generatedPresetCode}
           isPending={upsertPreset.isPending}
           modalState={modalState}
           onClose={() => setModalState(null)}
@@ -302,12 +311,14 @@ function RecipeList({
 
 function PresetFormModal({
   draft,
+  generatedCode,
   isPending,
   modalState,
   onClose,
   onSave,
 }: {
   draft: RecipeDraft
+  generatedCode: string
   isPending: boolean
   modalState: Exclude<PresetModalState, null>
   onClose: () => void
@@ -321,7 +332,7 @@ function PresetFormModal({
     register,
   } = useForm<PresetFormInput, unknown, PresetFormValues>({
     resolver: zodResolver(presetFormSchema),
-    defaultValues: defaultFormValues(editing),
+    defaultValues: defaultFormValues(editing, generatedCode),
   })
 
   return (
