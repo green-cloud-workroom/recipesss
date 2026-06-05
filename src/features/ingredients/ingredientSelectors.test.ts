@@ -43,16 +43,13 @@ describe('filterIngredients', () => {
     expect(filterIngredients(items, '')).toHaveLength(3)
   })
 
-  it('matches by name, displayName, and aliases case-insensitively', () => {
+  it('matches by name only, case-insensitively (not displayName/aliases)', () => {
     expect(filterIngredients(items, 'SAL').map((item) => item.id)).toEqual([
       'salmon',
     ])
-    expect(filterIngredients(items, '비타민').map((item) => item.id)).toEqual([
-      'vitamin_e',
-    ])
-    expect(filterIngredients(items, 'fish').map((item) => item.id)).toEqual([
-      'salmon',
-    ])
+    // displayName(치환명)·aliases로는 검색되지 않음
+    expect(filterIngredients(items, '비타민')).toHaveLength(0)
+    expect(filterIngredients(items, 'fish')).toHaveLength(0)
   })
 })
 

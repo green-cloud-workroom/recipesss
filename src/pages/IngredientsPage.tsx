@@ -2,10 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useUpdateIngredient } from '../features/ingredients/ingredientMutations'
+import {
+  useDeleteIngredient,
+  useUpdateIngredient,
+} from '../features/ingredients/ingredientMutations'
 import { useIngredients } from '../features/ingredients/ingredientQueries'
 import {
-  filledNutrientCount,
   filterIngredients,
   groupByKind,
 } from '../features/ingredients/ingredientSelectors'
@@ -31,7 +33,6 @@ import { useAuthStore } from '../stores/authStore'
 import type { Ingredient } from '../types/recipe'
 
 const EMPTY_INGREDIENTS: Ingredient[] = []
-const TOTAL_NUTRIENTS = NUTRIENT_META.length
 const CATEGORY_ORDER: NutrientCategory[] = [
   'general',
   'amino',
@@ -44,6 +45,7 @@ export function IngredientsPage() {
   const uid = useAuthStore((state) => state.user?.uid)
   const ingredientsQuery = useIngredients(uid)
   const updateIngredient = useUpdateIngredient(uid)
+  const deleteIngredient = useDeleteIngredient(uid)
   const ingredients = ingredientsQuery.data ?? EMPTY_INGREDIENTS
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(
     null,
@@ -81,6 +83,38 @@ export function IngredientsPage() {
       )
     }
   }
+
+  async function handleToggleHidden(ingredient: Ingredient) {
+    setErrorMsg('')
+    try {
+      await updateIngredient.mutateAsync({
+        ...ingredient,
+        hidden: !ingredient.hidden,
+      })
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : '원료 상태 변경에 실패했습니다.',
+      )
+    }
+  }
+
+  async function handleDelete(ingredient: Ingredient) {
+    const label = ingredient.name || '(이름 없음)'
+    if (!window.confirm(`'${label}' 원료를 삭제할까요? 되돌릴 수 없습니다.`)) {
+      return
+    }
+    setErrorMsg('')
+    try {
+      await deleteIngredient.mutateAsync(ingredient.id)
+      setSelectedIngredientId(null)
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error ? err.message : '원료 삭제에 실패했습니다.',
+      )
+    }
+  }
+
+  const mutationPending = updateIngredient.isPending || deleteIngredient.isPending
 
   return (
     <div>
@@ -137,8 +171,10 @@ export function IngredientsPage() {
 
             <NutrientProfileEditor
               ingredient={selectedIngredient}
-              isPending={updateIngredient.isPending}
+              isPending={mutationPending}
+              onDelete={() => void handleDelete(selectedIngredient)}
               onSave={(values) => void handleSave(selectedIngredient, values)}
+              onToggleHidden={() => void handleToggleHidden(selectedIngredient)}
             />
           </div>
         )}
@@ -216,25 +252,27 @@ function IngredientGroup({
       ) : (
         items.map((item) => (
           <button
-            className={`block w-full border-b border-gray-100 px-4 py-3 text-left text-sm ${
+            className={`flex w-full items-center justify-between gap-2 border-b border-gray-100 px-4 py-2 text-left text-sm ${
               item.id === selectedIngredientId
                 ? 'bg-gray-800 text-white'
-                : 'text-gray-700 hover:bg-gray-50'
+                : `hover:bg-gray-50 ${item.hidden ? 'text-gray-400' : 'text-gray-700'}`
             }`}
             key={item.id}
             onClick={() => onSelect(item.id)}
             type="button"
           >
-            <span className="block font-medium">
-              {item.displayName || item.name}
-            </span>
-            <span
-              className={`mt-1 block text-xs ${
-                item.id === selectedIngredientId ? 'text-gray-200' : 'text-gray-400'
-              }`}
-            >
-              영양값 {filledNutrientCount(item.nutrientProfile)}/{TOTAL_NUTRIENTS}
-            </span>
+            <span className="truncate">{item.name || '(이름 없음)'}</span>
+            {item.hidden && (
+              <span
+                className={`shrink-0 text-xs ${
+                  item.id === selectedIngredientId
+                    ? 'text-gray-300'
+                    : 'text-gray-400'
+                }`}
+              >
+                비활성
+              </span>
+            )}
           </button>
         ))
       )}
@@ -245,11 +283,15 @@ function IngredientGroup({
 function NutrientProfileEditor({
   ingredient,
   isPending,
+  onDelete,
   onSave,
+  onToggleHidden,
 }: {
   ingredient: Ingredient
   isPending: boolean
+  onDelete: () => void
   onSave: (values: NutrientProfileFormValues) => void
+  onToggleHidden: () => void
 }) {
   const {
     formState: { errors, isDirty },
@@ -282,13 +324,34 @@ function NutrientProfileEditor({
       <div className="flex flex-col gap-3 border-b border-gray-100 px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-sm font-semibold text-gray-800">
-            {ingredient.displayName || ingredient.name}
+            {ingredient.name || '(이름 없음)'}
+            {ingredient.hidden && (
+              <span className="ml-2 text-xs font-normal text-gray-400">
+                비활성
+              </span>
+            )}
           </h2>
           <p className="mt-1 text-xs text-gray-500">
             100g당 영양값 · 빈칸은 저장 시 생략
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <button
+            className={SECONDARY_BTN_CLS}
+            disabled={isPending}
+            onClick={onToggleHidden}
+            type="button"
+          >
+            {ingredient.hidden ? '활성화' : '비활성'}
+          </button>
+          <button
+            className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+            disabled={isPending}
+            onClick={onDelete}
+            type="button"
+          >
+            삭제
+          </button>
           <button
             className={SECONDARY_BTN_CLS}
             disabled={!isDirty || isPending}

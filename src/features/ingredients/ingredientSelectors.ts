@@ -12,16 +12,8 @@ export function filterIngredients(
   const query = search.trim().toLowerCase()
   if (!query) return [...items]
 
-  return items.filter((item) => {
-    const haystack = [
-      item.name,
-      item.displayName,
-      ...item.aliases,
-    ]
-      .join(' ')
-      .toLowerCase()
-    return haystack.includes(query)
-  })
+  // 원료 마스터는 원료명(name)으로만 검색. 치환명(displayName)은 발주·출력 전용.
+  return items.filter((item) => item.name.toLowerCase().includes(query))
 }
 
 export function groupByKind(items: Ingredient[]): IngredientGroups {
