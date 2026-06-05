@@ -179,7 +179,7 @@ export function RecipesPage() {
                   <tr
                     className="cursor-pointer border-b border-gray-100 text-gray-700 hover:bg-gray-50"
                     key={draft.id}
-                    onClick={() => navigate(`/recipes/draft/${draft.id}`)}
+                    onClick={() => navigate(`/recipes/${draft.id}`)}
                   >
                     <td className="px-4 py-3 font-medium text-gray-800">
                       {draft.name}

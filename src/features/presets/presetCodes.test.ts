@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   generatePresetCode,
+  normalizePresetCodes,
   parseCode,
   pickPrefix,
   pickSuffix,
@@ -171,5 +172,33 @@ describe('generatePresetCode', () => {
         'draft_cat',
       ),
     ).toBe('A1')
+  })
+})
+
+describe('normalizePresetCodes', () => {
+  it('reassigns code and sortOrder by ascending targetWeight, keeping the prefix', () => {
+    const presets: Preset[] = [
+      { ...preset('p_big', 'draft_cat', 'A9', 5), targetWeight: 200 },
+      { ...preset('p_small', 'draft_cat', 'A3', 2), targetWeight: 50 },
+      { ...preset('p_mid', 'draft_cat', 'A7', 9), targetWeight: 120 },
+    ]
+
+    const result = normalizePresetCodes(presets, [draft('draft_cat', 0)], 'draft_cat')
+
+    expect(result.map((p) => [p.id, p.code, p.sortOrder])).toEqual([
+      ['p_small', 'A0', 0],
+      ['p_mid', 'A1', 1],
+      ['p_big', 'A2', 2],
+    ])
+  })
+
+  it('only touches presets of the given draft', () => {
+    const presets: Preset[] = [
+      { ...preset('p_a', 'draft_cat', 'A0'), targetWeight: 100 },
+      { ...preset('p_b', 'draft_dog', 'B0'), targetWeight: 100 },
+    ]
+
+    const result = normalizePresetCodes(presets, [draft('draft_cat', 0)], 'draft_cat')
+    expect(result.map((p) => p.id)).toEqual(['p_a'])
   })
 })

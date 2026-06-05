@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { navigationGroups } from './navigation'
 
-// SPEC §5.1 / DL-024 / DL-026 메뉴 트리 회귀 방지.
+// SPEC §5.1 / DL-024 / DL-026 / DL-035 메뉴 트리 회귀 방지.
 
 describe('navigation', () => {
   it('SPEC §5.1 모든 경로 존재', () => {
@@ -11,17 +11,17 @@ describe('navigation', () => {
     expect(paths).toContain('/recipes/new')
     expect(paths).toContain('/recipes')
     expect(paths).toContain('/ingredients')
-    expect(paths).toContain('/presets')
     expect(paths).toContain('/orders')
     expect(paths).toContain('/print')
     expect(paths).toContain('/prices')
     expect(paths).toContain('/settings')
   })
 
-  it('발주 그룹은 3페이지 (DL-026)', () => {
+  it('발주 그룹은 2페이지 (발주·PDF — 프리셋 설정은 레시피 상세로 이동, DL-035)', () => {
     const orderGroup = navigationGroups.find((g) => g.id === 'orders')
     expect(orderGroup).toBeDefined()
-    expect(orderGroup!.items).toHaveLength(3)
+    expect(orderGroup!.items).toHaveLength(2)
+    expect(orderGroup!.items.map((i) => i.path)).not.toContain('/presets')
   })
 
   it('레시피 그룹은 2페이지 (신규·목록)', () => {

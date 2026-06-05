@@ -107,6 +107,30 @@ export function generatePresetCode(
   return `${prefix}${suffix}`
 }
 
+// SPEC §6.7 / DL-035 — 한 draft의 프리셋을 targetWeight 오름차순으로 X0·X1·X2…
+// 재코딩 + sortOrder 동일 순위 부여. v2 computeNormalizedPresets의 단일 draft 버전.
+// 반환 = 해당 draft 프리셋만 (code·sortOrder 갱신된 새 배열). 상위에서 batch write.
+export function normalizePresetCodes(
+  presets: Preset[],
+  drafts: RecipeDraft[],
+  draftId: string,
+): Preset[] {
+  const prefix = pickPrefix(presets, drafts, draftId)
+  return presets
+    .filter((preset) => preset.draftId === draftId)
+    .sort(
+      (a, b) =>
+        a.targetWeight - b.targetWeight ||
+        a.createdAt - b.createdAt ||
+        a.id.localeCompare(b.id),
+    )
+    .map((preset, index) => ({
+      ...preset,
+      code: `${prefix}${index}`,
+      sortOrder: index,
+    }))
+}
+
 function letterAt(index: number): string {
   return String.fromCharCode(A_CODE + index)
 }

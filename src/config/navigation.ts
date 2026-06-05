@@ -6,7 +6,6 @@ import {
   Printer,
   Receipt,
   ShoppingCart,
-  SlidersHorizontal,
   Wheat,
 } from 'lucide-react'
 
@@ -65,7 +64,6 @@ export const navigationGroups: NavigationGroup[] = [
     id: 'orders',
     label: '발주',
     items: [
-      item(SlidersHorizontal, '프리셋 설정', '/presets'),
       item(ShoppingCart, '발주', '/orders'),
       item(Printer, 'PDF 출력', '/print'),
     ],

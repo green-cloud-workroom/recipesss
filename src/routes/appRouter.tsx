@@ -6,7 +6,7 @@ import { IngredientsPage } from '../pages/IngredientsPage'
 import { LoginPage } from '../pages/LoginPage'
 import { OrdersPage } from '../pages/OrdersPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
-import { PresetsPage } from '../pages/PresetsPage'
+import { RecipeDetailPage } from '../pages/RecipeDetailPage'
 import { RecipesPage } from '../pages/RecipesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
@@ -40,12 +40,12 @@ export const appRouter = createBrowserRouter([
             element: <RecipesPage />,
           },
           {
-            path: '/ingredients',
-            element: <IngredientsPage />,
+            path: '/recipes/:draftId',
+            element: <RecipeDetailPage />,
           },
           {
-            path: '/presets',
-            element: <PresetsPage />,
+            path: '/ingredients',
+            element: <IngredientsPage />,
           },
           {
             path: '/orders',
