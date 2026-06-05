@@ -19,6 +19,8 @@ export type OrderSummaryGroup = {
   items: OrderSummaryItem[]
 }
 
+const CODE_RE = /^([A-Za-z])(\d+)$/
+
 export function speciesLabel(species: Species): string {
   if (species === 'cat') return '고양이'
   if (species === 'dog') return '강아지'
@@ -53,10 +55,43 @@ export function groupPresetsByRecipe(
           draftName: draft.name,
           species: draft.species,
           unitLabel: draft.unitLabel,
-          presets: [...draftPresets].sort((a, b) => a.sortOrder - b.sortOrder),
+          presets: sortPresetsForOrders(draftPresets),
         },
       ]
     })
+}
+
+export function sortPresetsForOrders(presets: Preset[]): Preset[] {
+  return [...presets].sort(comparePresetCode)
+}
+
+function comparePresetCode(a: Preset, b: Preset): number {
+  const parsedA = parsePresetCode(a.code)
+  const parsedB = parsePresetCode(b.code)
+
+  if (parsedA && parsedB) {
+    const prefix = parsedA.prefix.localeCompare(parsedB.prefix)
+    if (prefix !== 0) return prefix
+    if (parsedA.suffix !== parsedB.suffix) return parsedA.suffix - parsedB.suffix
+  } else if (parsedA || parsedB) {
+    return parsedA ? -1 : 1
+  }
+
+  const code = a.code.localeCompare(b.code)
+  if (code !== 0) return code
+  return a.sortOrder - b.sortOrder
+}
+
+function parsePresetCode(code: string): { prefix: string; suffix: number } | null {
+  const match = CODE_RE.exec(code.trim())
+  if (!match) return null
+  return { prefix: match[1]!.toUpperCase(), suffix: Number(match[2]) }
+}
+
+export function formatPresetInput(preset: Preset): string {
+  const unit = preset.inputUnitLabel.trim()
+  if (!unit) return String(preset.inputAmount)
+  return `${preset.inputAmount} ${unit}`
 }
 
 export function buildOrderSummary(

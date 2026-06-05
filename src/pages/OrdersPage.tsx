@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import {
   buildOrderSummary,
   filterOrderGroups,
+  formatPresetInput,
   formatOrderLine,
   groupPresetsByRecipe,
   speciesLabel,
@@ -220,6 +221,9 @@ function OrderGroupCard({
                 type="checkbox"
               />
               <span className="font-medium">{preset.code}</span>
+              <span className={checked ? 'text-gray-200' : 'text-gray-500'}>
+                {formatPresetInput(preset)}
+              </span>
               {preset.label && (
                 <span
                   className={checked ? 'text-gray-200' : 'text-gray-500'}

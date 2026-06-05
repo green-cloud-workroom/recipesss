@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildOrderSummary,
   filterOrderGroups,
+  formatPresetInput,
   formatOrderLine,
   groupLabel,
   groupPresetsByRecipe,
@@ -40,6 +41,7 @@ function preset(
   draftId: string,
   code: string,
   sortOrder: number,
+  overrides: Partial<Preset> = {},
 ): Preset {
   return {
     id,
@@ -52,6 +54,7 @@ function preset(
     inputUnitLabel: 'unit',
     sortOrder,
     createdAt: 1,
+    ...overrides,
   }
 }
 
@@ -72,7 +75,7 @@ describe('groupLabel', () => {
 })
 
 describe('groupPresetsByRecipe', () => {
-  it('groups presets by draft and sorts drafts and presets by sortOrder', () => {
+  it('groups presets by draft and sorts drafts by sortOrder', () => {
     const groups = groupPresetsByRecipe(
       [
         draft('draft_dog', 'Dog', 'dog', 2),
@@ -92,6 +95,33 @@ describe('groupPresetsByRecipe', () => {
     expect(groups[0]?.presets.map((item) => item.id)).toEqual([
       'preset_a',
       'preset_b',
+    ])
+  })
+
+  it('sorts presets naturally by code for the order screen', () => {
+    const groups = groupPresetsByRecipe(
+      [draft('draft_cat', 'Cat', 'cat', 0)],
+      [
+        preset('preset_a3', 'draft_cat', 'A3', 0),
+        preset('preset_a0', 'draft_cat', 'A0', 1),
+        preset('preset_a7', 'draft_cat', 'A7', 2),
+        preset('preset_a6', 'draft_cat', 'A6', 3),
+        preset('preset_a5', 'draft_cat', 'A5', 4),
+        preset('preset_a1', 'draft_cat', 'A1', 5),
+        preset('preset_a2', 'draft_cat', 'A2', 6),
+        preset('preset_a4', 'draft_cat', 'A4', 7),
+      ],
+    )
+
+    expect(groups[0]?.presets.map((item) => item.code)).toEqual([
+      'A0',
+      'A1',
+      'A2',
+      'A3',
+      'A4',
+      'A5',
+      'A6',
+      'A7',
     ])
   })
 
@@ -201,6 +231,19 @@ describe('formatOrderLine', () => {
         items: [{ code: 'a0' }, { code: 'a1' }],
       }),
     ).toBe('Cat  a0 / a1')
+  })
+})
+
+describe('formatPresetInput', () => {
+  it('formats the production-unit preset amount', () => {
+    expect(
+      formatPresetInput(
+        preset('preset_a', 'draft_cat', 'A0', 0, {
+          inputAmount: 1,
+          inputUnitLabel: 'piece',
+        }),
+      ),
+    ).toBe('1 piece')
   })
 })
 
