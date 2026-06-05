@@ -138,6 +138,16 @@ export type Ingredient = {
   sortOrder: number // 드래그&드롭 정렬
 }
 
+// SPEC §4.6 USDA Cache (usdaCache/{fdcId}). FDC food 상세를 매핑·캐시 (단계 2).
+// 동일 fdcId 재호출 방지. nutrients = fdcNutrientMap으로 변환된 100g당 값.
+export type UsdaCacheEntry = {
+  fdcId: number
+  description: string
+  dataType?: string // 'Foundation' | 'SR Legacy' | 'Survey (FNDDS)' | 'Branded'
+  nutrients: NutrientValues // 100 g 당
+  fetchedAt: number
+}
+
 // SPEC §4.7 Preset (draftId 참조)
 export type Preset = {
   id: string // 'preset_xxxxxxxx'

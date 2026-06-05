@@ -165,6 +165,11 @@ service cloud.firestore {
     match /recipesssPresets/{uid}/items/{presetId} {
       allow read, write: if signedIn() && request.auth.uid == uid;
     }
+
+    // USDA FoodData Central 응답 캐시 (공유, SPEC §4.6/§4.9 — 인증 사용자 read/write).
+    match /usdaCache/{fdcId} {
+      allow read, write: if signedIn();
+    }
     match /users/{uid} {
       allow read: if (isProductionApp() && (request.auth.uid == uid || isProductionWriter()))
         || hasOperationsRole();
