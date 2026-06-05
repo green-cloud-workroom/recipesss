@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteDoc, doc, setDoc } from 'firebase/firestore'
+import { deleteDoc, doc, setDoc, writeBatch } from 'firebase/firestore'
 
 import { db } from '../../firebase'
 import type { Preset } from '../../types/recipe'
@@ -30,6 +30,50 @@ export function useDeletePreset(uid: string | undefined) {
       await deleteDoc(presetRef(uid, presetId))
     },
     onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['recipesssPresets'] }),
+  })
+}
+
+export function useReorderPresets(uid: string | undefined) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (changed: Preset[]) => {
+      if (!uid) throw new Error('로그인이 필요합니다.')
+      if (changed.length === 0) return
+
+      const batch = writeBatch(db)
+      for (const preset of changed) {
+        batch.set(presetRef(uid, preset.id), preset)
+      }
+      await batch.commit()
+    },
+    onMutate: async (changed: Preset[]) => {
+      await queryClient.cancelQueries({ queryKey: ['recipesssPresets'] })
+      const previous =
+        queryClient.getQueryData<Preset[]>(['recipesssPresets'])
+
+      if (previous) {
+        const sortOrderById = new Map(
+          changed.map((preset) => [preset.id, preset.sortOrder]),
+        )
+        queryClient.setQueryData(
+          ['recipesssPresets'],
+          previous.map((preset) => {
+            const sortOrder = sortOrderById.get(preset.id)
+            return sortOrder === undefined ? preset : { ...preset, sortOrder }
+          }),
+        )
+      }
+
+      return { previous }
+    },
+    onError: (_err, _changed, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['recipesssPresets'], context.previous)
+      }
+    },
+    onSettled: () =>
       queryClient.invalidateQueries({ queryKey: ['recipesssPresets'] }),
   })
 }

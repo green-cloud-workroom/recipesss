@@ -1,4 +1,22 @@
+import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from '@dnd-kit/modifiers'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { CSSProperties } from 'react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -6,9 +24,11 @@ import { Modal } from '../components/common/Modal'
 import { generatePresetCode } from '../features/presets/presetCodes'
 import {
   useDeletePreset,
+  useReorderPresets,
   useUpsertPreset,
 } from '../features/presets/presetMutations'
 import { usePresets } from '../features/presets/presetQueries'
+import { reorderPresets } from '../features/presets/presetReorder'
 import {
   nextSortOrder,
   selectPresetsByDraft,
@@ -60,6 +80,12 @@ export function PresetsPage() {
   const presetsQuery = usePresets(uid)
   const upsertPreset = useUpsertPreset(uid)
   const deletePreset = useDeletePreset(uid)
+  const reorderPresetMutation = useReorderPresets(uid)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+  )
 
   const drafts = draftsQuery.data ?? EMPTY_DRAFTS
   const presets = presetsQuery.data ?? EMPTY_PRESETS
@@ -86,6 +112,27 @@ export function PresetsPage() {
     if (!selectedDraft || modalState?.mode !== 'create') return ''
     return generatePresetCode(presets, drafts, selectedDraft.id)
   }, [drafts, modalState, presets, selectedDraft])
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const changed = reorderPresets(
+      visiblePresets,
+      String(active.id),
+      String(over.id),
+    )
+    if (changed.length === 0) return
+
+    setErrorMsg('')
+    void reorderPresetMutation.mutateAsync(changed).catch((err) => {
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : '프리셋 순서 저장에 실패했습니다.',
+      )
+    })
+  }
 
   async function handleSave(values: PresetFormValues, editing?: Preset) {
     if (!selectedDraft) return
@@ -196,58 +243,43 @@ export function PresetsPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
-                      <th className="px-4 py-3">코드</th>
-                      <th className="px-4 py-3 text-right">목표량(g)</th>
-                      <th className="px-4 py-3">라벨</th>
-                      <th className="px-4 py-3">생산단위 투입량</th>
-                      <th className="px-4 py-3 text-right">액션</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visiblePresets.map((preset) => (
-                      <tr
-                        className="border-b border-gray-100 text-gray-700"
-                        key={preset.id}
-                      >
-                        <td className="px-4 py-3 font-medium text-gray-800">
-                          {preset.code}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          {preset.targetWeight}
-                        </td>
-                        <td className="px-4 py-3">{preset.label || '-'}</td>
-                        <td className="px-4 py-3">
-                          {preset.inputAmount} {preset.inputUnitLabel}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              className={SECONDARY_BTN_CLS}
-                              disabled={mutationPending}
-                              onClick={() =>
-                                setModalState({ mode: 'edit', preset })
-                              }
-                              type="button"
-                            >
-                              편집
-                            </button>
-                            <button
-                              className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
-                              disabled={mutationPending}
-                              onClick={() => void handleDelete(preset)}
-                              type="button"
-                            >
-                              삭제
-                            </button>
-                          </div>
-                        </td>
+                <DndContext
+                  collisionDetection={closestCenter}
+                  modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+                  onDragEnd={handleDragEnd}
+                  sensors={sensors}
+                >
+                  <table className="w-full min-w-[760px] text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
+                        <th className="w-12 px-4 py-3" />
+                        <th className="px-4 py-3">코드</th>
+                        <th className="px-4 py-3 text-right">목표량(g)</th>
+                        <th className="px-4 py-3">라벨</th>
+                        <th className="px-4 py-3">생산단위 투입량</th>
+                        <th className="px-4 py-3 text-right">액션</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <SortableContext
+                      items={visiblePresets.map((preset) => preset.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <tbody>
+                        {visiblePresets.map((preset) => (
+                          <PresetRow
+                            isPending={mutationPending}
+                            key={preset.id}
+                            onDelete={handleDelete}
+                            onEdit={(editing) =>
+                              setModalState({ mode: 'edit', preset: editing })
+                            }
+                            preset={preset}
+                          />
+                        ))}
+                      </tbody>
+                    </SortableContext>
+                  </table>
+                </DndContext>
               </div>
             )}
           </div>
@@ -306,6 +338,82 @@ function RecipeList({
         ))}
       </div>
     </div>
+  )
+}
+
+function PresetRow({
+  isPending,
+  onDelete,
+  onEdit,
+  preset,
+}: {
+  isPending: boolean
+  onDelete: (preset: Preset) => void
+  onEdit: (preset: Preset) => void
+  preset: Preset
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: preset.id })
+  const style: CSSProperties = {
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+    transition,
+    zIndex: isDragging ? 1 : undefined,
+  }
+
+  return (
+    <tr
+      className={`border-b border-gray-100 text-gray-700 ${
+        isDragging ? 'bg-gray-50 shadow-sm' : ''
+      }`}
+      ref={setNodeRef}
+      style={style}
+    >
+      <td className="px-4 py-3">
+        <button
+          aria-label={`${preset.code} 순서 변경`}
+          className="cursor-grab rounded border border-gray-200 px-2 py-1 text-xs text-gray-400 hover:bg-gray-50 active:cursor-grabbing"
+          type="button"
+          {...attributes}
+          {...listeners}
+        >
+          ::
+        </button>
+      </td>
+      <td className="px-4 py-3 font-medium text-gray-800">{preset.code}</td>
+      <td className="px-4 py-3 text-right">{preset.targetWeight}</td>
+      <td className="px-4 py-3">{preset.label || '-'}</td>
+      <td className="px-4 py-3">
+        {preset.inputAmount} {preset.inputUnitLabel}
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex justify-end gap-2">
+          <button
+            className={SECONDARY_BTN_CLS}
+            disabled={isPending}
+            onClick={() => onEdit(preset)}
+            type="button"
+          >
+            편집
+          </button>
+          <button
+            className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+            disabled={isPending}
+            onClick={() => onDelete(preset)}
+            type="button"
+          >
+            삭제
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }
 
