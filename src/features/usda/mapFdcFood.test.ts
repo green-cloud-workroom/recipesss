@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mapFdcFood } from './mapFdcFood'
+import { mapFdcFood, missingNutrientKeys } from './mapFdcFood'
 import type { FdcFoodDetail } from './usdaTypes'
 
 const eggFood: FdcFoodDetail = {
@@ -52,5 +52,13 @@ describe('mapFdcFood', () => {
     expect(mapped.nutrients.arachidonicAcid).toBeCloseTo(188)
     expect(mapped.nutrients.epaDha).toBeCloseTo(0.058)
     expect(mapped.nutrients.vitaminK).toBeCloseTo(0.4)
+  })
+
+  it('excludes nfe from missing keys but keeps unimportable nutrients like taurine', () => {
+    const mapped = mapFdcFood(eggFood)
+
+    expect(mapped.missingKeys).not.toContain('nfe')
+    expect(mapped.missingKeys).toContain('taurine') // USDA에 없음 → 수동 입력
+    expect(missingNutrientKeys({ crudeProtein: 1 })).not.toContain('nfe')
   })
 })

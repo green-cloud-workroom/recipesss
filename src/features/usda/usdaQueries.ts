@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { NUTRIENT_META } from '../nutrition/nutrientKeys'
 import { fetchFdcFood, searchFdcFoods } from './usdaClient'
 import { readUsdaCache, writeUsdaCache } from './usdaCache'
-import { mapFdcFood } from './mapFdcFood'
+import { mapFdcFood, missingNutrientKeys } from './mapFdcFood'
 import type { FdcFoodSearchItem, MappedFdcFood } from './usdaTypes'
 import type { NutrientKey, NutrientValues } from '../../types/recipe'
+import type { UsdaCacheEntry } from '../../types/recipe'
 
 export function useUsdaSearch(query: string) {
   const trimmed = query.trim()
@@ -24,27 +24,26 @@ export function useUsdaFood(fdcId: number | null) {
       if (fdcId === null) throw new Error('fdcId가 없습니다.')
       const cached = await readUsdaCache(fdcId)
       if (cached) {
-        const mappedKeys = nutrientKeys(cached.nutrients)
         return {
           fdcId: cached.fdcId,
           description: cached.description,
           dataType: cached.dataType,
           nutrients: cached.nutrients,
-          mappedKeys,
-          missingKeys: NUTRIENT_META.map((meta) => meta.key).filter(
-            (key) => !mappedKeys.includes(key),
-          ),
+          mappedKeys: nutrientKeys(cached.nutrients),
+          missingKeys: missingNutrientKeys(cached.nutrients),
         }
       }
 
       const mapped = mapFdcFood(await fetchFdcFood(fdcId))
-      await writeUsdaCache({
+      // Firestore는 undefined 필드를 거부 → dataType 있을 때만 포함.
+      const entry: UsdaCacheEntry = {
         fdcId: mapped.fdcId,
         description: mapped.description,
-        dataType: mapped.dataType,
         nutrients: mapped.nutrients,
         fetchedAt: Date.now(),
-      })
+        ...(mapped.dataType !== undefined ? { dataType: mapped.dataType } : {}),
+      }
+      await writeUsdaCache(entry)
       return mapped
     },
     enabled: fdcId !== null,
