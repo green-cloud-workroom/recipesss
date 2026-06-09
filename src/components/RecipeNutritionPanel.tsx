@@ -13,13 +13,14 @@ import {
   nutrientMeta,
   type NutrientCategory,
 } from '../features/nutrition/nutrientKeys'
-import {
-  getProfile,
-  profilesForSpecies,
-  resolveProfileId,
-} from '../features/nutrition/profiles'
-import { CARD_CLS, INPUT_CLS } from '../lib/ui'
-import type { Ingredient, NutrientKey, RecipeDraft } from '../types/recipe'
+import { profilesForSpecies } from '../features/nutrition/profiles'
+import { CARD_CLS } from '../lib/ui'
+import type {
+  Ingredient,
+  NutrientKey,
+  NutrientProfile,
+  RecipeDraft,
+} from '../types/recipe'
 
 const CATEGORY_ORDER: NutrientCategory[] = [
   'general',
@@ -46,6 +47,30 @@ const STATUS_LABEL: Record<AdequacyStatus, string> = {
   excess: '초과',
 }
 
+const STATUS_PRIORITY: Record<AdequacyStatus, number> = {
+  ok: 0,
+  excess: 1,
+  deficient: 2,
+}
+
+type ProfileEvaluation = {
+  profile: NutrientProfile
+  results: AdequacyResult[]
+  ratios: ReturnType<typeof evaluateRatios>
+}
+
+type StandardTag = {
+  profile: NutrientProfile
+  result: AdequacyResult
+}
+
+type NutrientRow = {
+  nutrient: NutrientKey
+  actual: number
+  status: AdequacyStatus
+  tags: StandardTag[]
+}
+
 function formatValue(value: number): string {
   if (value === 0) return '0'
   if (Math.abs(value) >= 100) return value.toFixed(0)
@@ -54,9 +79,29 @@ function formatValue(value: number): string {
 }
 
 function formatRange(min: number | undefined, max: number | undefined): string {
-  const lo = min === undefined ? '—' : formatValue(min)
+  const lo = min === undefined ? '-' : formatValue(min)
   const hi = max === undefined ? '∞' : formatValue(max)
   return `${lo} ~ ${hi}`
+}
+
+function profileTag(profile: NutrientProfile): string {
+  const stage =
+    profile.lifeStage === 'adult'
+      ? '성체'
+      : profile.lifeStage === 'early_growth_repro'
+        ? '성장'
+        : profile.lifeStage === 'late_growth'
+          ? '후기성장'
+          : profile.lifeStage
+  const mer = profile.mer ? ` ${profile.mer.replace(' kcal/kg^0.75', '')}` : ''
+  return `${profile.standard}${mer} ${stage}`
+}
+
+function worseStatus(
+  current: AdequacyStatus,
+  next: AdequacyStatus,
+): AdequacyStatus {
+  return STATUS_PRIORITY[next] > STATUS_PRIORITY[current] ? next : current
 }
 
 export function RecipeNutritionPanel({
@@ -67,51 +112,67 @@ export function RecipeNutritionPanel({
   ingredients: Ingredient[]
 }) {
   const [basis, setBasis] = useState<Basis>('per_1000_kcal_ME')
-  const [standardState, setStandardState] = useState({
-    draftId: draft.id,
-    standardId: resolveProfileId(draft.standardId),
-  })
-  if (standardState.draftId !== draft.id) {
-    setStandardState({
-      draftId: draft.id,
-      standardId: resolveProfileId(draft.standardId),
-    })
-  }
-  const standardId = standardState.standardId
 
   const ingredientMap = useMemo(
     () => Object.fromEntries(ingredients.map((item) => [item.id, item])),
     [ingredients],
   )
-  const profile = getProfile(standardId)
-  const standardOptions =
-    draft.species === null ? [] : profilesForSpecies(draft.species)
+  const profiles = useMemo(
+    () => (draft.species === null ? [] : profilesForSpecies(draft.species)),
+    [draft.species],
+  )
 
-  const results = useMemo(
+  const evaluations = useMemo<ProfileEvaluation[]>(
     () =>
-      profile ? evaluateDraft(draft, ingredientMap, profile, basis) : [],
-    [draft, ingredientMap, profile, basis],
-  )
-  const ratios = useMemo(
-    () => (profile ? evaluateRatios(draft, ingredientMap, profile) : []),
-    [draft, ingredientMap, profile],
+      profiles.map((profile) => ({
+        profile,
+        results: evaluateDraft(draft, ingredientMap, profile, basis),
+        ratios: evaluateRatios(draft, ingredientMap, profile),
+      })),
+    [basis, draft, ingredientMap, profiles],
   )
 
-  const byNutrient = useMemo(() => {
-    const map = new Map<NutrientKey, AdequacyResult>()
-    for (const result of results) map.set(result.nutrient, result)
+  const rowsByNutrient = useMemo(() => {
+    const map = new Map<NutrientKey, NutrientRow>()
+    for (const evaluation of evaluations) {
+      for (const result of evaluation.results) {
+        const existing = map.get(result.nutrient)
+        if (existing) {
+          existing.status = worseStatus(existing.status, result.status)
+          existing.tags.push({ profile: evaluation.profile, result })
+        } else {
+          map.set(result.nutrient, {
+            nutrient: result.nutrient,
+            actual: result.actual,
+            status: result.status,
+            tags: [{ profile: evaluation.profile, result }],
+          })
+        }
+      }
+    }
     return map
-  }, [results])
+  }, [evaluations])
+
+  const ratioRows = useMemo(
+    () =>
+      evaluations.flatMap((evaluation) =>
+        evaluation.ratios.map((ratio) => ({
+          profile: evaluation.profile,
+          ratio,
+        })),
+      ),
+    [evaluations],
+  )
 
   const summary = useMemo(() => {
     let deficient = 0
     let excess = 0
-    for (const result of results) {
-      if (result.status === 'deficient') deficient += 1
-      if (result.status === 'excess') excess += 1
+    for (const row of rowsByNutrient.values()) {
+      if (row.status === 'deficient') deficient += 1
+      if (row.status === 'excess') excess += 1
     }
-    return { deficient, excess, total: results.length }
-  }, [results])
+    return { deficient, excess, total: rowsByNutrient.size }
+  }, [rowsByNutrient])
 
   return (
     <div className={`mt-4 ${CARD_CLS} p-4`}>
@@ -119,60 +180,35 @@ export function RecipeNutritionPanel({
         <div>
           <h2 className="text-sm font-semibold text-gray-800">영양 매트릭스</h2>
           <p className="mt-1 text-xs text-gray-500">
-            값은 확정값이 있으면 확정값, 없으면 계산값 기준 (DL-028).
+            값은 확정값이 있으면 확정값, 없으면 계산값 기준입니다. 같은 종의
+            모든 표준을 함께 평가합니다 (DL-028/032).
           </p>
         </div>
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-gray-500">
-              표준
-            </span>
-            <select
-              className={INPUT_CLS}
-              onChange={(event) =>
-                setStandardState((current) => ({
-                  ...current,
-                  standardId: resolveProfileId(event.target.value),
-                }))
+        <div className="flex overflow-hidden rounded-lg border border-gray-300 text-xs">
+          {(['per_1000_kcal_ME', 'dry_matter'] as Basis[]).map((option) => (
+            <button
+              className={
+                basis === option
+                  ? 'bg-gray-800 px-3 py-2 text-white'
+                  : 'bg-white px-3 py-2 text-gray-600 hover:bg-gray-50'
               }
-              value={standardId}
+              key={option}
+              onClick={() => setBasis(option)}
+              type="button"
             >
-              {standardOptions.length === 0 && (
-                <option value={standardId}>{standardId}</option>
-              )}
-              {standardOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label} ({option.standard})
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="flex overflow-hidden rounded-lg border border-gray-300 text-xs">
-            {(['per_1000_kcal_ME', 'dry_matter'] as Basis[]).map((option) => (
-              <button
-                className={
-                  basis === option
-                    ? 'bg-gray-800 px-3 py-2 text-white'
-                    : 'bg-white px-3 py-2 text-gray-600 hover:bg-gray-50'
-                }
-                key={option}
-                onClick={() => setBasis(option)}
-                type="button"
-              >
-                {BASIS_LABEL[option]}
-              </button>
-            ))}
-          </div>
+              {BASIS_LABEL[option]}
+            </button>
+          ))}
         </div>
       </div>
 
-      {!profile && (
+      {profiles.length === 0 && (
         <div className="mt-4 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          표준 프로파일 <b>{standardId}</b> 을 찾을 수 없습니다.
+          종이 정해져 있지 않아 적용할 표준 프로파일이 없습니다.
         </div>
       )}
 
-      {profile && (
+      {profiles.length > 0 && (
         <>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             <span
@@ -185,41 +221,42 @@ export function RecipeNutritionPanel({
               종합: 부족 {summary.deficient} · 초과 {summary.excess} / 평가{' '}
               {summary.total}
             </span>
-            {ratios.map((ratio) => (
+            {ratioRows.map(({ profile, ratio }) => (
               <span
                 className={`rounded-full px-3 py-1 ${STATUS_STYLE[ratio.status]}`}
-                key={ratio.ratio}
+                key={`${profile.id}-${ratio.ratio}`}
               >
-                Ca:P {formatValue(ratio.actual)} (기준{' '}
-                {formatRange(ratio.min, ratio.max)})
+                Ca:P {formatValue(ratio.actual)} · {profileTag(profile)} 기준{' '}
+                {formatRange(ratio.min, ratio.max)}
               </span>
             ))}
           </div>
 
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[560px] text-sm">
+            <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
                   <th className="px-3 py-2">영양소</th>
                   <th className="px-3 py-2 text-right">값</th>
                   <th className="px-3 py-2">단위</th>
-                  <th className="px-3 py-2 text-right">표준 (min~max)</th>
-                  <th className="px-3 py-2">상태</th>
+                  <th className="px-3 py-2">종합</th>
+                  <th className="px-3 py-2">표준별 기준</th>
                 </tr>
               </thead>
               <tbody>
                 {CATEGORY_ORDER.map((category) => {
                   const rows = NUTRIENT_META.filter(
                     (meta) =>
-                      meta.category === category && byNutrient.has(meta.key),
+                      meta.category === category &&
+                      rowsByNutrient.has(meta.key),
                   )
                   if (rows.length === 0) return null
                   return (
                     <CategoryRows
-                      byNutrient={byNutrient}
                       category={category}
                       key={category}
                       metas={rows}
+                      rowsByNutrient={rowsByNutrient}
                     />
                   )
                 })}
@@ -233,13 +270,13 @@ export function RecipeNutritionPanel({
 }
 
 function CategoryRows({
-  byNutrient,
   category,
   metas,
+  rowsByNutrient,
 }: {
-  byNutrient: Map<NutrientKey, AdequacyResult>
   category: NutrientCategory
   metas: typeof NUTRIENT_META
+  rowsByNutrient: Map<NutrientKey, NutrientRow>
 }) {
   return (
     <>
@@ -252,24 +289,36 @@ function CategoryRows({
         </td>
       </tr>
       {metas.map((meta) => {
-        const result = byNutrient.get(meta.key)
-        if (!result) return null
+        const row = rowsByNutrient.get(meta.key)
+        if (!row) return null
         return (
           <tr className="border-b border-gray-100 text-gray-700" key={meta.key}>
             <td className="px-3 py-2">{nutrientMeta(meta.key).label}</td>
             <td className="px-3 py-2 text-right tabular-nums">
-              {formatValue(result.actual)}
+              {formatValue(row.actual)}
             </td>
             <td className="px-3 py-2 text-xs text-gray-400">{meta.unit}</td>
-            <td className="px-3 py-2 text-right text-xs text-gray-500 tabular-nums">
-              {formatRange(result.min, result.max)}
-            </td>
             <td className="px-3 py-2">
               <span
-                className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[result.status]}`}
+                className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[row.status]}`}
               >
-                {STATUS_LABEL[result.status]}
+                {STATUS_LABEL[row.status]}
               </span>
+            </td>
+            <td className="px-3 py-2">
+              <div className="flex flex-wrap gap-1.5">
+                {row.tags.map(({ profile, result }) => (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      STATUS_STYLE[result.status]
+                    }`}
+                    key={profile.id}
+                    title={`${profile.label} (${profile.standard})`}
+                  >
+                    {profileTag(profile)} {formatRange(result.min, result.max)}
+                  </span>
+                ))}
+              </div>
             </td>
           </tr>
         )
