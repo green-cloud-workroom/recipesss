@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
+import { DeclaredNutrientsEditor } from '../components/DeclaredNutrientsEditor'
 import { RecipeNutritionPanel } from '../components/RecipeNutritionPanel'
 import { useIngredients } from '../features/ingredients/ingredientQueries'
 import { normalizePresetCodes } from '../features/presets/presetCodes'
@@ -81,6 +82,12 @@ export function RecipeDetailPage() {
           </div>
 
           <RecipeNutritionPanel draft={draft} ingredients={ingredients} />
+
+          <DeclaredNutrientsEditor
+            draft={draft}
+            ingredients={ingredients}
+            uid={uid}
+          />
 
           <CompositionList draft={draft} ingredients={ingredients} />
 
