@@ -434,6 +434,11 @@ service cloud.firestore {
     match /recipes/{recipeId} {
       allow read: if isProductionApp() || isInventoryApp();
       allow write: if isProductionWriter();
+      // recipesss 등록: 자기가 만드는 문서만 create (DL-037). update/delete는 안 넓힘
+      // → 기존 문서 보호 유지. 생산앱 권한(isProductionWriter)과 OR.
+      allow create: if signedIn()
+        && request.resource.data.source == 'recipesss'
+        && request.resource.data.createdBy == request.auth.uid;
 
       match /conversionHistory/{historyId} {
         allow read: if isProductionApp() || isInventoryApp();

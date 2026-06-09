@@ -4,6 +4,12 @@ import { Link, useParams } from 'react-router-dom'
 import { DeclaredNutrientsEditor } from '../components/DeclaredNutrientsEditor'
 import { RecipeNutritionPanel } from '../components/RecipeNutritionPanel'
 import { useIngredients } from '../features/ingredients/ingredientQueries'
+import {
+  countSupplements,
+  draftToRecipe,
+  speciesToTarget,
+} from '../features/recipes/draftToRecipe'
+import { useRegisterRecipe } from '../features/recipes/recipeMutations'
 import { normalizePresetCodes } from '../features/presets/presetCodes'
 import { useApplyDraftPresets } from '../features/presets/presetMutations'
 import { usePresets } from '../features/presets/presetQueries'
@@ -73,12 +79,15 @@ export function RecipeDetailPage() {
 
       {!isLoading && draft && (
         <>
-          <div className="mt-4">
-            <h1 className="text-title font-bold text-gray-800">{draft.name}</h1>
-            <p className="mt-1 text-helper text-gray-500">
-              {speciesLabel(draft.species)} · 생산 단위: {draft.unitLabel || '—'} ·
-              구성 원료 {draft.composition.length}개
-            </p>
+          <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h1 className="text-title font-bold text-gray-800">{draft.name}</h1>
+              <p className="mt-1 text-helper text-gray-500">
+                {speciesLabel(draft.species)} · 생산 단위:{' '}
+                {draft.unitLabel || '—'} · 구성 원료 {draft.composition.length}개
+              </p>
+            </div>
+            <RegisterSection draft={draft} ingredients={ingredients} uid={uid} />
           </div>
 
           <RecipeNutritionPanel draft={draft} ingredients={ingredients} />
@@ -316,6 +325,116 @@ function PresetPanel({
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+function RegisterSection({
+  draft,
+  ingredients,
+  uid,
+}: {
+  draft: RecipeDraft
+  ingredients: Ingredient[]
+  uid: string | undefined
+}) {
+  const register = useRegisterRecipe(uid)
+  const [open, setOpen] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const ingredientMap = useMemo(
+    () => Object.fromEntries(ingredients.map((item) => [item.id, item])),
+    [ingredients],
+  )
+  const supplementCount = countSupplements(draft, ingredientMap)
+  const ingredientCount = draft.composition.length - supplementCount
+  const alreadyRegistered = Boolean(draft.registeredRecipeId)
+
+  async function handleRegister() {
+    if (!uid) {
+      setErrorMsg('로그인이 필요합니다.')
+      return
+    }
+    setErrorMsg('')
+    try {
+      const payload = draftToRecipe(draft, ingredientMap, uid)
+      await register.mutateAsync({ draft, payload, now: Date.now() })
+      setOpen(false)
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : '등록에 실패했습니다.')
+    }
+  }
+
+  return (
+    <div className="text-right">
+      <button
+        className={PRIMARY_BTN_CLS}
+        disabled={alreadyRegistered || register.isPending}
+        onClick={() => {
+          setErrorMsg('')
+          setOpen(true)
+        }}
+        type="button"
+      >
+        {alreadyRegistered ? '등록됨' : '이 레시피 등록'}
+      </button>
+      {alreadyRegistered && (
+        <p className="mt-1 max-w-xs text-xs text-amber-600">
+          이미 생산앱에 등록됨. 재푸시(수정 반영)는 지원되지 않습니다 (DL-025).
+        </p>
+      )}
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+          <div className="w-full max-w-md rounded-lg bg-white text-left shadow-lg">
+            <div className="border-b border-gray-100 px-4 py-3">
+              <h2 className="text-sm font-semibold text-gray-800">
+                생산앱에 레시피 등록
+              </h2>
+            </div>
+            <div className="space-y-3 p-4 text-sm text-gray-600">
+              <p>
+                <b>{draft.name}</b> 를 생산앱 <code>recipes</code> 에
+                등록합니다.
+              </p>
+              <ul className="list-disc space-y-1 pl-5 text-xs text-gray-500">
+                <li>구성 원료 {ingredientCount}개 등록, 영양제 {supplementCount}개 제외</li>
+                <li>
+                  target=<b>{speciesToTarget(draft.species)}</b>, category=
+                  <b>raw</b>, <b>active=false</b>로 생성됩니다.
+                </li>
+                <li>
+                  카테고리·봉투·생산방식 등은 생산앱에서 보완 후 활성화하세요.
+                </li>
+                <li>재푸시(수정 반영)는 지원되지 않습니다 (DL-025).</li>
+              </ul>
+              {errorMsg && (
+                <div className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {errorMsg}
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 border-t border-gray-100 p-4">
+              <button
+                className={SECONDARY_BTN_CLS}
+                disabled={register.isPending}
+                onClick={() => setOpen(false)}
+                type="button"
+              >
+                취소
+              </button>
+              <button
+                className={PRIMARY_BTN_CLS}
+                disabled={register.isPending}
+                onClick={() => void handleRegister()}
+                type="button"
+              >
+                {register.isPending ? '등록 중...' : '등록'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
