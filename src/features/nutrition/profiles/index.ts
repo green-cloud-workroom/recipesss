@@ -15,8 +15,17 @@ export const ALL_PROFILES: readonly NutrientProfile[] = [
 
 const BY_ID = new Map(ALL_PROFILES.map((profile) => [profile.id, profile]))
 
+const PROFILE_ID_ALIASES: Record<string, string> = {
+  AAFCO_2024_CAT_ADULT: 'AAFCO_2014_CAT_ADULT',
+  AAFCO_2024_DOG_ADULT: 'AAFCO_2014_DOG_ADULT',
+}
+
+export function resolveProfileId(id: string): string {
+  return PROFILE_ID_ALIASES[id] ?? id
+}
+
 export function getProfile(id: string): NutrientProfile | undefined {
-  return BY_ID.get(id)
+  return BY_ID.get(resolveProfileId(id))
 }
 
 export function profilesForSpecies(

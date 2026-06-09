@@ -13,7 +13,11 @@ import {
   nutrientMeta,
   type NutrientCategory,
 } from '../features/nutrition/nutrientKeys'
-import { getProfile, profilesForSpecies } from '../features/nutrition/profiles'
+import {
+  getProfile,
+  profilesForSpecies,
+  resolveProfileId,
+} from '../features/nutrition/profiles'
 import { CARD_CLS, INPUT_CLS } from '../lib/ui'
 import type { Ingredient, NutrientKey, RecipeDraft } from '../types/recipe'
 
@@ -63,7 +67,17 @@ export function RecipeNutritionPanel({
   ingredients: Ingredient[]
 }) {
   const [basis, setBasis] = useState<Basis>('per_1000_kcal_ME')
-  const [standardId, setStandardId] = useState(draft.standardId)
+  const [standardState, setStandardState] = useState({
+    draftId: draft.id,
+    standardId: resolveProfileId(draft.standardId),
+  })
+  if (standardState.draftId !== draft.id) {
+    setStandardState({
+      draftId: draft.id,
+      standardId: resolveProfileId(draft.standardId),
+    })
+  }
+  const standardId = standardState.standardId
 
   const ingredientMap = useMemo(
     () => Object.fromEntries(ingredients.map((item) => [item.id, item])),
@@ -115,7 +129,12 @@ export function RecipeNutritionPanel({
             </span>
             <select
               className={INPUT_CLS}
-              onChange={(event) => setStandardId(event.target.value)}
+              onChange={(event) =>
+                setStandardState((current) => ({
+                  ...current,
+                  standardId: resolveProfileId(event.target.value),
+                }))
+              }
               value={standardId}
             >
               {standardOptions.length === 0 && (

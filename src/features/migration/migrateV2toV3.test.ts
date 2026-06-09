@@ -71,9 +71,9 @@ describe('migrateV2toV3 — 실제 백업 픽스처', () => {
     for (const product of Object.values(v2.products)) {
       const draft = byId.get(`draft_${product.id.slice('prod_'.length)}`)!
       if (product.species === 'cat')
-        expect(draft.standardId).toBe('AAFCO_2024_CAT_ADULT')
+        expect(draft.standardId).toBe('AAFCO_2014_CAT_ADULT')
       else if (product.species === 'dog')
-        expect(draft.standardId).toBe('AAFCO_2024_DOG_ADULT')
+        expect(draft.standardId).toBe('AAFCO_2014_DOG_ADULT')
       else expect(draft.standardId).toBe('')
     }
   })

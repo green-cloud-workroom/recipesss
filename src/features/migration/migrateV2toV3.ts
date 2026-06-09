@@ -29,8 +29,8 @@ export type MigrationOptions = {
 
 // 기본 standardId: species 기반 성체(adult) 표준. null 종은 빈 문자열(사용자 선택).
 function defaultStandardIdFor(species: Species): string {
-  if (species === 'cat') return 'AAFCO_2024_CAT_ADULT'
-  if (species === 'dog') return 'AAFCO_2024_DOG_ADULT'
+  if (species === 'cat') return 'AAFCO_2014_CAT_ADULT'
+  if (species === 'dog') return 'AAFCO_2014_DOG_ADULT'
   return ''
 }
 

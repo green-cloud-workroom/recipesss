@@ -258,7 +258,7 @@ type RecipeDraft = {
   unitIngredientId: string      // 생산단위 기준 원료
   unitLabel: string             // 예: '마리'
   composition: CompositionRow[]
-  standardId: string            // NutrientProfile id (기본: AAFCO_2024_CAT_ADULT 등)
+  standardId: string            // NutrientProfile id (기본: AAFCO_2014_CAT_ADULT 등)
   status: 'draft' | 'inactive'  // inactive = 사용 중단 (목록에서 필터)
   sortOrder: number             // 드래그&드롭 정렬
   // 영양값 (DL-027): 계산값은 자동 계산하므로 저장 X, 확정값만 저장.
