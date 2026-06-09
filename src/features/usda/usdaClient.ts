@@ -69,7 +69,11 @@ function scoreFdcFood(food: FdcFoodSearchItem, query: string): number {
   if (/\braw\b/.test(description)) score -= 25
   if (/\bcooked\b/.test(description)) score -= 25
   if (/\bcanned\b/.test(description)) score -= 5
-  if (/\b(bread|cookie|muffin|pie|cake|soup|pancake|spice|mix)\b/.test(description)) {
+  if (
+    /\b(bread|cookie|muffin|pie|cake|soup|pancake|spice|mix)\b/.test(
+      description,
+    )
+  ) {
     score += 25
   }
 
