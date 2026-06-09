@@ -280,34 +280,49 @@ type CompositionRow = {
 }
 ```
 
-### 4.2 Recipe (생산관리앱 공유 — 등록된 레시피)
+### 4.2 Recipe (생산관리앱 소유 `recipes/` — 등록 대상) — DL-037 개정
 
-생산관리앱의 `recipes/` 컬렉션 스키마를 따른다. **단, 영양제는 없음** (DL-025).
+> ⚠️ **이전 최소 모델(species·composition·unitLabel)은 stale.** 생산앱(`fant-production`)
+> 실제 스키마와 다름이 확인됨(2026-06-09, `fant-production` recipes 백업·spec v26 대조).
+> `recipes/`는 **생산앱 소유**다. recipesss는 등록 시 **부분 subset만 create**하고
+> 나머지 생산 전용 필드는 호두님이 생산앱에서 보완한다(DL-037).
 
-```ts
-// 생산관리앱 스키마 매핑 (단계 0.5에서 정확한 필드 셋 작업 #13으로 확정)
-type Recipe = {
-  id: string
-  name: string
-  species: 'cat' | 'dog' | null
-  composition: Array<{
-    ingredientId: string        // meatTypes 또는 자체 원료
-    weight: number              // g
-    unit: 'g' | 'kg'
-  }>
-  unitLabel: string             // '마리' 등
-  sortOrder: number             // 생산관리앱에서 SortableJS로 관리
-  // 생산관리앱 측 추가 필드 (작업 #13에서 확정):
-  //   - methodKey?: 'rotary' | 'manual'
-  //   - bagId?: string
-  //   - conversionHistory 서브컬렉션
-  //   - etc
-  createdBy: string             // 작성자 uid
-  source: 'recipesss' | 'production-app'   // 어느 앱에서 만들었는지
-  recipesssDraftId?: string     // recipesss에서 등록한 경우 추적
-  createdAt: number
+**생산앱 실제 `recipes/{recipeId}` 스키마 (외부 계약, 참고용):**
+
+```js
+{
+  name, displayName, note, color,
+  target: 'cat' | 'common' | ...,        // ⚠️ species 아님. dog/null 매핑 호두님 확정 필요
+  category: 'raw' | 'freezeDry' | ...,   // recipesss엔 개념 없음 → 기본값/보완 필요
+  active: boolean,                        // 등록 직후 false (생산앱에서 활성화)
+  version: number,
+  sortOrder: number,
+  ingredients: [{
+    id, name,
+    baseWeightG: number,                 // ⚠️ weight 아님
+    unitName: 'g' | 'kg',                // ⚠️ unit 아님
+    isProductionUnit: boolean,           // 생산단위 원료 표시 (recipesss unitIngredientId)
+    sortOrder: number,
+    autoDeductInventory: boolean,        // 기본 false
+    linkedToInventory: boolean,          // 기본 false
+    meatTypeId?: string,                 // 생산 재고 연결 — recipesss 모름 (생략)
+  }],
+  unitPresets: number[],                 // 보통 []
+  bagTypeId?, packWeightG?,              // 생산 전용 — recipesss 생략, 보완
+  productionMethods?: [...],             // 생식 환산 — 생산 전용 (DL: spec v26)
+  freezeDryBagCountPerUnit?, breadPanCountPerUnit?,
+  freezePanCountPerUnit?, requiresSeparation?,  // freezeDry 전용
+  createdAt: Timestamp, updatedAt: Timestamp,   // ⚠️ Firestore Timestamp (number 아님)
+  createdBy: string, updatedBy?: string,
+  // recipesss 추적 필드 (생산앱은 무시, recipesss 식별용):
+  source?: 'recipesss' | 'production-app',
+  recipesssDraftId?: string,
 }
+// 서브컬렉션: recipes/{id}/conversionHistory/{historyId} (생산앱 전용)
 ```
+
+**recipesss → recipes 매핑 + 등록 쓰기 계약은 §6.6** 참조 (영양제 제외, `active:false`,
+create-only, 추적 필드 포함, 재푸시 deferred).
 
 ### 4.3 Ingredient
 
@@ -686,33 +701,35 @@ function effectiveNutrient(
 // evaluateDraft 안에서 effectiveNutrient 호출
 ```
 
-### 6.6 등록 시 영양제 제외 변환 (DL-025)
+### 6.6 등록 = draft → 생산앱 recipes 매핑 (DL-025·DL-037)
 
-```ts
-// recipeDrafts → recipes 변환. 영양제 제외 + 필드 정규화.
-function draftToRecipe(
-  draft: RecipeDraft,
-  ingredients: IngredientMap,
-  ownerUid: string
-): Omit<Recipe, 'id' | 'createdAt'> {
-  const ingredientRows = draft.composition.filter(row => {
-    const ing = ingredients[row.ingredientId]
-    return ing && ing.kind === 'ingredient'   // supplement 제외
-  })
-  return {
-    name: draft.name,
-    species: draft.species,
-    composition: ingredientRows.map(({ ingredientId, weight, unit }) => ({
-      ingredientId, weight, unit
-    })),
-    unitLabel: draft.unitLabel,
-    sortOrder: 0,            // 생산관리앱에서 재정렬
-    createdBy: ownerUid,
-    source: 'recipesss',
-    recipesssDraftId: draft.id,
-  }
-}
-```
+> ⚠️ 이전 `draftToRecipe`(species/composition/unitLabel)는 **stale** — 생산앱 실스키마
+> (§4.2)와 불일치. 아래가 정합 매핑. **영양제 제외, `active:false`로 부분 create**,
+> 나머지 생산 전용 필드는 호두님이 생산앱에서 보완.
+
+**매핑표 (recipesss draft → recipes 문서):**
+
+| recipes 필드 | recipesss 소스 | 비고 |
+|---|---|---|
+| `name`, `displayName` | `draft.name` | |
+| `target` | `draft.species` 매핑 | **호두님 확정 필요**: cat→'cat', dog→?, null→'common'(?) |
+| `category` | — | recipesss 개념 없음 → **기본 'raw'**, 생산앱 보완 (호두님 확정) |
+| `active` | — | **항상 `false`** (생산앱에서 활성화) |
+| `version` | — | `1` |
+| `sortOrder` | — | `0` (생산앱 재정렬) |
+| `ingredients[]` | `composition` 중 **kind==='ingredient'** (영양제 제외) | `{ id: ingredientId, name: ingredient.name, baseWeightG: weight, unitName: unit, isProductionUnit: ingredientId===draft.unitIngredientId, sortOrder, autoDeductInventory:false, linkedToInventory:false }`. `meatTypeId` 생략. |
+| `unitPresets` | — | `[]` (또는 추후 프리셋 targetWeight 매핑 — 이번 제외) |
+| `createdAt`/`updatedAt` | — | `serverTimestamp()` (Firestore Timestamp) |
+| `createdBy` | `ownerUid` | |
+| `source` | — | `'recipesss'` (추적) |
+| `recipesssDraftId` | `draft.id` | (추적) |
+| `bagTypeId`,`packWeightG`,`color`,`note`,`productionMethods`,freezeDry 필드 | — | **생략** → 생산앱에서 호두님 보완 |
+
+**등록 쓰기 계약:**
+- `recipes/{recipeId}`에 **create만** (recipesss가 만들지 않은 문서는 절대 update/delete 안 함).
+- 성공 시 draft에 `registeredRecipeId`·`registeredAt` 기록.
+- **재푸시 deferred** (이미 등록된 draft 재수정 시 자동 반영 X — 모달 안내, DL-025).
+- 권한: §7.1/DL-037 — 호두님 토큰에 production writer 없으면 `recipes`에 recipesss-create 전용 최소 규칙 추가.
 
 ### 6.7 프리셋 생산량 환산 (v2 `getRatioInfo` 포팅) — DL-035
 
@@ -1147,6 +1164,7 @@ Firebase 는 읽기전용(DL-019)이라 스냅샷 이후 변경분이 없다는 
 | **DL-032** | 2026-06-05 | **영양 표준 = 다표준 동등 지원. FEDIAF 2025 7종 먼저 적재(개 4·고양이 3, 성체 MER 2종 포함). NutrientKey 키셋 ~45 확정. 표준 데이터 = 앱 정적 번들(`src/features/nutrition/profiles/*`, Firestore `nutrientProfiles` 미사용). ME = 수정 Atwater 유지(DL-007). DL-005·DL-012 개정** | 호두님 FEDIAF 공식표(Nutritional Guidelines 2025) 제공 → 좌표 추출로 정확 전사(DM↔ME ×2.5 교차검증). DM+per-1000kcal 두 단위 제공돼 recipesss basis 토글과 호환. 불변 표준이라 정적 번들이 단순(write·seed·규칙 불필요). Calvez 2019(NRC 2006tdf 권장)는 TDF 등 원료데이터 요구로 MVP 부적합 → 수정 Atwater 유지. 성체 MER 2종·calcium 후기성장 대형견(b)·고양이 성장/번식 보수값 등은 `fediaf2025.ts` 주석 참조. AAFCO·NRC는 동일 스키마로 자료 입수 후 추가. |
 | **DL-033** | 2026-06-05 | **firestore.rules 정본 = recipesss git의 통합본(운영+생산+recipesss 3앱). 미커밋 보류(HANDOFF §3) 해제 → git 커밋. 규칙 변경은 이 파일만 수정 후 배포.** | 공유 프로젝트(fant-e5ae5)는 규칙이 1개인데 3앱이 각자 배포하며 recipesss 블록이 **반복 소실(3회 사고: 미게시→계정→재소실)**. git 정본화로 추적·복구 가능. **규칙 deploy는 access control 변경이라 호두님이 직접**(`firebase deploy --only firestore:rules`); Claude는 파일 정본만 관리. 다른 앱(생산·운영)이 규칙 배포할 때도 이 통합본을 써야 재소실 방지(호두님이 3앱 간 조율). recipesss 신규 컬렉션 규칙 추가 시 이 파일에. |
 | **DL-034** | 2026-06-05 | **원료 병합 정합성: ①병합으로 동일 원료 행이 공존하면 weight 합산해 1행으로(첫 등장 위치·unit 유지). ②합산이 일어난 draft는 `mergeReviewPending=true` → 레시피 화면에서 호두님이 확인(붉은 버튼) 전까지 사용 게이트. ③`draft.unitIngredientId`·`Preset.unitIngredientId`가 삭제 대상이면 target으로 치환. ④등록된 `recipes/*`는 미수정(DL-025 단방향 유지) + 모달 경고. ⑤duplicate의 nutrientProfile/source는 삭제로 소멸 → 모달 경고.** | 기존 병합(`71d5f20`)이 composition `ingredientId`만 치환하고 `unitIngredientId`(draft·preset)·중복행을 방치 → dangling 참조 + 중복행 위험. 영양/발주 합계는 row 가산이라 보존되나 ②의 v2 ratio 계산이 `composition에서 unitIngredientId 행 찾기`로 돌아 깨짐. 합산은 사용자 의도와 일치하나 weight가 바뀌므로 자동 적용 대신 확인 게이트. 등록분·영양값 손실은 자동 처리 대신 경고로 호두님 판단에 맡김(재푸시는 DL-025대로 deferred). |
+| **DL-037** | 2026-06-09 | **생산앱 recipes 스키마 정합 + 등록 부분-create 계약. SPEC §4.2/§6.6 이전 모델(species·composition·unitLabel)은 stale → 생산앱 실스키마(target·category·ingredients[baseWeightG/unitName/isProductionUnit/meatType] ·active·Timestamp·productionMethods 등)로 개정. 등록 = 영양제 제외 + active:false 부분 create + source/recipesssDraftId 추적, create-only(기존 문서 미수정), 재푸시 deferred. 생산 전용 필드(category·bagTypeId·packWeightG 등)는 호두님이 생산앱에서 보완.** | 등록 구현 직전 `fant-production` recipes 백업·spec v26 대조 → SPEC Recipe 모델이 실제와 크게 다름 확인(컬렉션 오염 위험). 잘못 push 방지 위해 정합 먼저(A). target(cat/dog/null→?)·category 기본값은 호두님(생산앱 owner) 확정 필요. 권한: `recipes` write=`isProductionWriter()`라 recipesss 토큰에 production writer 없으면 막힘 → 규칙 넓히지 말고 recipes에 recipesss-create 전용 최소 규칙 추가(호두님 claims 확인 후). |
 | **DL-036** | 2026-06-05 | **Firestore 규칙 배포 단일화: recipesss `firestore.rules`가 3앱 정본, 다른 repo는 규칙 배포 금지(`firebase.json`에서 firestore 타깃 제거). DL-033 잔존 리스크의 영구 해법.** | DL-033 후에도 권한 소실 재발 → 원인 확정: `fantapet-inventory/firestore.rules.draft`·`fant-inv-cutover/firestore.rules.draft`·`fant-production/firestore.rules` 3개에 recipesss 블록(recipeDrafts·recipesssIngredients·recipesssPresets, +usdaCache)이 없어, 그 repo들이 규칙 포함 배포할 때마다 recipesss가 죽음. 블록 복제 동기화(A안)는 영구적 수작업 의존이라 또 깨짐 → 다른 repo가 규칙을 **배포 못 하게** 막는 단일화(B안)가 유일한 구조적 해법. 정본 파일 상단에 배너 명시. 신규 컬렉션 규칙도 이 파일에만. deploy·3앱 firebase.json 정리는 호두님(access control). |
 | **DL-035** | 2026-06-05 | **프리셋 설정 = 레시피 상세 화면(`/recipes/:draftId`)에 통합(별도 `/presets` 페이지·메뉴 제거). 프리셋 입력 = 생산단위 원료 select + 생산량 → `targetWeight`/`ratio`/`inputUnitLabel` 자동 도출(§6.7 v2 `getRatioInfo` 포팅). 자동 코드 = draft 내 `targetWeight` 오름차순 X0·X1…(`normalizePresetCodes`), 코드 suffix·표시순서 둘 다 targetWeight 순 고정 → 프리셋 드래그 정렬(0.5-G) 미적용. DL-026 개정.** | 0.5-D/E/F/G의 별도 `/presets`가 호두님 실제 워크플로우(v2 결과 탭)와 어긋나 코드·생산단위가 꼬임. v2로 회귀: 레시피 클릭 → 그 화면에서 생산량 입력 → 환산·자동코드. 코드를 크기순으로 고정하면 수동 정렬 불필요(예측가능·결정적). 이번 범위(②)는 최소 — 레시피 헤더+프리셋 패널만; 영양 매트릭스·구성표·원가는 1-D에서 같은 `/recipes/:draftId`에 추가. 마이그레이션 프리셋(~100)도 첫 저장 시 자동 재코딩. |
 
