@@ -156,8 +156,8 @@ export function DeclaredNutrientsEditor({
           </h2>
           <p className="mt-1 text-xs text-gray-500">
             빈칸은 계산값을 그대로 사용합니다. 입력하면 그 영양소만 확정값으로
-            덮어씁니다 (DL-027/028). 원료를 바꿔도 확정값은 자동 갱신되지 않으니,
-            바꾼 뒤엔 다시 입력하거나 “계산값으로 초기화”하세요 (DL-029).
+            덮어씁니다 (DL-027/028). ⚠️ 구성 원료를 저장하면 확정값은 새 계산값으로
+            초기화됩니다 (DL-029) — 라벨 직전 단계에서 입력하세요.
           </p>
         </div>
         <div className="flex gap-2">

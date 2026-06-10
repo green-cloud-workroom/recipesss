@@ -10,10 +10,49 @@ import {
 
 import { db } from '../../firebase'
 import type { DraftRecipePayload } from './draftToRecipe'
-import type { NutrientValues, RecipeDraft } from '../../types/recipe'
+import type {
+  CompositionRow,
+  NutrientValues,
+  RecipeDraft,
+} from '../../types/recipe'
 
 function draftRef(uid: string, draftId: string) {
   return doc(db, `recipeDrafts/${uid}/items`, draftId)
+}
+
+// 구성 원료 편집 저장 (1-D-2). DL-029: 원료 변경 시 확정값은 새 계산값을 따르도록
+// declaredNutrients 제거(자동 갱신). unitIngredientId/unitLabel도 함께 저장.
+export function useSaveComposition(uid: string | undefined) {
+  const queryClient = useQueryClient()
+  const draftsQueryKey = ['recipeDrafts', uid]
+
+  return useMutation({
+    mutationFn: async ({
+      draftId,
+      composition,
+      unitIngredientId,
+      unitLabel,
+      now,
+    }: {
+      draftId: string
+      composition: CompositionRow[]
+      unitIngredientId: string
+      unitLabel: string
+      now: number
+    }) => {
+      if (!uid) throw new Error('로그인이 필요합니다.')
+      await updateDoc(draftRef(uid, draftId), {
+        composition,
+        unitIngredientId,
+        unitLabel,
+        updatedAt: now,
+        declaredNutrients: deleteField(), // DL-029
+        declaredNutrientsUpdatedAt: deleteField(),
+      })
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: draftsQueryKey }),
+  })
 }
 
 // 원료 병합으로 합산된 draft의 확인 게이트 해제 (DL-034).

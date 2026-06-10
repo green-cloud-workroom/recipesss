@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
+import { CompositionEditor } from '../components/CompositionEditor'
 import { DeclaredNutrientsEditor } from '../components/DeclaredNutrientsEditor'
 import { RecipeNutritionPanel } from '../components/RecipeNutritionPanel'
 import { useIngredients } from '../features/ingredients/ingredientQueries'
@@ -98,7 +99,11 @@ export function RecipeDetailPage() {
             uid={uid}
           />
 
-          <CompositionList draft={draft} ingredients={ingredients} />
+          <CompositionEditor
+            draft={draft}
+            ingredients={ingredients}
+            uid={uid}
+          />
 
           <PresetPanel
             draft={draft}
@@ -435,67 +440,6 @@ function RegisterSection({
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function CompositionList({
-  draft,
-  ingredients,
-}: {
-  draft: RecipeDraft
-  ingredients: Ingredient[]
-}) {
-  const byId = useMemo(
-    () => new Map(ingredients.map((item) => [item.id, item])),
-    [ingredients],
-  )
-
-  return (
-    <div className={`mt-4 ${CARD_CLS} p-4`}>
-      <h2 className="text-sm font-semibold text-gray-800">구성 원료</h2>
-      <p className="mt-1 text-xs text-gray-500">
-        영양값이 없는 원료는 매트릭스에 반영되지 않습니다 (원료 마스터에서 입력/USDA).
-      </p>
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[420px] text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
-              <th className="px-3 py-2">원료</th>
-              <th className="px-3 py-2 text-right">중량</th>
-              <th className="px-3 py-2">영양값</th>
-            </tr>
-          </thead>
-          <tbody>
-            {draft.composition.map((row) => {
-              const ingredient = byId.get(row.ingredientId)
-              const hasProfile =
-                ingredient?.nutrientProfile &&
-                Object.keys(ingredient.nutrientProfile).length > 0
-              return (
-                <tr
-                  className="border-b border-gray-100 text-gray-700"
-                  key={`${row.ingredientId}-${row.sortOrder}`}
-                >
-                  <td className="px-3 py-2">
-                    {ingredient?.name || row.ingredientId}
-                  </td>
-                  <td className="px-3 py-2 text-right tabular-nums">
-                    {row.weight} {row.unit}
-                  </td>
-                  <td className="px-3 py-2 text-xs">
-                    {hasProfile ? (
-                      <span className="text-green-600">있음</span>
-                    ) : (
-                      <span className="text-amber-600">없음</span>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
     </div>
   )
 }
