@@ -769,6 +769,10 @@ function UsdaImportModal({
   const [query, setQuery] = useState('')
   const [selectedFdcId, setSelectedFdcId] = useState<number | null>(null)
   const searchQuery = useUsdaSearch(query)
+  const usdaFoods = useMemo(
+    () => searchQuery.data?.pages.flatMap((page) => page.foods) ?? [],
+    [searchQuery.data],
+  )
   const foodQuery = useUsdaFood(selectedFdcId)
   const mapped = foodQuery.data
 
@@ -800,7 +804,7 @@ function UsdaImportModal({
             </label>
 
             <div className="mt-3 space-y-2">
-              {searchQuery.isFetching && (
+              {searchQuery.isLoading && (
                 <div className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500">
                   검색 중...
                 </div>
@@ -812,7 +816,7 @@ function UsdaImportModal({
                     : 'USDA 검색에 실패했습니다.'}
                 </div>
               )}
-              {(searchQuery.data ?? []).map((food) => (
+              {usdaFoods.map((food) => (
                 <button
                   className={`block w-full rounded-md border px-3 py-2 text-left text-sm ${
                     selectedFdcId === food.fdcId
@@ -829,6 +833,16 @@ function UsdaImportModal({
                   </span>
                 </button>
               ))}
+              {searchQuery.hasNextPage && (
+                <button
+                  className={`${SECONDARY_BTN_CLS} w-full`}
+                  disabled={searchQuery.isFetchingNextPage}
+                  onClick={() => void searchQuery.fetchNextPage()}
+                  type="button"
+                >
+                  {searchQuery.isFetchingNextPage ? '불러오는 중...' : '더 보기'}
+                </button>
+              )}
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import type {
   NutrientKey,
@@ -8,13 +8,17 @@ import type {
 import { mapFdcFood, missingNutrientKeys } from './mapFdcFood'
 import { fetchFdcFood, searchFdcFoods } from './usdaClient'
 import { readUsdaCache, writeUsdaCache } from './usdaCache'
-import type { FdcFoodSearchItem, MappedFdcFood } from './usdaTypes'
+import type { MappedFdcFood } from './usdaTypes'
 
+// "더 보기" 페이지네이션 (pageSize 50, Branded 제외).
 export function useUsdaSearch(query: string) {
   const trimmed = query.trim()
-  return useQuery<FdcFoodSearchItem[]>({
+  return useInfiniteQuery({
     queryKey: ['usdaSearch', trimmed],
-    queryFn: () => searchFdcFoods(trimmed),
+    queryFn: ({ pageParam }) => searchFdcFoods(trimmed, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.pageNumber + 1 : undefined,
     enabled: trimmed.length >= 2,
     staleTime: 5 * 60 * 1000,
   })

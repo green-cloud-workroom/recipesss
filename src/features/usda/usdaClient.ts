@@ -1,10 +1,12 @@
 import type {
   FdcFoodDetail,
   FdcFoodSearchItem,
+  FdcSearchPage,
   FdcSearchResponse,
 } from './usdaTypes'
 
 const FDC_BASE_URL = 'https://api.nal.usda.gov/fdc/v1'
+const SEARCH_PAGE_SIZE = 50
 
 function usdaApiKey(): string {
   const key = import.meta.env.VITE_USDA_API_KEY as string | undefined
@@ -14,20 +16,33 @@ function usdaApiKey(): string {
 
 export async function searchFdcFoods(
   query: string,
-): Promise<FdcFoodSearchItem[]> {
+  pageNumber = 1,
+): Promise<FdcSearchPage> {
   const trimmed = query.trim()
-  if (!trimmed) return []
+  if (!trimmed) {
+    return { foods: [], pageNumber, totalHits: 0, hasMore: false }
+  }
 
   const params = new URLSearchParams({
     api_key: usdaApiKey(),
-    dataType: 'Foundation,SR Legacy,Survey (FNDDS)',
-    pageSize: '25',
+    dataType: 'Foundation,SR Legacy,Survey (FNDDS)', // Branded 제외
+    pageSize: String(SEARCH_PAGE_SIZE),
+    pageNumber: String(pageNumber),
     query: trimmed,
   })
   const response = await fetch(`${FDC_BASE_URL}/foods/search?${params}`)
   if (!response.ok) throw new Error(`USDA 검색 실패 (${response.status})`)
   const data = (await response.json()) as FdcSearchResponse
-  return sortFdcSearchFoods(data.foods ?? [], trimmed).slice(0, 10)
+
+  const totalHits = data.totalHits ?? 0
+  const totalPages =
+    data.totalPages ?? (Math.ceil(totalHits / SEARCH_PAGE_SIZE) || 1)
+  return {
+    foods: sortFdcSearchFoods(data.foods ?? [], trimmed),
+    pageNumber,
+    totalHits,
+    hasMore: pageNumber < totalPages,
+  }
 }
 
 export async function fetchFdcFood(fdcId: number): Promise<FdcFoodDetail> {
