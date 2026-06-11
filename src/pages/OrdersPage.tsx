@@ -18,6 +18,7 @@ import {
 import { useSaveOrder } from '../features/orders/orderStorage'
 import { normalizeAllPresetCodes } from '../features/presets/presetCodes'
 import { useApplyDraftPresets } from '../features/presets/presetMutations'
+import { backfillPresetInputs } from '../features/presets/presetRatio'
 import { usePresets } from '../features/presets/presetQueries'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
 import {
@@ -60,14 +61,33 @@ export function OrdersPage() {
 
   async function handleNormalizeCodes() {
     setNormalizeMsg('')
-    const changed = normalizeAllPresetCodes(presets, drafts)
+    // ① 빈 투입량 백필 (v2 마이그레이션 잔재) → ② 그 결과로 크기순 재코딩.
+    const backfilled = backfillPresetInputs(presets, drafts)
+    const byId = new Map(backfilled.map((preset) => [preset.id, preset]))
+    for (const preset of normalizeAllPresetCodes(backfilled, drafts)) {
+      byId.set(preset.id, preset)
+    }
+    const originalById = new Map(presets.map((preset) => [preset.id, preset]))
+    const changed = [...byId.values()].filter((preset) => {
+      const original = originalById.get(preset.id)
+      return (
+        !original ||
+        original.code !== preset.code ||
+        original.sortOrder !== preset.sortOrder ||
+        original.inputAmount !== preset.inputAmount ||
+        original.inputUnitLabel !== preset.inputUnitLabel
+      )
+    })
+
     if (changed.length === 0) {
-      setNormalizeMsg('이미 모두 크기순입니다.')
+      setNormalizeMsg('이미 모두 정리돼 있습니다.')
       return
     }
     try {
       await applyPresets.mutateAsync({ upserts: changed, deleteIds: [] })
-      setNormalizeMsg(`${changed.length}개 프리셋 코드를 크기순으로 재정렬했습니다.`)
+      setNormalizeMsg(
+        `${changed.length}개 프리셋을 정리했습니다 (크기순 코드 + 빈 투입량 채움).`,
+      )
     } catch (err) {
       setNormalizeMsg(
         err instanceof Error ? err.message : '재정렬에 실패했습니다.',
@@ -116,10 +136,10 @@ export function OrdersPage() {
             className={SECONDARY_BTN_CLS}
             disabled={applyPresets.isPending || presets.length === 0}
             onClick={() => void handleNormalizeCodes()}
-            title="모든 레시피의 프리셋 코드를 targetWeight 크기순(X0·X1…)으로 재부여합니다 (DL-035)"
+            title="모든 레시피의 프리셋 코드를 targetWeight 크기순(X0·X1…)으로 재부여하고, 비어 있는 투입량을 targetWeight에서 역산해 채웁니다 (DL-035)"
             type="button"
           >
-            {applyPresets.isPending ? '재정렬 중...' : '코드 크기순 재정렬'}
+            {applyPresets.isPending ? '정리 중...' : '프리셋 정리 (크기순·투입량)'}
           </button>
           <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
             선택 {selectedCount}개

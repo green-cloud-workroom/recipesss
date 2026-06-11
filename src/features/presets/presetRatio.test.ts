@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { getPresetRatioInfo } from './presetRatio'
-import type { RecipeDraft } from '../../types/recipe'
+import { backfillPresetInputs, getPresetRatioInfo } from './presetRatio'
+import type { Preset, RecipeDraft } from '../../types/recipe'
 
 function draft(
   rows: Array<{ ingredientId: string; weight: number; unit?: 'g' | 'kg' }>,
@@ -97,5 +97,51 @@ describe('getPresetRatioInfo', () => {
     expect(info.hasInput).toBe(false)
     expect(info.targetWeight).toBe(0)
     expect(info.inputUnitLabel).toBe('마리')
+  })
+})
+
+describe('backfillPresetInputs', () => {
+  function preset(
+    id: string,
+    targetWeight: number,
+    inputAmount: number,
+  ): Preset {
+    return {
+      id,
+      draftId: 'draft_a',
+      code: 'A0',
+      targetWeight,
+      label: '',
+      unitIngredientId: 'unit',
+      inputAmount,
+      inputUnitLabel: '',
+      sortOrder: 0,
+      createdAt: 1,
+    }
+  }
+
+  it('derives 마리 input from targetWeight / unit row weight', () => {
+    const d = { ...draft([{ ingredientId: 'unit', weight: 800 }], 'unit', '마리'), id: 'draft_a' }
+    const [result] = backfillPresetInputs([preset('p', 20000, 0)], [d])
+
+    expect(result).toMatchObject({ inputAmount: 25, inputUnitLabel: '마리' })
+  })
+
+  it('derives kg input when the unit row is kg without a unit label', () => {
+    const d = {
+      ...draft([{ ingredientId: 'unit', weight: 1000, unit: 'kg' as const }], 'unit', ''),
+      id: 'draft_a',
+    }
+    const [result] = backfillPresetInputs([preset('p', 120000, 0)], [d])
+
+    expect(result).toMatchObject({ inputAmount: 120, inputUnitLabel: 'kg' })
+  })
+
+  it('leaves presets with an existing inputAmount untouched', () => {
+    const d = { ...draft([{ ingredientId: 'unit', weight: 800 }], 'unit', '마리'), id: 'draft_a' }
+    const original = preset('p', 20000, 5)
+    const [result] = backfillPresetInputs([original], [d])
+
+    expect(result).toBe(original)
   })
 })
