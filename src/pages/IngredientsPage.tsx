@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 
 import {
   useCreateIngredient,
@@ -85,6 +86,17 @@ export function IngredientsPage() {
     const selected = ingredients.find((item) => item.id === selectedIngredientId)
     return selected ?? ingredients[0]
   }, [ingredients, selectedIngredientId])
+
+  // 선택한 원료를 composition에 쓰는 레시피들 (id 사용처 표시).
+  const usedByRecipes = useMemo(() => {
+    const id = selectedIngredient?.id
+    if (!id) return []
+    return drafts
+      .filter((draft) =>
+        draft.composition.some((row) => row.ingredientId === id),
+      )
+      .map((draft) => ({ id: draft.id, name: draft.name || '(이름 없음)' }))
+  }, [drafts, selectedIngredient])
 
   // 병합 경고용: 삭제 대상(= 첫 선택 제외)을 composition에 가진 등록 레시피 (DL-034 #4)
   const registeredDriftNames = useMemo(() => {
@@ -353,6 +365,7 @@ export function IngredientsPage() {
               onRename={(name) => void handleRename(selectedIngredient, name)}
               onSave={(values) => void handleSave(selectedIngredient, values)}
               onToggleHidden={() => void handleToggleHidden(selectedIngredient)}
+              usedByRecipes={usedByRecipes}
             />
           </div>
         )}
@@ -531,6 +544,7 @@ function NutrientProfileEditor({
   onRename,
   onSave,
   onToggleHidden,
+  usedByRecipes,
 }: {
   ingredient: Ingredient
   isPending: boolean
@@ -538,6 +552,7 @@ function NutrientProfileEditor({
   onRename: (name: string) => void
   onSave: (values: NutrientProfileFormValues) => void
   onToggleHidden: () => void
+  usedByRecipes: Array<{ id: string; name: string }>
 }) {
   const [name, setName] = useState(ingredient.name)
   const {
@@ -583,6 +598,25 @@ function NutrientProfileEditor({
             <p className="mt-1 text-xs text-gray-500">
               원료명은 이 id를 쓰는 레시피 표시명에도 같이 반영됩니다.
             </p>
+            <div className="mt-2">
+              <span className="text-xs text-gray-400">
+                이 원료를 쓰는 레시피 {usedByRecipes.length}개
+                {usedByRecipes.length === 0 ? '' : ':'}
+              </span>
+              {usedByRecipes.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {usedByRecipes.map((recipe) => (
+                    <Link
+                      className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700 hover:bg-gray-200"
+                      key={recipe.id}
+                      to={`/recipes/${recipe.id}`}
+                    >
+                      {recipe.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
