@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 
 import { countExistingDocs } from '../features/migration/runMigration'
@@ -37,6 +38,7 @@ const ORDER_FILTERS: Array<{ value: OrderFilter; label: string }> = [
 ]
 
 export function OrdersPage() {
+  const navigate = useNavigate()
   const uid = useAuthStore((state) => state.user?.uid)
   const draftsQuery = useRecipeDrafts(uid)
   const presetsQuery = usePresets(uid)
@@ -218,11 +220,13 @@ export function OrdersPage() {
               <div className="border-t border-gray-100 p-4">
                 <button
                   className={`${PRIMARY_BTN_CLS} w-full`}
-                  disabled
-                  title="단계 4에서 구현"
+                  disabled={selectedCount === 0}
+                  onClick={() =>
+                    navigate(`/print?presets=${Object.keys(selection).join(',')}`)
+                  }
                   type="button"
                 >
-                  출력 미리보기 생성 (단계 4)
+                  출력 미리보기 (출력 1·2)
                 </button>
               </div>
             </aside>

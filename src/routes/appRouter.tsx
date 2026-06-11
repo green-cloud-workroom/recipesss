@@ -8,6 +8,7 @@ import { OrdersPage } from '../pages/OrdersPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { RecipeDetailPage } from '../pages/RecipeDetailPage'
 import { RecipeNewPage } from '../pages/RecipeNewPage'
+import { PrintPageLazy } from '../pages/PrintPageLazy'
 import { RecipesPage } from '../pages/RecipesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
@@ -54,11 +55,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: '/print',
-            element: <PlaceholderPage title="PDF 출력" stage="단계 4" />,
-          },
-          {
-            path: '/print/:recipeId',
-            element: <PlaceholderPage title="PDF 출력" stage="단계 4" />,
+            element: <PrintPageLazy />,
           },
           {
             path: '/prices',
