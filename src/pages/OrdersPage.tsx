@@ -190,7 +190,7 @@ export function OrdersPage() {
               )}
             </div>
 
-            <aside className={`${CARD_CLS} self-start`}>
+            <aside className={`${CARD_CLS} self-start lg:sticky lg:top-4`}>
               <div className="border-b border-gray-100 px-4 py-3">
                 <h2 className="text-sm font-semibold text-gray-800">
                   발주 요약
