@@ -74,55 +74,66 @@ function cellStyle(base: Style, isLast: boolean, extra?: Style): Style {
 
 // ---------- 출력 1: 제품별 난각분 표 ----------
 
+// 열 수에 비례한 고정폭 → 작은 표(프리셋 2~3개)는 좌우로 나란히 배치.
+const OUT1_LABEL_W = 50
+const OUT1_COL_W = 54
+
 export function OrderPdf1({ groups }: { groups: OutputOneGroup[] }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {groups.map((group) => {
-          const cols = group.columns.length
-          // 첫 열(난각분 라벨) + 프리셋 열들 균등폭
-          const labelW = `${(100 / (cols + 1)).toFixed(3)}%`
-          return (
-            <View key={group.name} style={styles.table} wrap={false}>
-              <Text style={styles.titleCell}>{group.name}</Text>
-              <View style={styles.row}>
-                <Text style={cellStyle(styles.th, false, { width: labelW })} />
-                {group.columns.map((column, index) => (
+        <View style={styles.groupsRow}>
+          {groups.map((group) => {
+            const cols = group.columns.length
+            const tableW = OUT1_LABEL_W + cols * OUT1_COL_W
+            return (
+              <View
+                key={group.name}
+                style={[styles.table, { width: tableW }]}
+                wrap={false}
+              >
+                <Text style={styles.titleCell}>{group.name}</Text>
+                <View style={styles.row}>
                   <Text
-                    key={index}
-                    style={cellStyle(styles.th, index === cols - 1, {
-                      width: labelW,
+                    style={cellStyle(styles.th, false, { width: OUT1_LABEL_W })}
+                  />
+                  {group.columns.map((column, index) => (
+                    <Text
+                      key={index}
+                      style={cellStyle(styles.th, index === cols - 1, {
+                        width: OUT1_COL_W,
+                      })}
+                    >
+                      {column.header}
+                    </Text>
+                  ))}
+                </View>
+                <View style={styles.row}>
+                  <Text
+                    style={cellStyle({ ...styles.td, borderBottom: 0 }, false, {
+                      width: OUT1_LABEL_W,
+                      textAlign: 'left',
                     })}
                   >
-                    {column.header}
+                    난각분
                   </Text>
-                ))}
+                  {group.columns.map((column, index) => (
+                    <Text
+                      key={index}
+                      style={cellStyle(
+                        { ...styles.td, borderBottom: 0 },
+                        index === cols - 1,
+                        { width: OUT1_COL_W },
+                      )}
+                    >
+                      {column.eggshell}
+                    </Text>
+                  ))}
+                </View>
               </View>
-              <View style={styles.row}>
-                <Text
-                  style={cellStyle({ ...styles.td, borderBottom: 0 }, false, {
-                    width: labelW,
-                    textAlign: 'left',
-                  })}
-                >
-                  난각분
-                </Text>
-                {group.columns.map((column, index) => (
-                  <Text
-                    key={index}
-                    style={cellStyle(
-                      { ...styles.td, borderBottom: 0 },
-                      index === cols - 1,
-                      { width: labelW },
-                    )}
-                  >
-                    {column.eggshell}
-                  </Text>
-                ))}
-              </View>
-            </View>
-          )
-        })}
+            )
+          })}
+        </View>
       </Page>
     </Document>
   )
