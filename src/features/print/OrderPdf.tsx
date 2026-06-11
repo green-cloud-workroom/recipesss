@@ -41,20 +41,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     textAlign: 'center',
   },
+  // 셀은 9pt + 좁은 패딩 — 52pt 열에 "B5 (140)" 같은 헤더가 한 줄로 들어가야
+  // 행 높이가 고르게 유지된다 (줄바꿈되면 표가 깨져 보임).
   th: {
     backgroundColor: '#f9fafb',
     borderBottom: BORDER,
     borderRight: BORDER,
+    fontSize: 9,
     fontWeight: 700,
     paddingVertical: 3,
-    paddingHorizontal: 6,
+    paddingHorizontal: 3,
     textAlign: 'center',
   },
   td: {
     borderBottom: BORDER,
     borderRight: BORDER,
+    fontSize: 9,
     paddingVertical: 3,
-    paddingHorizontal: 6,
+    paddingHorizontal: 3,
     textAlign: 'center',
   },
   left: { textAlign: 'left' },
