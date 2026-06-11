@@ -118,6 +118,15 @@ export function PrintPage() {
             이 발주 삭제
           </button>
         )}
+        {savedOrdersQuery.isError && (
+          <p className="text-xs text-red-600">
+            저장된 발주 조회 실패:{' '}
+            {savedOrdersQuery.error instanceof Error
+              ? savedOrdersQuery.error.message
+              : '알 수 없는 오류'}{' '}
+            — 권한 오류면 firestore 규칙 배포가 필요합니다.
+          </p>
+        )}
       </div>
 
       {selectedIds.length === 0 && (
