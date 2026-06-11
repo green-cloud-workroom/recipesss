@@ -113,7 +113,7 @@ export function OrdersPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             {ORDER_FILTERS.map((item) => (
               <button
-                className={`rounded-md border px-4 py-2 text-sm font-medium ${
+                className={`rounded-md border px-3 py-1.5 text-sm font-medium ${
                   filter === item.value
                     ? 'border-gray-800 bg-gray-800 text-white'
                     : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
@@ -128,7 +128,7 @@ export function OrdersPage() {
           </div>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-4">
+            <div className="space-y-2">
               {filteredGroups.length === 0 ? (
                 <div className={EMPTY_STATE_CLS}>
                   선택한 조건에 맞는 프리셋이 없습니다.
@@ -227,7 +227,7 @@ function OrderGroupCard({
 }) {
   return (
     <section className={CARD_CLS}>
-      <div className="flex flex-col gap-1 border-b border-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-1 border-b border-gray-100 px-3 py-1.5 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-sm font-semibold text-gray-800">
           ({speciesLabel(group.species)}){group.draftName}
         </h2>
@@ -236,7 +236,7 @@ function OrderGroupCard({
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-2 px-4 py-3">
+      <div className="flex flex-wrap gap-1.5 px-3 py-2">
         {group.presets.map((preset) => {
           const checked = Object.prototype.hasOwnProperty.call(
             selection,
@@ -245,7 +245,7 @@ function OrderGroupCard({
 
           return (
             <label
-              className={`inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${
+              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-sm ${
                 checked
                   ? 'border-gray-800 bg-gray-800 text-white'
                   : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
