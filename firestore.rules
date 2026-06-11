@@ -177,6 +177,11 @@ service cloud.firestore {
       allow read, write: if signedIn() && request.auth.uid == uid;
     }
 
+    // recipesss-owned saved orders (DL-039).
+    match /recipesssOrders/{uid}/items/{orderId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
     // USDA FoodData Central 응답 캐시 (공유, SPEC §4.6/§4.9 — 인증 사용자 read/write).
     match /usdaCache/{fdcId} {
       allow read, write: if signedIn();

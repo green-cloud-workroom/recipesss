@@ -166,6 +166,15 @@ export type Preset = {
   createdAt: number
 }
 
+// 저장된 발주 (DL-039). recipesssOrders/{uid}/items/{orderId}.
+// 프리셋 id 스냅샷만 저장 — 재출력 시 현재 프리셋 데이터 기준 (삭제된 프리셋은 제외됨).
+export type SavedOrder = {
+  id: string // 'order_xxxxxxxx'
+  date: string // 'YYYY-MM-DD' (저장일)
+  presetIds: string[]
+  createdAt: number
+}
+
 // SPEC §4.8 Price (별도 인터페이스 미정 — DL-024).
 // 단계 5에서 생산관리앱과 협의 후 확정. 마이그레이션은 v2 값을 그대로 보존만.
 export type Price = {
