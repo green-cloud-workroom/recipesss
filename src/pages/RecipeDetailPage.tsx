@@ -347,9 +347,6 @@ function RecipeHeaderEditor({
     setErrorMsg('')
   }
 
-  const dirty =
-    name !== draft.name || species !== draft.species || status !== draft.status
-
   async function handleSave() {
     if (!name.trim()) {
       setErrorMsg('레시피 이름을 입력하세요.')
@@ -417,8 +414,8 @@ function RecipeHeaderEditor({
           </select>
         </label>
         <button
-          className={SECONDARY_BTN_CLS}
-          disabled={!dirty || save.isPending}
+          className={`${SECONDARY_BTN_CLS} disabled:opacity-50`}
+          disabled={!name.trim() || save.isPending}
           onClick={() => void handleSave()}
           type="button"
         >

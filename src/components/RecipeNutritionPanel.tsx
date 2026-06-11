@@ -245,14 +245,13 @@ export function RecipeNutritionPanel({
           </div>
 
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[760px] text-sm">
+            <table className="w-full min-w-[720px] text-xs">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
-                  <th className="px-3 py-2">영양소</th>
-                  <th className="px-3 py-2 text-right">값</th>
-                  <th className="px-3 py-2">단위</th>
-                  <th className="px-3 py-2">종합</th>
-                  <th className="px-3 py-2">표준별 기준</th>
+                  <th className="px-2 py-1">영양소</th>
+                  <th className="px-2 py-1 text-right">값</th>
+                  <th className="px-2 py-1">종합</th>
+                  <th className="px-2 py-1">표준별 기준</th>
                 </tr>
               </thead>
               <tbody>
@@ -294,8 +293,8 @@ function CategoryRows({
     <>
       <tr className="bg-gray-50/60">
         <td
-          className="px-3 py-1 text-xs font-semibold text-gray-500"
-          colSpan={5}
+          className="px-2 py-0.5 text-xs font-semibold text-gray-500"
+          colSpan={4}
         >
           {CATEGORY_LABELS[category]}
         </td>
@@ -305,23 +304,23 @@ function CategoryRows({
         if (!row) return null
         return (
           <tr className="border-b border-gray-100 text-gray-700" key={meta.key}>
-            <td className="px-3 py-2">{nutrientMeta(meta.key).label}</td>
-            <td className="px-3 py-2 text-right tabular-nums">
+            <td className="px-2 py-1">{nutrientMeta(meta.key).label}</td>
+            <td className="whitespace-nowrap px-2 py-1 text-right tabular-nums">
               {formatValue(row.actual)}
+              <span className="ml-0.5 text-gray-400">{meta.unit}</span>
             </td>
-            <td className="px-3 py-2 text-xs text-gray-400">{meta.unit}</td>
-            <td className="px-3 py-2">
+            <td className="px-2 py-1">
               <span
-                className={`rounded-full px-2 py-0.5 text-xs ${STATUS_STYLE[row.status]}`}
+                className={`rounded px-1.5 py-0.5 ${STATUS_STYLE[row.status]}`}
               >
                 {STATUS_LABEL[row.status]}
               </span>
             </td>
-            <td className="px-3 py-2">
-              <div className="flex flex-wrap gap-1.5">
+            <td className="px-2 py-1">
+              <div className="flex flex-wrap gap-1">
                 {row.tags.map(({ profile, result }) => (
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${
+                    className={`whitespace-nowrap rounded px-1.5 py-0.5 ${
                       STATUS_STYLE[result.status]
                     }`}
                     key={profile.id}

@@ -7,12 +7,7 @@ import {
   type NutrientCategory,
 } from '../features/nutrition/nutrientKeys'
 import { useSaveDeclaredNutrients } from '../features/recipes/recipeMutations'
-import {
-  CARD_CLS,
-  CELL_INPUT_CLS,
-  PRIMARY_BTN_CLS,
-  SECONDARY_BTN_CLS,
-} from '../lib/ui'
+import { CARD_CLS, PRIMARY_BTN_CLS, SECONDARY_BTN_CLS } from '../lib/ui'
 import type {
   Ingredient,
   NutrientKey,
@@ -234,13 +229,13 @@ function CategorySection({
       </tr>
       {metas.map((meta) => (
         <tr className="border-b border-gray-100 text-gray-700" key={meta.key}>
-          <td className="px-3 py-2">{meta.label}</td>
-          <td className="px-3 py-2 text-right text-xs text-gray-500 tabular-nums">
+          <td className="px-3 py-1 text-sm">{meta.label}</td>
+          <td className="px-3 py-1 text-right text-xs text-gray-500 tabular-nums">
             {formatValue(calcPer100g(meta.key))}
           </td>
-          <td className="px-3 py-2">
+          <td className="px-3 py-1">
             <input
-              className={`${CELL_INPUT_CLS} text-right`}
+              className="w-28 rounded-lg border border-gray-300 px-2 py-1 text-right text-sm focus:border-gray-500 focus:outline-none"
               inputMode="decimal"
               onChange={(event) => onChange(meta.key, event.target.value)}
               placeholder={formatValue(calcPer100g(meta.key))}
@@ -248,7 +243,7 @@ function CategorySection({
               value={form[meta.key] ?? ''}
             />
           </td>
-          <td className="px-3 py-2 text-xs text-gray-400">{meta.unit}</td>
+          <td className="px-3 py-1 text-xs text-gray-400">{meta.unit}</td>
         </tr>
       ))}
     </>
