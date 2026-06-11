@@ -76,7 +76,7 @@ function cellStyle(base: Style, isLast: boolean, extra?: Style): Style {
 
 // 열 수에 비례한 고정폭 → 작은 표(프리셋 2~3개)는 좌우로 나란히 배치.
 const OUT1_LABEL_W = 50
-const OUT1_COL_W = 54
+const OUT1_COL_W = 52
 
 export function OrderPdf1({ groups }: { groups: OutputOneGroup[] }) {
   return (

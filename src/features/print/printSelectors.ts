@@ -137,7 +137,12 @@ export function buildOutputOne(views: PresetPrintView[]): OutputOneGroup[] {
         eggshell: formatWeight(eggshellWeight(view)),
       })),
     }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+    // 열 수 적은 표부터 → 작은 표들이 한 줄에 나란히 패킹됨 (동수는 이름순).
+    .sort(
+      (a, b) =>
+        a.columns.length - b.columns.length ||
+        a.name.localeCompare(b.name, 'ko'),
+    )
 }
 
 // ---------- 출력 2: 난각분 단독 표 + 코드 prefix별 치환명 표 ----------
