@@ -160,7 +160,9 @@ export function AppLayout() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto p-4 md:p-6">
+      {/* overflow-auto 금지: main이 스크롤 컨테이너로 잡히면(창 스크롤 기준) 내부
+          sticky가 동작 안 함. 가로 넘침은 각 표의 overflow-x-auto + min-w-0로 처리. */}
+      <main className="min-w-0 flex-1 p-4 md:p-6">
         <Suspense
           fallback={
             <div className="flex min-h-[240px] items-center justify-center text-sm text-gray-400">
