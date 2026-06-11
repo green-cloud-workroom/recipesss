@@ -54,11 +54,19 @@ describe('filterIngredients', () => {
 })
 
 describe('groupByKind', () => {
-  it('groups ingredients by kind and sorts each group by sortOrder', () => {
-    expect(groupByKind(items)).toEqual({
-      ingredient: [items[2], items[0]],
-      supplement: [items[1]],
-    })
+  it('groups by kind and sorts each group by name (가나다)', () => {
+    const list = [
+      ingredient('pork', 'ingredient', 0, { name: '소고기' }),
+      ingredient('beef', 'ingredient', 1, { name: '돼지고기' }),
+      ingredient('vit', 'supplement', 0, { name: '비타민E' }),
+    ]
+    // sortOrder순이면 [소고기, 돼지고기]지만 이름순이면 [돼지고기, 소고기]
+    const grouped = groupByKind(list)
+    expect(grouped.ingredient.map((item) => item.name)).toEqual([
+      '돼지고기',
+      '소고기',
+    ])
+    expect(grouped.supplement.map((item) => item.name)).toEqual(['비타민E'])
   })
 })
 

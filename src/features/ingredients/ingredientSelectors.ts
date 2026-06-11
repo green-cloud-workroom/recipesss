@@ -19,7 +19,12 @@ export function filterIngredients(
 export function groupByKind(items: Ingredient[]): IngredientGroups {
   const groups: IngredientGroups = { ingredient: [], supplement: [] }
 
-  for (const item of [...items].sort((a, b) => a.sortOrder - b.sortOrder)) {
+  // 이름(가나다)순 정렬 — 찾기 쉽게. 동명은 sortOrder로 안정 정렬.
+  const sorted = [...items].sort(
+    (a, b) =>
+      a.name.localeCompare(b.name, 'ko') || a.sortOrder - b.sortOrder,
+  )
+  for (const item of sorted) {
     groups[item.kind].push(item)
   }
 
