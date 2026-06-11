@@ -14,6 +14,7 @@ import type { DraftRecipePayload } from './draftToRecipe'
 import type {
   CompositionRow,
   NutrientValues,
+  RecipeCategory,
   RecipeDraft,
   Species,
 } from '../../types/recipe'
@@ -36,12 +37,14 @@ export function useSaveRecipeMeta(uid: string | undefined) {
       draftId,
       name,
       species,
+      category,
       status,
       now,
     }: {
       draftId: string
       name: string
       species: Species
+      category: RecipeCategory | undefined
       status: RecipeDraft['status']
       now: number
     }) => {
@@ -49,6 +52,7 @@ export function useSaveRecipeMeta(uid: string | undefined) {
       await updateDoc(draftRef(uid, draftId), {
         name,
         species,
+        category: category ?? deleteField(),
         status,
         updatedAt: now,
       })
@@ -67,10 +71,12 @@ export function useCreateRecipeDraft(uid: string | undefined) {
     mutationFn: async ({
       name,
       species,
+      category,
       now,
     }: {
       name: string
       species: Species
+      category: RecipeCategory | undefined
       now: number
     }) => {
       if (!uid) throw new Error('로그인이 필요합니다.')
@@ -88,6 +94,7 @@ export function useCreateRecipeDraft(uid: string | undefined) {
         sortOrder: now,
         createdAt: now,
         updatedAt: now,
+        ...(category ? { category } : {}),
       }
       await setDoc(draftRef(uid, id), draft)
       return id

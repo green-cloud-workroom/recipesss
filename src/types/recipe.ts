@@ -7,6 +7,9 @@ export type WeightUnit = 'g' | 'kg'
 
 export type IngredientKind = 'ingredient' | 'supplement'
 
+// 레시피 카테고리 (recipesss). 등록 시 생산앱 category로 매핑 (DL-037).
+export type RecipeCategory = '생식' | '동결건조' | '동결텐더'
+
 // 영양소 키 (SPEC §4.4: 일반성분·아미노산·지방산·미네랄·비타민).
 // 단계 1-A에서 전체 키셋 확정 (FEDIAF 2025 기준, DL-032). erasableSyntaxOnly
 // 제약으로 enum 대신 union 사용. 일반성분은 사료 표준 용어(crude*) 유지.
@@ -82,6 +85,7 @@ export type RecipeDraft = {
   ownerUid: string // 호두님 uid
   name: string
   species: Species
+  category?: RecipeCategory // 생식/동결건조/동결텐더 (미설정 = 미분류)
   unitIngredientId: string // 생산단위 기준 원료
   unitLabel: string // 예: '마리'
   composition: CompositionRow[]

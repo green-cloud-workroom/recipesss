@@ -35,6 +35,7 @@ const drafts = [
 const allFilter: DraftFilter = {
   status: 'all',
   species: 'all',
+  category: 'all',
   search: '',
 }
 
@@ -82,6 +83,7 @@ describe('filterDrafts', () => {
       filterDrafts(drafts, {
         status: 'draft',
         species: 'cat',
+        category: 'all',
         search: 'chick',
       }).map((d) => d.id),
     ).toEqual(['draft_cat_chicken'])

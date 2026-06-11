@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { RECIPE_CATEGORIES } from '../features/recipes/filterDrafts'
 import { useCreateRecipeDraft } from '../features/recipes/recipeMutations'
 import { CARD_CLS, INPUT_CLS, PRIMARY_BTN_CLS } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
-import type { Species } from '../types/recipe'
+import type { RecipeCategory, Species } from '../types/recipe'
 
 export function RecipeNewPage() {
   const uid = useAuthStore((state) => state.user?.uid)
@@ -12,6 +13,7 @@ export function RecipeNewPage() {
   const create = useCreateRecipeDraft(uid)
   const [name, setName] = useState('')
   const [species, setSpecies] = useState<Species>('cat')
+  const [category, setCategory] = useState<RecipeCategory | ''>('생식')
   const [errorMsg, setErrorMsg] = useState('')
 
   async function handleCreate() {
@@ -24,6 +26,7 @@ export function RecipeNewPage() {
       const id = await create.mutateAsync({
         name: name.trim(),
         species,
+        category: category === '' ? undefined : category,
         now: Date.now(),
       })
       navigate(`/recipes/${id}`)
@@ -78,6 +81,26 @@ export function RecipeNewPage() {
             <option value="cat">고양이</option>
             <option value="dog">강아지</option>
             <option value="none">미지정</option>
+          </select>
+        </label>
+
+        <label className="mt-3 block">
+          <span className="mb-1 block text-xs font-medium text-gray-500">
+            카테고리
+          </span>
+          <select
+            className={INPUT_CLS}
+            onChange={(event) =>
+              setCategory(event.target.value as RecipeCategory | '')
+            }
+            value={category}
+          >
+            {RECIPE_CATEGORIES.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+            <option value="">미분류</option>
           </select>
         </label>
 

@@ -713,7 +713,7 @@ function effectiveNutrient(
 |---|---|---|
 | `name`, `displayName` | `draft.name` | |
 | `target` | `draft.species` 매핑 | **호두님 확정 필요**: cat→'cat', dog→?, null→'common'(?) |
-| `category` | — | recipesss 개념 없음 → **기본 'raw'**, 생산앱 보완 (호두님 확정) |
+| `category` | `draft.category` (생식/동결건조/동결텐더) 매핑 | 생식·미분류→`'raw'`, 동결건조·동결텐더→`'freezeDry'` (best-effort, 생산앱 보완). recipesss `RecipeCategory`는 §4.1 |
 | `active` | — | **항상 `false`** (생산앱에서 활성화) |
 | `version` | — | `1` |
 | `sortOrder` | — | `0` (생산앱 재정렬) |

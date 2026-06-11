@@ -19,6 +19,7 @@ import { useApplyDraftPresets } from '../features/presets/presetMutations'
 import { usePresets } from '../features/presets/presetQueries'
 import { getPresetRatioInfo } from '../features/presets/presetRatio'
 import { selectPresetsByDraft } from '../features/presets/presetSelectors'
+import { RECIPE_CATEGORIES } from '../features/recipes/filterDrafts'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
 import {
   CARD_CLS,
@@ -28,7 +29,13 @@ import {
   SECONDARY_BTN_CLS,
 } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
-import type { Ingredient, Preset, RecipeDraft, Species } from '../types/recipe'
+import type {
+  Ingredient,
+  Preset,
+  RecipeCategory,
+  RecipeDraft,
+  Species,
+} from '../types/recipe'
 
 const EMPTY_DRAFTS: RecipeDraft[] = []
 const EMPTY_PRESETS: Preset[] = []
@@ -335,6 +342,9 @@ function RecipeHeaderEditor({
   const save = useSaveRecipeMeta(uid)
   const [name, setName] = useState(draft.name)
   const [species, setSpecies] = useState<Species>(draft.species)
+  const [category, setCategory] = useState<RecipeCategory | ''>(
+    draft.category ?? '',
+  )
   const [status, setStatus] = useState<RecipeDraft['status']>(draft.status)
   const [formKey, setFormKey] = useState(draft.id)
   const [errorMsg, setErrorMsg] = useState('')
@@ -343,6 +353,7 @@ function RecipeHeaderEditor({
     setFormKey(draft.id)
     setName(draft.name)
     setSpecies(draft.species)
+    setCategory(draft.category ?? '')
     setStatus(draft.status)
     setErrorMsg('')
   }
@@ -358,6 +369,7 @@ function RecipeHeaderEditor({
         draftId: draft.id,
         name: name.trim(),
         species,
+        category: category === '' ? undefined : category,
         status,
         now: Date.now(),
       })
@@ -396,6 +408,25 @@ function RecipeHeaderEditor({
             <option value="cat">고양이</option>
             <option value="dog">강아지</option>
             <option value="none">미지정</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-gray-500">
+            카테고리
+          </span>
+          <select
+            className={INPUT_CLS}
+            onChange={(event) =>
+              setCategory(event.target.value as RecipeCategory | '')
+            }
+            value={category}
+          >
+            {RECIPE_CATEGORIES.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+            <option value="">미분류</option>
           </select>
         </label>
         <label className="block">

@@ -1,12 +1,21 @@
-import type { RecipeDraft, Species } from '../../types/recipe'
+import type { RecipeCategory, RecipeDraft, Species } from '../../types/recipe'
+
+export const RECIPE_CATEGORIES: RecipeCategory[] = [
+  '생식',
+  '동결건조',
+  '동결텐더',
+]
 
 export type DraftStatusFilter = 'all' | RecipeDraft['status']
 
 export type DraftSpeciesFilter = 'all' | Species
 
+export type DraftCategoryFilter = 'all' | RecipeCategory
+
 export type DraftFilter = {
   status: DraftStatusFilter
   species: DraftSpeciesFilter
+  category: DraftCategoryFilter
   search: string
 }
 
@@ -25,6 +34,9 @@ export function filterDrafts(
   return drafts.filter((draft) => {
     if (filter.status !== 'all' && draft.status !== filter.status) return false
     if (filter.species !== 'all' && draft.species !== filter.species) {
+      return false
+    }
+    if (filter.category !== 'all' && draft.category !== filter.category) {
       return false
     }
     if (query && !draft.name.toLowerCase().includes(query)) return false

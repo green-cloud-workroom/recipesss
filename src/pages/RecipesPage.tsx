@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import {
   countBySpecies,
   filterDrafts,
+  RECIPE_CATEGORIES,
+  type DraftCategoryFilter,
   type DraftFilter,
   type DraftSpeciesFilter,
   type DraftStatusFilter,
@@ -12,11 +14,19 @@ import { useClearMergeReview } from '../features/recipes/recipeMutations'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
 import { CARD_CLS, EMPTY_STATE_CLS, INPUT_CLS } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
+import type { RecipeCategory } from '../types/recipe'
 
 const DEFAULT_FILTER: DraftFilter = {
   status: 'all',
   species: 'all',
+  category: 'all',
   search: '',
+}
+
+function parseCategory(value: string): DraftCategoryFilter {
+  return (RECIPE_CATEGORIES as string[]).includes(value)
+    ? (value as RecipeCategory)
+    : 'all'
 }
 
 const EMPTY_DRAFTS: NonNullable<ReturnType<typeof useRecipeDrafts>['data']> = []
@@ -79,7 +89,7 @@ export function RecipesPage() {
       </div>
 
       <div className={`mt-4 ${CARD_CLS} p-4`}>
-        <div className="grid gap-3 md:grid-cols-[160px_160px_1fr]">
+        <div className="grid gap-3 md:grid-cols-[150px_150px_150px_1fr]">
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-gray-500">
               상태
@@ -118,6 +128,29 @@ export function RecipesPage() {
               <option value="cat">고양이</option>
               <option value="dog">강아지</option>
               <option value="none">미지정</option>
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-gray-500">
+              카테고리
+            </span>
+            <select
+              className={INPUT_CLS}
+              onChange={(event) =>
+                setFilter((prev) => ({
+                  ...prev,
+                  category: parseCategory(event.target.value),
+                }))
+              }
+              value={filter.category}
+            >
+              <option value="all">전체</option>
+              {RECIPE_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
           </label>
 
@@ -170,6 +203,7 @@ export function RecipesPage() {
                 <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
                   <th className="px-4 py-3">이름</th>
                   <th className="px-4 py-3">종</th>
+                  <th className="px-4 py-3">카테고리</th>
                   <th className="px-4 py-3">상태</th>
                   <th className="px-4 py-3 text-right">구성 원료</th>
                 </tr>
@@ -185,6 +219,9 @@ export function RecipesPage() {
                       {draft.name}
                     </td>
                     <td className="px-4 py-3">{speciesLabel(draft.species)}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {draft.category ?? '—'}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <span>{statusLabel(draft.status)}</span>

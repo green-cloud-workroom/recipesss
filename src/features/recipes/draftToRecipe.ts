@@ -1,5 +1,5 @@
 import type { IngredientMap } from '../nutrition/calc'
-import type { RecipeDraft, Species } from '../../types/recipe'
+import type { RecipeCategory, RecipeDraft, Species } from '../../types/recipe'
 
 // 생산앱 recipes 부분 문서 (SPEC §4.2/§6.6, DL-037). createdAt/updatedAt는
 // mutation에서 serverTimestamp로 채운다.
@@ -34,6 +34,14 @@ export function speciesToTarget(species: Species): string {
   if (species === 'cat') return 'cat'
   if (species === 'dog') return 'dog'
   return 'common'
+}
+
+// recipesss 카테고리 → 생산앱 category (DL-037, best-effort; 호두님이 생산앱 보완).
+export function categoryToProduction(
+  category: RecipeCategory | undefined,
+): string {
+  if (category === '동결건조' || category === '동결텐더') return 'freezeDry'
+  return 'raw' // 생식·미분류
 }
 
 export function countSupplements(
@@ -71,7 +79,7 @@ export function draftToRecipe(
     name: draft.name,
     displayName: draft.name,
     target: speciesToTarget(draft.species),
-    category: 'raw', // recipesss엔 개념 없음 → 기본값, 생산앱에서 보완 (DL-037)
+    category: categoryToProduction(draft.category), // DL-037
     active: false, // 항상 비활성으로 등록 → 생산앱에서 보완 후 활성화
     version: 1,
     sortOrder: 0,
