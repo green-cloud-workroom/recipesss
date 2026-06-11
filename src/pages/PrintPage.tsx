@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { useIngredients } from '../features/ingredients/ingredientQueries'
+import { useDeleteOrder, useSavedOrders } from '../features/orders/orderStorage'
 import { usePresets } from '../features/presets/presetQueries'
 import { OrderPdf1, OrderPdf2 } from '../features/print/OrderPdf'
 import {
@@ -11,23 +12,40 @@ import {
   buildPresetPrintViews,
 } from '../features/print/printSelectors'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
-import { EMPTY_STATE_CLS, PRIMARY_BTN_CLS } from '../lib/ui'
+import { EMPTY_STATE_CLS, INPUT_CLS, PRIMARY_BTN_CLS, SECONDARY_BTN_CLS } from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
 
 type PrintTab = 'view1' | 'view2'
 
 export function PrintPage() {
   const uid = useAuthStore((state) => state.user?.uid)
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const draftsQuery = useRecipeDrafts(uid)
   const presetsQuery = usePresets(uid)
   const ingredientsQuery = useIngredients(uid)
+  const savedOrdersQuery = useSavedOrders(uid)
+  const deleteOrder = useDeleteOrder(uid)
   const [tab, setTab] = useState<PrintTab>('view1')
 
   const selectedIds = useMemo(
     () => (searchParams.get('presets') ?? '').split(',').filter(Boolean),
     [searchParams],
   )
+  const selectedOrderId = searchParams.get('order') ?? ''
+  const savedOrders = savedOrdersQuery.data ?? [] // 최신순 (createdAt desc)
+
+  function handlePickOrder(orderId: string) {
+    if (!orderId) return
+    const order = savedOrders.find((item) => item.id === orderId)
+    if (!order) return
+    setSearchParams({ presets: order.presetIds.join(','), order: order.id })
+  }
+
+  async function handleDeleteOrder() {
+    if (!selectedOrderId) return
+    await deleteOrder.mutateAsync(selectedOrderId)
+    setSearchParams({})
+  }
 
   const isLoading =
     draftsQuery.isLoading || presetsQuery.isLoading || ingredientsQuery.isLoading
@@ -68,9 +86,43 @@ export function PrintPage() {
         </Link>
       </div>
 
+      <div className="mt-4 flex flex-wrap items-end gap-2">
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-gray-500">
+            저장된 발주 (최신순)
+          </span>
+          <select
+            className={`${INPUT_CLS} min-w-64`}
+            onChange={(event) => handlePickOrder(event.target.value)}
+            value={selectedOrderId}
+          >
+            <option value="">
+              {savedOrders.length === 0
+                ? '저장된 발주 없음'
+                : '저장된 발주 선택...'}
+            </option>
+            {savedOrders.map((order) => (
+              <option key={order.id} value={order.id}>
+                {order.date} · 프리셋 {order.presetIds.length}개
+              </option>
+            ))}
+          </select>
+        </label>
+        {selectedOrderId && (
+          <button
+            className={SECONDARY_BTN_CLS}
+            disabled={deleteOrder.isPending}
+            onClick={() => void handleDeleteOrder()}
+            type="button"
+          >
+            이 발주 삭제
+          </button>
+        )}
+      </div>
+
       {selectedIds.length === 0 && (
         <div className={`mt-4 ${EMPTY_STATE_CLS}`}>
-          발주 탭에서 프리셋을 선택해 주세요.
+          발주 탭에서 프리셋을 선택하거나 위에서 저장된 발주를 선택하세요.
         </div>
       )}
 

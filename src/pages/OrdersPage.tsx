@@ -15,11 +15,7 @@ import {
   type OrderGroup,
   type OrderSelection,
 } from '../features/orders/orderSelectors'
-import {
-  useDeleteOrder,
-  useSavedOrders,
-  useSaveOrder,
-} from '../features/orders/orderStorage'
+import { useSaveOrder } from '../features/orders/orderStorage'
 import { normalizeAllPresetCodes } from '../features/presets/presetCodes'
 import { useApplyDraftPresets } from '../features/presets/presetMutations'
 import { usePresets } from '../features/presets/presetQueries'
@@ -53,9 +49,7 @@ export function OrdersPage() {
     enabled: !!uid,
   })
   const applyPresets = useApplyDraftPresets(uid)
-  const savedOrdersQuery = useSavedOrders(uid)
   const saveOrder = useSaveOrder(uid)
-  const deleteOrder = useDeleteOrder(uid)
   const [selection, setSelection] = useState<OrderSelection>({})
   const [filter, setFilter] = useState<OrderFilter>('all')
   const [normalizeMsg, setNormalizeMsg] = useState('')
@@ -247,7 +241,11 @@ export function OrdersPage() {
                         presetIds: Object.keys(selection),
                         now: Date.now(),
                       })
-                      .then((order) => setSaveMsg(`${order.date} 발주 저장됨`))
+                      .then((order) =>
+                        setSaveMsg(
+                          `${order.date} 발주 저장됨 — PDF 출력에서 선택해 재출력`,
+                        ),
+                      )
                       .catch((err: unknown) =>
                         setSaveMsg(
                           err instanceof Error
@@ -265,46 +263,6 @@ export function OrdersPage() {
                 )}
               </div>
 
-              <div className="border-t border-gray-100 p-4">
-                <h3 className="text-xs font-semibold text-gray-500">
-                  저장된 발주
-                </h3>
-                {(savedOrdersQuery.data ?? []).length === 0 ? (
-                  <p className="mt-2 text-xs text-gray-400">
-                    저장된 발주가 없습니다.
-                  </p>
-                ) : (
-                  <ul className="mt-2 space-y-1">
-                    {(savedOrdersQuery.data ?? []).map((order) => (
-                      <li
-                        className="flex items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-1 text-xs"
-                        key={order.id}
-                      >
-                        <button
-                          className="flex-1 text-left text-gray-700 hover:text-gray-900"
-                          onClick={() =>
-                            navigate(
-                              `/print?presets=${order.presetIds.join(',')}`,
-                            )
-                          }
-                          title="클릭하면 이 발주를 다시 출력합니다 (현재 프리셋 기준)"
-                          type="button"
-                        >
-                          {order.date} · {order.presetIds.length}개
-                        </button>
-                        <button
-                          className="text-red-400 hover:text-red-600"
-                          disabled={deleteOrder.isPending}
-                          onClick={() => void deleteOrder.mutateAsync(order.id)}
-                          type="button"
-                        >
-                          삭제
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
             </aside>
           </div>
         </>
