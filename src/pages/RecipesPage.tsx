@@ -201,11 +201,11 @@ export function RecipesPage() {
             <table className="w-full min-w-[680px] text-sm">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
-                  <th className="px-4 py-3">이름</th>
-                  <th className="px-4 py-3">종</th>
-                  <th className="px-4 py-3">카테고리</th>
-                  <th className="px-4 py-3">상태</th>
-                  <th className="px-4 py-3 text-right">구성 원료</th>
+                  <th className="px-3 py-1.5">이름</th>
+                  <th className="px-3 py-1.5">종</th>
+                  <th className="px-3 py-1.5">카테고리</th>
+                  <th className="px-3 py-1.5">상태</th>
+                  <th className="px-3 py-1.5 text-right">구성 원료</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,14 +215,14 @@ export function RecipesPage() {
                     key={draft.id}
                     onClick={() => navigate(`/recipes/${draft.id}`)}
                   >
-                    <td className="px-4 py-3 font-medium text-gray-800">
+                    <td className="px-3 py-1.5 font-medium text-gray-800">
                       {draft.name}
                     </td>
-                    <td className="px-4 py-3">{speciesLabel(draft.species)}</td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-3 py-1.5">{speciesLabel(draft.species)}</td>
+                    <td className="px-3 py-1.5 text-gray-600">
                       {draft.category ?? '—'}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-1.5">
                       <div className="flex items-center gap-2">
                         <span>{statusLabel(draft.status)}</span>
                         {draft.mergeReviewPending && (
@@ -241,7 +241,7 @@ export function RecipesPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-3 py-1.5 text-right">
                       {draft.composition.length}
                     </td>
                   </tr>
