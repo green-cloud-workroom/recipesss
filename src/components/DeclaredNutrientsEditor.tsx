@@ -181,28 +181,19 @@ export function DeclaredNutrientsEditor({
         </div>
       )}
 
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[480px] text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-500">
-              <th className="px-3 py-2">영양소</th>
-              <th className="px-3 py-2 text-right">계산값 (100g당)</th>
-              <th className="px-3 py-2 text-right">확정값 (100g당)</th>
-              <th className="px-3 py-2">단위</th>
-            </tr>
-          </thead>
-          <tbody>
-            {CATEGORY_ORDER.map((category) => (
-              <CategorySection
-                calcPer100g={(key) => per100g(calcTotals[key] ?? 0)}
-                category={category}
-                form={form}
-                key={category}
-                onChange={setField}
-              />
-            ))}
-          </tbody>
-        </table>
+      <p className="mt-3 text-xs text-gray-400">
+        빈칸의 옅은 숫자 = 계산값(100g당). 입력하면 그 값으로 확정.
+      </p>
+      <div className="mt-2 space-y-3">
+        {CATEGORY_ORDER.map((category) => (
+          <CategorySection
+            calcPer100g={(key) => per100g(calcTotals[key] ?? 0)}
+            category={category}
+            form={form}
+            key={category}
+            onChange={setField}
+          />
+        ))}
       </div>
     </div>
   )
@@ -221,31 +212,33 @@ function CategorySection({
 }) {
   const metas = NUTRIENT_META.filter((meta) => meta.category === category)
   return (
-    <>
-      <tr className="bg-gray-50/60">
-        <td className="px-3 py-1 text-xs font-semibold text-gray-500" colSpan={4}>
-          {CATEGORY_LABELS[category]}
-        </td>
-      </tr>
-      {metas.map((meta) => (
-        <tr className="border-b border-gray-100 text-gray-700" key={meta.key}>
-          <td className="px-3 py-1 text-sm">{meta.label}</td>
-          <td className="px-3 py-1 text-right text-xs text-gray-500 tabular-nums">
-            {formatValue(calcPer100g(meta.key))}
-          </td>
-          <td className="px-3 py-1">
+    <div>
+      <h3 className="mb-1 text-xs font-semibold text-gray-500">
+        {CATEGORY_LABELS[category]}
+      </h3>
+      <div className="grid gap-x-4 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
+        {metas.map((meta) => (
+          <label
+            className="flex items-center gap-2 text-sm text-gray-700"
+            key={meta.key}
+          >
+            <span className="w-24 shrink-0 truncate" title={meta.label}>
+              {meta.label}
+            </span>
             <input
-              className="w-28 rounded-lg border border-gray-300 px-2 py-1 text-right text-sm focus:border-gray-500 focus:outline-none"
+              className="w-24 rounded-md border border-gray-300 px-2 py-0.5 text-right text-sm focus:border-gray-500 focus:outline-none"
               inputMode="decimal"
               onChange={(event) => onChange(meta.key, event.target.value)}
               placeholder={formatValue(calcPer100g(meta.key))}
               type="number"
               value={form[meta.key] ?? ''}
             />
-          </td>
-          <td className="px-3 py-1 text-xs text-gray-400">{meta.unit}</td>
-        </tr>
-      ))}
-    </>
+            <span className="w-5 shrink-0 text-xs text-gray-400">
+              {meta.unit}
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
   )
 }
