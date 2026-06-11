@@ -4,6 +4,7 @@ import {
   deleteField,
   doc,
   serverTimestamp,
+  setDoc,
   updateDoc,
   writeBatch,
 } from 'firebase/firestore'
@@ -14,10 +15,86 @@ import type {
   CompositionRow,
   NutrientValues,
   RecipeDraft,
+  Species,
 } from '../../types/recipe'
 
 function draftRef(uid: string, draftId: string) {
   return doc(db, `recipeDrafts/${uid}/items`, draftId)
+}
+
+function newDraftId(): string {
+  return `draft_${crypto.randomUUID().replace(/-/g, '').slice(0, 8)}`
+}
+
+// 레시피 헤더(이름·종·상태) 편집.
+export function useSaveRecipeMeta(uid: string | undefined) {
+  const queryClient = useQueryClient()
+  const draftsQueryKey = ['recipeDrafts', uid]
+
+  return useMutation({
+    mutationFn: async ({
+      draftId,
+      name,
+      species,
+      status,
+      now,
+    }: {
+      draftId: string
+      name: string
+      species: Species
+      status: RecipeDraft['status']
+      now: number
+    }) => {
+      if (!uid) throw new Error('로그인이 필요합니다.')
+      await updateDoc(draftRef(uid, draftId), {
+        name,
+        species,
+        status,
+        updatedAt: now,
+      })
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: draftsQueryKey }),
+  })
+}
+
+// 신규 레시피(빈 draft) 생성 → 생성된 id 반환.
+export function useCreateRecipeDraft(uid: string | undefined) {
+  const queryClient = useQueryClient()
+  const draftsQueryKey = ['recipeDrafts', uid]
+
+  return useMutation({
+    mutationFn: async ({
+      name,
+      species,
+      now,
+    }: {
+      name: string
+      species: Species
+      now: number
+    }) => {
+      if (!uid) throw new Error('로그인이 필요합니다.')
+      const id = newDraftId()
+      const draft: RecipeDraft = {
+        id,
+        ownerUid: uid,
+        name,
+        species,
+        unitIngredientId: '',
+        unitLabel: '',
+        composition: [],
+        standardId: '',
+        status: 'draft',
+        sortOrder: now,
+        createdAt: now,
+        updatedAt: now,
+      }
+      await setDoc(draftRef(uid, id), draft)
+      return id
+    },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: draftsQueryKey }),
+  })
 }
 
 // 구성 원료 편집 저장 (1-D-2). DL-029: 원료 변경 시 확정값은 새 계산값을 따르도록

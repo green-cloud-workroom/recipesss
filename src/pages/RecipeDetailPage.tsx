@@ -10,7 +10,10 @@ import {
   draftToRecipe,
   speciesToTarget,
 } from '../features/recipes/draftToRecipe'
-import { useRegisterRecipe } from '../features/recipes/recipeMutations'
+import {
+  useRegisterRecipe,
+  useSaveRecipeMeta,
+} from '../features/recipes/recipeMutations'
 import { normalizePresetCodes } from '../features/presets/presetCodes'
 import { useApplyDraftPresets } from '../features/presets/presetMutations'
 import { usePresets } from '../features/presets/presetQueries'
@@ -30,12 +33,6 @@ import type { Ingredient, Preset, RecipeDraft, Species } from '../types/recipe'
 const EMPTY_DRAFTS: RecipeDraft[] = []
 const EMPTY_PRESETS: Preset[] = []
 const EMPTY_INGREDIENTS: Ingredient[] = []
-
-function speciesLabel(species: Species): string {
-  if (species === 'cat') return '고양이'
-  if (species === 'dog') return '강아지'
-  return '미지정'
-}
 
 function newPresetId(): string {
   return `preset_${crypto.randomUUID().replace(/-/g, '').slice(0, 8)}`
@@ -81,13 +78,7 @@ export function RecipeDetailPage() {
       {!isLoading && draft && (
         <>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h1 className="text-title font-bold text-gray-800">{draft.name}</h1>
-              <p className="mt-1 text-helper text-gray-500">
-                {speciesLabel(draft.species)} · 생산 단위:{' '}
-                {draft.unitLabel || '—'} · 구성 원료 {draft.composition.length}개
-              </p>
-            </div>
+            <RecipeHeaderEditor draft={draft} uid={uid} />
             <RegisterSection draft={draft} ingredients={ingredients} uid={uid} />
           </div>
 
@@ -330,6 +321,119 @@ function PresetPanel({
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+function RecipeHeaderEditor({
+  draft,
+  uid,
+}: {
+  draft: RecipeDraft
+  uid: string | undefined
+}) {
+  const save = useSaveRecipeMeta(uid)
+  const [name, setName] = useState(draft.name)
+  const [species, setSpecies] = useState<Species>(draft.species)
+  const [status, setStatus] = useState<RecipeDraft['status']>(draft.status)
+  const [formKey, setFormKey] = useState(draft.id)
+  const [errorMsg, setErrorMsg] = useState('')
+
+  if (formKey !== draft.id) {
+    setFormKey(draft.id)
+    setName(draft.name)
+    setSpecies(draft.species)
+    setStatus(draft.status)
+    setErrorMsg('')
+  }
+
+  const dirty =
+    name !== draft.name || species !== draft.species || status !== draft.status
+
+  async function handleSave() {
+    if (!name.trim()) {
+      setErrorMsg('레시피 이름을 입력하세요.')
+      return
+    }
+    setErrorMsg('')
+    try {
+      await save.mutateAsync({
+        draftId: draft.id,
+        name: name.trim(),
+        species,
+        status,
+        now: Date.now(),
+      })
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : '저장에 실패했습니다.')
+    }
+  }
+
+  return (
+    <div className="flex-1">
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-gray-500">
+            레시피 이름
+          </span>
+          <input
+            className={`${INPUT_CLS} min-w-48`}
+            onChange={(event) => setName(event.target.value)}
+            type="text"
+            value={name}
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-gray-500">종</span>
+          <select
+            className={INPUT_CLS}
+            onChange={(event) =>
+              setSpecies(
+                event.target.value === 'none'
+                  ? null
+                  : (event.target.value as Species),
+              )
+            }
+            value={species ?? 'none'}
+          >
+            <option value="cat">고양이</option>
+            <option value="dog">강아지</option>
+            <option value="none">미지정</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-xs font-medium text-gray-500">
+            상태
+          </span>
+          <select
+            className={INPUT_CLS}
+            onChange={(event) =>
+              setStatus(event.target.value as RecipeDraft['status'])
+            }
+            value={status}
+          >
+            <option value="draft">임시</option>
+            <option value="inactive">비활성</option>
+          </select>
+        </label>
+        <button
+          className={SECONDARY_BTN_CLS}
+          disabled={!dirty || save.isPending}
+          onClick={() => void handleSave()}
+          type="button"
+        >
+          {save.isPending ? '저장 중...' : '레시피 정보 저장'}
+        </button>
+      </div>
+      <p className="mt-1 text-helper text-gray-500">
+        생산 단위: {draft.unitLabel || '—'} · 구성 원료{' '}
+        {draft.composition.length}개
+      </p>
+      {errorMsg && (
+        <div className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+          {errorMsg}
+        </div>
+      )}
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { LoginPage } from '../pages/LoginPage'
 import { OrdersPage } from '../pages/OrdersPage'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { RecipeDetailPage } from '../pages/RecipeDetailPage'
+import { RecipeNewPage } from '../pages/RecipeNewPage'
 import { RecipesPage } from '../pages/RecipesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
@@ -27,7 +28,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: '/recipes/new',
-            element: <PlaceholderPage title="신규 레시피" stage="단계 1·3" />,
+            element: <RecipeNewPage />,
           },
           {
             path: '/recipes/draft/:draftId',
