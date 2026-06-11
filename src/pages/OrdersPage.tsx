@@ -14,9 +14,16 @@ import {
   type OrderGroup,
   type OrderSelection,
 } from '../features/orders/orderSelectors'
+import { normalizeAllPresetCodes } from '../features/presets/presetCodes'
+import { useApplyDraftPresets } from '../features/presets/presetMutations'
 import { usePresets } from '../features/presets/presetQueries'
 import { useRecipeDrafts } from '../features/recipes/recipeQueries'
-import { CARD_CLS, EMPTY_STATE_CLS, PRIMARY_BTN_CLS } from '../lib/ui'
+import {
+  CARD_CLS,
+  EMPTY_STATE_CLS,
+  PRIMARY_BTN_CLS,
+  SECONDARY_BTN_CLS,
+} from '../lib/ui'
 import { useAuthStore } from '../stores/authStore'
 import type { Preset, RecipeDraft } from '../types/recipe'
 
@@ -38,11 +45,30 @@ export function OrdersPage() {
     queryFn: () => countExistingDocs(uid as string),
     enabled: !!uid,
   })
+  const applyPresets = useApplyDraftPresets(uid)
   const [selection, setSelection] = useState<OrderSelection>({})
   const [filter, setFilter] = useState<OrderFilter>('all')
+  const [normalizeMsg, setNormalizeMsg] = useState('')
 
   const drafts = draftsQuery.data ?? EMPTY_DRAFTS
   const presets = presetsQuery.data ?? EMPTY_PRESETS
+
+  async function handleNormalizeCodes() {
+    setNormalizeMsg('')
+    const changed = normalizeAllPresetCodes(presets, drafts)
+    if (changed.length === 0) {
+      setNormalizeMsg('이미 모두 크기순입니다.')
+      return
+    }
+    try {
+      await applyPresets.mutateAsync({ upserts: changed, deleteIds: [] })
+      setNormalizeMsg(`${changed.length}개 프리셋 코드를 크기순으로 재정렬했습니다.`)
+    } catch (err) {
+      setNormalizeMsg(
+        err instanceof Error ? err.message : '재정렬에 실패했습니다.',
+      )
+    }
+  }
   const groups = useMemo(
     () => groupPresetsByRecipe(drafts, presets),
     [drafts, presets],
@@ -80,10 +106,27 @@ export function OrdersPage() {
             프리셋을 선택해 이번 회차 발주 목록을 만듭니다.
           </p>
         </div>
-        <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
-          선택 {selectedCount}개
+        <div className="flex items-center gap-2">
+          <button
+            className={SECONDARY_BTN_CLS}
+            disabled={applyPresets.isPending || presets.length === 0}
+            onClick={() => void handleNormalizeCodes()}
+            title="모든 레시피의 프리셋 코드를 targetWeight 크기순(X0·X1…)으로 재부여합니다 (DL-035)"
+            type="button"
+          >
+            {applyPresets.isPending ? '재정렬 중...' : '코드 크기순 재정렬'}
+          </button>
+          <div className="rounded-lg bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
+            선택 {selectedCount}개
+          </div>
         </div>
       </div>
+
+      {normalizeMsg && (
+        <div className="mt-3 rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-600">
+          {normalizeMsg}
+        </div>
+      )}
 
       {isLoading && (
         <div className={`mt-4 ${EMPTY_STATE_CLS}`}>불러오는 중...</div>

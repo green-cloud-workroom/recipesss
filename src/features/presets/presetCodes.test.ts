@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   generatePresetCode,
+  normalizeAllPresetCodes,
   normalizePresetCodes,
   parseCode,
   pickPrefix,
@@ -200,5 +201,26 @@ describe('normalizePresetCodes', () => {
 
     const result = normalizePresetCodes(presets, [draft('draft_cat', 0)], 'draft_cat')
     expect(result.map((p) => p.id)).toEqual(['p_a'])
+  })
+})
+
+describe('normalizeAllPresetCodes', () => {
+  it('re-codes every draft by targetWeight and returns only changed presets', () => {
+    const presets: Preset[] = [
+      // draft_cat: 코드 순서가 크기와 어긋남 + 구멍(C3 없음 케이스)
+      { ...preset('p_big', 'draft_cat', 'A0', 0), targetWeight: 300 },
+      { ...preset('p_small', 'draft_cat', 'A5', 1), targetWeight: 50 },
+      // draft_dog: 이미 크기순 + 연속 → 변경 없음
+      { ...preset('p_d0', 'draft_dog', 'B0', 0), targetWeight: 10 },
+      { ...preset('p_d1', 'draft_dog', 'B1', 1), targetWeight: 20 },
+    ]
+    const drafts = [draft('draft_cat', 0), draft('draft_dog', 1)]
+
+    const changed = normalizeAllPresetCodes(presets, drafts)
+
+    expect(changed.map((p) => [p.id, p.code, p.sortOrder]).sort()).toEqual([
+      ['p_big', 'A1', 1],
+      ['p_small', 'A0', 0],
+    ])
   })
 })

@@ -131,6 +131,27 @@ export function normalizePresetCodes(
     }))
 }
 
+// 전체 draft 일괄 재코딩 (마이그레이션 프리셋 정리용, DL-035). 변경된 프리셋만 반환.
+export function normalizeAllPresetCodes(
+  presets: Preset[],
+  drafts: RecipeDraft[],
+): Preset[] {
+  const draftIds = [...new Set(presets.map((preset) => preset.draftId))]
+  const changed: Preset[] = []
+  const byId = new Map(presets.map((preset) => [preset.id, preset]))
+
+  for (const draftId of draftIds) {
+    for (const next of normalizePresetCodes(presets, drafts, draftId)) {
+      const prev = byId.get(next.id)
+      if (!prev || prev.code !== next.code || prev.sortOrder !== next.sortOrder) {
+        changed.push(next)
+      }
+    }
+  }
+
+  return changed
+}
+
 function letterAt(index: number): string {
   return String.fromCharCode(A_CODE + index)
 }
