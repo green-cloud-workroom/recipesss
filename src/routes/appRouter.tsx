@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { AppLayout } from '../components/AppLayout'
 import { AuthGuard } from '../components/AuthGuard'
@@ -24,8 +24,9 @@ export const appRouter = createBrowserRouter([
         element: <AppLayout />,
         children: [
           {
+            // 대시보드 제거 — 루트는 레시피 목록으로.
             path: '/',
-            element: <PlaceholderPage title="대시보드" stage="단계 5" />,
+            element: <Navigate replace to="/recipes" />,
           },
           {
             path: '/recipes/new',

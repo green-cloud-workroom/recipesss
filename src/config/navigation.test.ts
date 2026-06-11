@@ -7,7 +7,7 @@ import { navigationGroups } from './navigation'
 describe('navigation', () => {
   it('SPEC §5.1 모든 경로 존재', () => {
     const paths = navigationGroups.flatMap((g) => g.items.map((i) => i.path))
-    expect(paths).toContain('/')
+    expect(paths).not.toContain('/') // 대시보드 제거 — 루트는 /recipes 리다이렉트
     expect(paths).toContain('/recipes/new')
     expect(paths).toContain('/recipes')
     expect(paths).toContain('/ingredients')

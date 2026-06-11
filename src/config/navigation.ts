@@ -37,13 +37,6 @@ function item(
 
 export const navigationGroups: NavigationGroup[] = [
   {
-    collapsible: false,
-    icon: Gauge,
-    id: 'dashboard',
-    label: '메인 대시보드',
-    items: [item(Gauge, '대시보드', '/')],
-  },
-  {
     icon: ChefHat,
     id: 'recipes',
     label: '레시피',
