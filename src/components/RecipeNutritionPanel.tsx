@@ -93,8 +93,20 @@ function profileTag(profile: NutrientProfile): string {
         : profile.lifeStage === 'late_growth'
           ? '후기성장'
           : profile.lifeStage
-  const mer = profile.mer ? ` ${profile.mer.replace(' kcal/kg^0.75', '')}` : ''
-  return `${profile.standard}${mer} ${stage}`
+  // MER은 숫자만 괄호로 (예: FEDIAF 성체(75)) — 성체 75/100 구분용.
+  const merNum = profile.mer?.match(/\d+/)?.[0]
+  const mer = merNum ? `(${merNum})` : ''
+  return `${profile.standard} ${stage}${mer}`
+}
+
+// 임계값만 간결하게: 상한 없으면 min만, 있으면 min~max (∞ 제거).
+function formatThreshold(
+  min: number | undefined,
+  max: number | undefined,
+): string {
+  const lo = min === undefined ? '-' : formatValue(min)
+  if (max === undefined) return lo
+  return `${lo}~${formatValue(max)}`
 }
 
 function worseStatus(
@@ -315,7 +327,7 @@ function CategoryRows({
                     key={profile.id}
                     title={`${profile.label} (${profile.standard})`}
                   >
-                    {profileTag(profile)} {formatRange(result.min, result.max)}
+                    {profileTag(profile)} {formatThreshold(result.min, result.max)}
                   </span>
                 ))}
               </div>
