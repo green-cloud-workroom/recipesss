@@ -69,7 +69,15 @@ export function PrintPage() {
     ) : (
       <OrderPdf2 output={outputTwo} />
     )
-  const fileName = tab === 'view1' ? '발주_출력1.pdf' : '발주_출력2.pdf'
+  // 파일명: 저장된 발주 선택 시 그 날짜, 아니면 오늘 (로컬).
+  const orderDate = savedOrders.find((o) => o.id === selectedOrderId)?.date
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const fileDate = orderDate ?? today
+  const fileName =
+    tab === 'view1'
+      ? `${fileDate} 영양제-대표용.pdf`
+      : `${fileDate} 영양제-직원전달용.pdf`
 
   return (
     <div>
