@@ -102,9 +102,10 @@ export function OrdersPage() {
     () => filterOrderGroups(groups, filter),
     [filter, groups],
   )
+  // 요약은 필터와 무관하게 선택 전체 기준 (필터는 목록 표시용일 뿐).
   const summary = useMemo(
-    () => buildOrderSummary(filteredGroups, selection),
-    [filteredGroups, selection],
+    () => buildOrderSummary(groups, selection),
+    [groups, selection],
   )
 
   const isLoading = draftsQuery.isLoading || presetsQuery.isLoading
