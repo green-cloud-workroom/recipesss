@@ -1,14 +1,16 @@
 rules_version = '2';
 
 // ============================================================================
-// ⚠️ 이 파일이 fant-e5ae5(3앱 공유 프로젝트)의 Firestore 규칙 정본이다. (DL-033/DL-036)
-//   - 프로젝트당 규칙은 1개. 운영(fantapet-inventory)·생산(fant-production)·
-//     재고(fant-inv-cutover) 등 다른 repo가 규칙을 배포하면 이 통합본을 덮어쓰며
-//     recipesss 블록(recipeDrafts/recipesssIngredients/recipesssPresets/usdaCache)이
-//     소실된다. 실제 3회 이상 사고 발생 → 범인 = 위 3개 repo의 firestore.rules.
-//   - 정책(DL-036): 규칙 배포는 이 파일 하나에서만. 다른 repo는 firebase.json에서
-//     firestore(rules) 배포 타깃을 제거한다. 새 컬렉션 규칙도 여기에 추가.
-//   - deploy는 호두님 직접: `firebase deploy --only firestore:rules`.
+// ⚠️ 이 파일은 참고용 사본이다. 정본 아님. (DL-040 — DL-033/036 개정)
+//   - fant-e5ae5(5앱 공유)의 Firestore 규칙 정본 = **재고관리 repo(fantapet-inventory)
+//     의 firestore.rules.draft**. 배포도 재고관리 한 곳에서만.
+//   - ❌ recipesss에서 규칙 배포 금지: `firebase deploy --only firestore:rules` 하지 말 것.
+//     (recipesss firebase.json엔 firestore 타깃 자체가 없어 실수 배포 불가 — 유지.)
+//   - recipesss가 새 컬렉션/권한이 필요하면: 이 파일에 먼저 반영 → 그 내용을 재고관리에
+//     전달 → 재고관리 정본에 합쳐 1회 배포. (예: recipesssOrders 블록)
+//   - 진짜 라이브 규칙은 Firebase 콘솔 → Firestore → 규칙 탭에서 확인.
+//   - recipesss 소유 블록: recipeDrafts·recipesssIngredients·recipesssPresets·
+//     recipesssOrders·usdaCache.
 // ============================================================================
 
 service cloud.firestore {

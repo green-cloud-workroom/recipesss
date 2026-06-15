@@ -132,7 +132,8 @@ export function PrintPage() {
             {savedOrdersQuery.error instanceof Error
               ? savedOrdersQuery.error.message
               : '알 수 없는 오류'}{' '}
-            — 권한 오류면 firestore 규칙 배포가 필요합니다.
+            — 권한 오류면 recipesssOrders 규칙이 라이브에 없는 것(재고관리 정본에
+            반영·배포 필요, DL-040).
           </p>
         )}
       </div>
